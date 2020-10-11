@@ -6,6 +6,10 @@ ArchiWeb provides a template to create a web application from scratch, you can e
 ``` bash
 git clone https://github.com/Inst-AAA/archiweb.git
 cd archiweb/front-end
+
+# install dependencies
+npm install
+
 # run server
 npm run server
 ```
