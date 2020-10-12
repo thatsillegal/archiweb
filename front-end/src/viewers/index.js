@@ -1,36 +1,41 @@
 "use strict";
 import * as THREE from 'three'
-// import * as gui from '@/assets/js/gui'
-var OrbitControls = require('three-orbit-controls')(THREE)
+// import * as gui from '@/viewers/gui'
+const OrbitControls = require('three-orbit-controls')(THREE)
+const gui = require('@/viewers/gui')
 
-var offsetHeight = 190;
-var renderer;
+let renderer, camera, scene, light;
+let controls;
 
-
+const offsetHeight = 175;
+let width = window.innerWidth;
+let height = window.innerHeight - offsetHeight;
 
 
 function initRender() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight - offsetHeight);
+    renderer.setSize(width, height);
+    gui.window.width = width;
+    gui.window.height = height;
     addToDOM();
 }
 
-var camera;
-function initCamera() {
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight - offsetHeight), 1, 10000);
+function initPerspectiveCamera() {
+    camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
     camera.position.set(100, -150, 100);
     camera.up = new THREE.Vector3(0, 0, 1)
 }
 
-var scene;
 function initScene() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0xffffff );
-    var axesHelper = new THREE.AxesHelper( 5000 );
+    scene.background = new THREE.Color( 0xfafafa );
+    const axesHelper = new THREE.AxesHelper( gui.window.size );
+    const box = new THREE.BoxBufferGeometry(300, 300, 300);
+    const mesh = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd})) 
+    scene.add(mesh);
     scene.add( axesHelper );
 }
 
-var light;
 function initLight() {
     scene.add(new THREE.AmbientLight(0x404040));
 
@@ -40,7 +45,6 @@ function initLight() {
 }
 
 //用户交互插件 鼠标左键按住旋转，右键按住平移，滚轮缩放
-var controls;
 function initControls() {
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -60,13 +64,23 @@ function render() {
     renderer.render(scene, camera);
 }
 
-//窗口变动触发的函数
-function onWindowResize() {
-    camera.aspect = window.innerWidth / (window.innerHeight - offsetHeight);
+function windowResize(w, h) {
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
     render();
-    renderer.setSize(window.innerWidth, window.innerHeight - offsetHeight);
 
+    renderer.setSize(w, h);
+}
+
+//窗口变动触发的函数
+function onWindowResize() {
+    width = window.innerWidth;
+    height = window.innerHeight - offsetHeight;
+
+    windowResize(width, height);
+
+    gui.window.width = width;
+    gui.window.height = height;
 }
 
 function animate() {
@@ -75,12 +89,13 @@ function animate() {
     render();
 
     requestAnimationFrame(animate);
-
 }
+
+
 function init() {
     initRender();
     initScene();
-    initCamera();
+    initPerspectiveCamera();
     initLight();
     initControls();
 
@@ -104,5 +119,6 @@ function main() {
 }
 
 export {
-    main
+    main,
+    windowResize,
 }

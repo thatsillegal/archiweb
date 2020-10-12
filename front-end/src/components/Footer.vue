@@ -27,7 +27,11 @@
             <v-divider></v-divider>
 
             <v-card-text class="black--text">
-                {{ new Date().getFullYear() }} — <strong>Inst. AAA</strong>
+                {{ new Date().getFullYear() }} — 
+                                        <a class="text-decoration-none" href="http://labaaa.org" style="color:#000000;" target="_blank">
+                        <strong>Inst. AAA</strong>
+                    </a>
+                    
             </v-card-text>
 
 

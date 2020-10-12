@@ -17,14 +17,14 @@
 </template>
 
 <script>
-    import {main} from '@/assets/js/index.js'
-    import {initGUI} from '@/assets/js/gui.js'
+    import {main} from '@/viewers/index.js'
+    import {initGUI} from '@/viewers/gui.js'
     export default {
         name: 'Viewer',
         data: () => ({}),
         mounted() {
-            initGUI();
             main();
+            initGUI();
         }
     }
 </script>

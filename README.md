@@ -1,7 +1,7 @@
 # ArchiWeb
-ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en/) and [three.js](https://threejs.org/). It's recommanded to start from the documentation of both.
+ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en/) and [three.js](https://threejs.org/). It's recommanded to start from the documentations of both.
 
-### Usage
+## Usage
 ArchiWeb provides a template to create a web application from scratch, you can easily use [Vuetify UI components](https://vuetifyjs.com/en/components/buttons/) to generate a material design web, also with 3d rendering.
 ``` bash
 git clone https://github.com/Inst-AAA/archiweb.git
@@ -20,17 +20,17 @@ git checkout -b java-backend
 ```
 or you can just mannually organize and use those plugins.
 
-### Branchs
-#### java-backend
+## Branchs
+### java-backend
 Data exchange format is [ArchiJson](https://github.com/Inst-AAA/archijson).
 
-#### webxr
+### webxr
 It's plan to support VR, which is a better display to architectural design.
 
-#### database
+### database
 To be the front-end of [ArchiBase](https://github.com/Inst-AAA/archibase)
 
-#### ddg
+### ddg
 code from [cmu-geometry/ddg-exercises-js](https://github.com/cmu-geometry/ddg-exercises-js) 
 
 support:  
@@ -38,4 +38,4 @@ support:
 2. HalfEdges
 3. Discrete Differential Geometry Processing
 
-### Issues
+## Issues
