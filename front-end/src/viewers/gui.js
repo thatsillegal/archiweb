@@ -15,19 +15,35 @@ var window = new function() {
     }
 }
 
+var controls = new function() {
+    this.mode = 'Perspective';
+    this.control = 'Mouse';
+    this.pan = false;
+    this.zoom = true;
+}
+
 function initGUI() {
     gui = new dat.GUI({autoPlace: false});
-    var settings = gui.addFolder('Settings');
-    settings.add(window, 'width').min(0).max(5000).step(10).listen();
-    settings.add(window, 'height').min(0).max(5000).step(10).listen();
-    settings.add(window, 'size').min(1).max(10000).step(10).listen();
-    settings.add(window, 'unit', ['Millimeters', 'Meters', 'Kilometers']);
-    settings.open();
-    var util = gui.addFolder('Utils');
+
+    const canvas = gui.addFolder('Canvas');
+    canvas.add(window, 'width').min(0).max(5000).step(10).listen();
+    canvas.add(window, 'height').min(0).max(5000).step(10).listen();
+    canvas.add(window, 'size').min(1).max(10000).step(10).listen();
+    canvas.add(window, 'unit', ['Millimeters', 'Meters', 'Kilometers']);
+    canvas.open();
+
+    const camera = gui.addFolder('Camera');
+    camera.add(controls, 'control', ['WASD', 'Mouse']);
+    camera.add(controls, 'mode', ['2D', 'Perspective', 'Parallel']);
+    camera.add(controls, 'pan').listen();
+    camera.add(controls, 'zoom').listen();
+    camera.open();
+
+    const util = gui.addFolder('Utils');
     util.add(window, 'update');
     util.open();
 
-    var container = document.getElementById('gui-container');
+    const container = document.getElementById('gui-container');
     container.appendChild(gui.domElement);
 }
 
