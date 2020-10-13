@@ -7,7 +7,7 @@ const gui = require('@/viewers/gui')
 let renderer, camera, scene, light;
 let controls;
 
-const offsetHeight = 175;
+const offsetHeight = 190;
 let width = window.innerWidth;
 let height = window.innerHeight - offsetHeight;
 

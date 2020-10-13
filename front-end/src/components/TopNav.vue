@@ -3,7 +3,7 @@
         <v-app-bar
                 app
                 color="white"
-                dense
+                flat
         >
             <div class="d-flex">
                 <v-img
@@ -24,8 +24,8 @@
 
             </div>
             <v-spacer></v-spacer>
-            <v-btn class="mx-3 white--text" text to="/">
-                <v-icon color="black">mdi-home</v-icon>
+            <v-btn class="white--text" text>
+                <v-icon color="black">mdi-cog</v-icon>
             </v-btn>
         </v-app-bar>
     </div>
