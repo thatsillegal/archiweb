@@ -11,7 +11,7 @@ var window = new function() {
     this.unit = 'Millimeters'
 
     this.update = function() {
-        index.windowResize(this.width, this.height);
+        index.main();
     }
 }
 

@@ -11,6 +11,24 @@ const offsetHeight = 190;
 let width = window.innerWidth;
 let height = window.innerHeight - offsetHeight;
 
+var objects = [];
+var hitbox;
+
+// function scaleRatio(mesh) {
+//     let ratio = 1;
+//     switch (gui.window.unit) {
+//         case 'Millimeters':
+//             ratio = 0.001;
+//             break;
+//         case 'Kilometers':
+//             ratio = 1000;
+//             break;
+//         default:
+//             ratio = 1;
+//     }
+//     mesh.geometry.scale(ratio, ratio, ratio);
+//     return mesh;
+// }
 
 function initRender() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -21,9 +39,9 @@ function initRender() {
 }
 
 function initPerspectiveCamera() {
-    camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-    camera.position.set(100, -150, 100);
-    camera.up = new THREE.Vector3(0, 0, 1)
+    camera = new THREE.PerspectiveCamera(40, width / height, 1, 10000);
+    camera.position.set(1000, -1500, 1000);
+    camera.up = new THREE.Vector3(0, 0, 1);
 }
 
 function initScene() {
@@ -31,7 +49,11 @@ function initScene() {
     scene.background = new THREE.Color( 0xfafafa );
     const axesHelper = new THREE.AxesHelper( gui.window.size );
     const box = new THREE.BoxBufferGeometry(300, 300, 300);
-    const mesh = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd})) 
+    // box.scale(0.001, 0.001, 0.001);
+    const mesh = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+    hitbox = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xeeeeee}));
+    mesh.position.set(100, 100, 100);
+    objects.push(mesh);
     scene.add(mesh);
     scene.add( axesHelper );
 }
@@ -54,10 +76,17 @@ function initControls() {
     //动态阻尼系数 就是鼠标拖拽旋转灵敏度
     controls.dampingFactor = 0.25;
 
-    controls.minDistance = 20;
-    controls.maxDistance = 6000;
+    controls.minDistance = 1;
+    controls.maxDistance = 10000;
     controls.enablePan = false;
     controls.enableZoom = true;
+
+    controls.mouseButtons = {
+        ORBIT: THREE.MOUSE.RIGHT,
+        PAN: THREE.MOUSE.LEFT
+    } 
+
+    controls.enableKeys = false;
 }
 
 function render() {
@@ -67,7 +96,6 @@ function render() {
 function windowResize(w, h) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    render();
 
     renderer.setSize(w, h);
 }
@@ -92,6 +120,39 @@ function animate() {
 }
 
 
+function onDocumentKeyDown(event) {
+    let keyCode = event.which;
+    if (keyCode == 80) {
+        console.log('p pressed');
+        controls.enablePan = !controls.enablePan;
+        console.log(controls.enablePan)
+        controls.update();
+    } 
+}
+function onClick( event ) {
+
+    event.preventDefault();
+
+    var mouse = new THREE.Vector2();
+    var raycaster = new THREE.Raycaster();
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    raycaster.setFromCamera( mouse, camera );
+
+    var intersections = raycaster.intersectObjects( objects, true );
+
+    if( intersections.length > 0) {
+        intersections[0].object.add(hitbox);
+        console.log( intersections);
+    } else {
+        var parent = hitbox.parent;
+        if(parent) parent.remove(hitbox);
+    }
+    
+}
+
+
 function init() {
     initRender();
     initScene();
@@ -101,7 +162,8 @@ function init() {
 
     animate();
     window.onresize = onWindowResize;
-
+    document.addEventListener( 'keydown', onDocumentKeyDown, false);
+    document.addEventListener( 'click', onClick, false );
 }
 
 function addToDOM() {

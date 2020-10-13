@@ -12,11 +12,11 @@
             <v-card-text>
                 <v-btn
                         :href="icon.link"
-                        :key="icon"
+                        :key="id"
                         class="mx-4 white--text"
                         icon
                         target="_blank"
-                        v-for="icon in icons"
+                        v-for="(icon, id) in icons"
                 >
                     <v-icon size="24px" color="black">{{ icon.icon }}</v-icon>
                 </v-btn>
