@@ -75,11 +75,19 @@ function initScene() {
     scene.add(axesHelper);
     const box = new THREE.BoxBufferGeometry(300, 300, 300);
     // box.scale(0.001, 0.001, 0.001);
-    const mesh = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+    const b1 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+    b1.position.set(150, 150, 150);
+    objects.push(b1);
+    scene.add(b1);
+
+    const b2 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+    b2.scale.set(1, 1, 1.0/3);
+    b2.position.set(-300,-300, 50);
+    objects.push(b2);
+    scene.add(b2);
+
     hitbox = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xffaaaa}));
-    mesh.position.set(150, 150, 150);
-    objects.push(mesh);
-    scene.add(mesh);
+
 }
 
 function initLight() {
@@ -91,7 +99,7 @@ function initLight() {
 }
 
 //用户交互插件 鼠标左键按住旋转，右键按住平移，滚轮缩放
-function initControls() {
+function initMouseControls() {
 
     controls = new OrbitControls(camera, renderer.domElement);
 
@@ -176,29 +184,35 @@ function onDocumentKeyUp(event) {
     }
 }
 
-function getCurrentMouse(event){
+function getMouseNDC(clientX, clientY){
     const mouse = new THREE.Vector2();
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = (clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(clientY / window.innerHeight) * 2 + 1;
     return mouse;
+}
+
+function getIntersections(clientX, clientY) {
+    const mouse = getMouseNDC(clientX, clientY);
+
+    const rayCaster = new THREE.Raycaster();
+    rayCaster.setFromCamera(mouse, camera);
+
+    return rayCaster.intersectObjects(objects, true);
+
 }
 
 function onClick(event) {
 
     event.preventDefault();
 
-    const mouse = getCurrentMouse(event);
-
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersections = raycaster.intersectObjects(objects, true);
+    const intersections = getIntersections(event.clientX, event.clientY);
 
     if (intersections.length > 0) {
-        intersections[0].object.add(hitbox);
-        console.log(intersections);
+
+        intersections[0].object.add(hitbox)
+        console.log(intersections[0].object);
     } else {
-        var parent = hitbox.parent;
+        let parent = hitbox.parent;
         if (parent) parent.remove(hitbox);
     }
 
@@ -224,7 +238,6 @@ function drawLineFrame() {
 function onMouseDown(event){
     let {which: keyCode} = event;
     if(keyCode === 1) {
-        console.log('mouse down' + keyCode)
         mouseDown=true;
 
         dragInitX = event.clientX;
@@ -244,12 +257,7 @@ function onMouseDown(event){
 function onMouseMove(event){
     let {which: keyCode} = event;
     if(keyCode === 1 && mouseDown===true && shiftDown === false) {
-        console.log('mouse move' + keyCode)
-        console.log(event);
 
-        // plane.scale.set(event.clientX - mouseInit.x, event.clientY - mouseInit.y, 1);
-        // plane.position.set((mouseInit.x + event.clientX)/2,(mouseInit.y + event.clientY)/2);
-        // drawLineFrame(dragInitX, dragInitY, event.clientX, event.clientY);
         lineFrame.scale.set(event.clientX - dragInitX, event.clientY - dragInitY);
         lineFrame.position.set((event.clientX + dragInitX)/2, (event.clientY + dragInitY)/2);
     }
@@ -257,12 +265,40 @@ function onMouseMove(event){
 
 function onMouseUp(event) {
     let {which: keyCode} = event;
-    if(keyCode === 1) {
-        console.log('mouse up' + keyCode)
+    if(keyCode === 1 && mouseDown === true) {
         mouseDown = false;
         sceneOrtho.remove(lineFrame);
+
+        calcIntersections(dragInitX, dragInitY, event.clientX, event.clientY);
+
     }
 }
+
+function calcIntersections(x1, y1, x2, y2) {
+    [x1, x2] = x1 > x2 ? [x2, x1] : [x1, x2];
+    [y1, y2] = y1 > y2 ? [y2, y1] : [y1, y2];
+
+    const delta = 5;
+    const sets = new Set();
+    for(let x = x1; x + delta < x2; x += delta) {
+        for(let y = y1; y + delta < y2; y += delta) {
+            const intersections = getIntersections(x, y);
+            intersections.forEach(function(o){
+                sets.add(o.object);
+            });
+            if(intersections.length > 0) {
+                sets.add(intersections[0].object);
+            }
+        }
+    }
+    sets.forEach(function(o) {
+        console.log(o)
+        o.add(hitbox);
+    })
+
+
+}
+
 
 function init() {
     initRender();
@@ -271,16 +307,9 @@ function init() {
     initPerspectiveCamera();
     initOrthoCamera();
     initLight();
-    initControls();
+    initMouseControls();
 
     animate();
-    window.onresize = onWindowResize;
-    document.addEventListener('keydown', onDocumentKeyDown, false);
-    document.addEventListener('keyup', onDocumentKeyUp, false);
-    document.addEventListener('click', onClick, false);
-    document.addEventListener('mousedown', onMouseDown, false);
-    document.addEventListener('mouseup', onMouseUp, false);
-    document.addEventListener('mousemove', onMouseMove, false);
 }
 
 function addToDOM() {
@@ -290,6 +319,14 @@ function addToDOM() {
         container.removeChild(canvas[0]);
     }
     container.appendChild(renderer.domElement);
+
+    window.onresize = onWindowResize;
+    document.addEventListener('keydown', onDocumentKeyDown, false);
+    document.addEventListener('keyup', onDocumentKeyUp, false);
+    document.addEventListener('click', onClick, false);
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('mouseup', onMouseUp, false);
+    document.addEventListener('mousemove', onMouseMove, false);
 }
 
 
