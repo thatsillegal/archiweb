@@ -44,7 +44,11 @@ function initGUI() {
     canvas.open();
 
     const camera = gui.addFolder('Camera');
-    camera.add(controls, 'control', ['WASD', 'Mouse']);
+    camera.add(controls, 'control', ['WASD', 'Mouse']).onChange(
+        function() {
+            index.controlsUpdate(controls.control);
+        }
+    );
     camera.add(controls, 'mode', ['2D', 'Perspective', 'Parallel']);
     camera.open();
 
@@ -58,5 +62,6 @@ function initGUI() {
 
 export {
     window,
+    controls,
     initGUI
 }

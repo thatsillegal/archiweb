@@ -1,7 +1,9 @@
 "use strict";
 import * as THREE from 'three'
-// import * as gui from '@/viewers/gui'
-const OrbitControls = require('three-orbit-controls')(THREE)
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {FlyControls} from "three/examples/jsm/controls/FlyControls";
+// const OrbitControls = require('three-orbit-controls');
+
 const gui = require('@/viewers/gui')
 
 let renderer, camera, scene, light;
@@ -98,27 +100,42 @@ function initLight() {
     scene.add(light);
 }
 
+function controlsUpdate(method) {
+    if(method === 'Mouse') {
+        console.log('now Mouse')
+
+
+        initPerspectiveCamera();
+        initMouseControls();
+    }
+    if(method === 'WASD') {
+        console.log('now WASD')
+
+
+        initPerspectiveCamera();
+        initWASDControls();
+
+    }
+
+}
+
 //用户交互插件 鼠标左键按住旋转，右键按住平移，滚轮缩放
 function initMouseControls() {
 
     controls = new OrbitControls(camera, renderer.domElement);
-
-    // 使动画循环使用时阻尼或自转 意思是否有惯性
-    controls.enableDamping = true;
-    //动态阻尼系数 就是鼠标拖拽旋转灵敏度
-    controls.dampingFactor = 0.25;
-
-    controls.minDistance = 1;
-    controls.maxDistance = 10000;
     controls.enablePan = false;
-    controls.enableZoom = true;
 
     controls.mouseButtons = {
-        ORBIT: THREE.MOUSE.RIGHT,
-        PAN: THREE.MOUSE.LEFT
+        LEFT: THREE.MOUSE.PAN,
+        RIGHT: THREE.MOUSE.ROTATE
     }
 
-    controls.enableKeys = false;
+    // controls.enableKeys = false;
+}
+
+function initWASDControls() {
+    controls = new FlyControls(camera, renderer.domElement);
+
 }
 
 function render() {
@@ -169,8 +186,12 @@ function onDocumentKeyDown(event) {
     console.log(keyCode + 'down')
     if (keyCode === 16) {
         shiftDown = true;
+        controls.enableRotate = false;
         controls.enablePan = true;
         controls.update();
+    }
+    if (keyCode === 17) {
+        controls.enabled = false;
     }
 }
 
@@ -179,8 +200,12 @@ function onDocumentKeyUp(event) {
     console.log(keyCode + 'up')
     if (keyCode === 16) {
         shiftDown = false;
+        controls.enableRotate = true;
         controls.enablePan = false;
         controls.update();
+    }
+    if(keyCode === 17) {
+        controls.enabled = true;
     }
 }
 
@@ -228,22 +253,25 @@ function drawLineFrame() {
     points.push(new THREE.Vector3(-0.5, 0.5, 0));
     points.push(new THREE.Vector3(-0.5, -0.5, 0));
 
-    const geometry = new THREE.BufferGeometry().setFromPoints( points );
-    const material = new THREE.LineDashedMaterial({color: 0x000000});
+    let geometry = new THREE.BufferGeometry().setFromPoints( points );
+    let material = new THREE.LineBasicMaterial({color: 0x000000});
     lineFrame = new THREE.Line(geometry, material);
-    sceneOrtho.add(lineFrame);
 }
 
 
 function onMouseDown(event){
     let {which: keyCode} = event;
+    if(event.type !== 'mousemove')
+        console.log(event.type)
+    // console.log(keyCode + ' mouse down');
     if(keyCode === 1) {
         mouseDown=true;
 
         dragInitX = event.clientX;
         dragInitY = event.clientY;
 
-        drawLineFrame();
+        sceneOrtho.add(lineFrame);
+        lineFrame.scale.set(1,1,1);
         lineFrame.position.set(dragInitX, dragInitY);
         // mouseInit = new THREE.Vector2(event.clientX, event.clientY);
         //
@@ -256,6 +284,8 @@ function onMouseDown(event){
 
 function onMouseMove(event){
     let {which: keyCode} = event;
+    // console.log(event.type)
+    // console.log(keyCode + ' mouse move');
     if(keyCode === 1 && mouseDown===true && shiftDown === false) {
 
         lineFrame.scale.set(event.clientX - dragInitX, event.clientY - dragInitY);
@@ -264,7 +294,9 @@ function onMouseMove(event){
 }
 
 function onMouseUp(event) {
+    console.log(event.type);
     let {which: keyCode} = event;
+    console.log(keyCode + ' mouse up');
     if(keyCode === 1 && mouseDown === true) {
         mouseDown = false;
         sceneOrtho.remove(lineFrame);
@@ -303,12 +335,13 @@ function calcIntersections(x1, y1, x2, y2) {
 function init() {
     initRender();
     initScene();
+    // initPerspectiveCamera();
     initOrthoScene();
-    initPerspectiveCamera();
     initOrthoCamera();
     initLight();
-    initMouseControls();
-
+    controlsUpdate(gui.controls.control);
+    //
+    drawLineFrame();
     animate();
 }
 
@@ -325,8 +358,8 @@ function addToDOM() {
     document.addEventListener('keyup', onDocumentKeyUp, false);
     document.addEventListener('click', onClick, false);
     document.addEventListener('mousedown', onMouseDown, false);
-    document.addEventListener('mouseup', onMouseUp, false);
     document.addEventListener('mousemove', onMouseMove, false);
+    document.addEventListener('mouseup', onMouseUp, false);
 }
 
 
@@ -338,4 +371,5 @@ export {
     main,
     windowResize,
     axesUpdate,
+    controlsUpdate,
 }
