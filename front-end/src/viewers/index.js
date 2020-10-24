@@ -7,12 +7,14 @@ const gui = require('@/viewers/gui')
 let renderer, camera, scene, light;
 let controls;
 
+let sceneOrtho, cameraOrtho;
+
 const offsetHeight = 190;
 let width = window.innerWidth;
 let height = window.innerHeight - offsetHeight;
 
-var objects = [];
-var hitbox;
+const objects = [];
+let hitbox;
 
 // function scaleRatio(mesh) {
 //     let ratio = 1;
@@ -31,11 +33,17 @@ var hitbox;
 // }
 
 function initRender() {
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({antialias: true,  alpha: true });
+    renderer.setClearColor( 0x000000, 0 );
+    renderer.autoClear = false;
     renderer.setSize(width, height);
     gui.window.width = width;
     gui.window.height = height;
     addToDOM();
+}
+
+function initOrthoScene() {
+    sceneOrtho = new THREE.Scene();
 }
 
 function initPerspectiveCamera() {
@@ -44,18 +52,34 @@ function initPerspectiveCamera() {
     camera.up = new THREE.Vector3(0, 0, 1);
 }
 
+function initOrthoCamera() {
+    cameraOrtho = new THREE.OrthographicCamera(-width/2, width/2, -height/2, height/2, 1, 10);
+    cameraOrtho.position.x = width/2-8;
+    cameraOrtho.position.y = height/2+64;
+    cameraOrtho.position.z = 10;
+}
+
+const axesHelper = new THREE.AxesHelper(5000);
+
+function axesUpdate(value) {
+    if(value === false)
+        scene.remove(axesHelper);
+    else
+        scene.add(axesHelper);
+}
+
 function initScene() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0xfafafa );
-    const axesHelper = new THREE.AxesHelper( gui.window.size );
+    scene.background = new THREE.Color(0xfafafa);
+
+    scene.add(axesHelper);
     const box = new THREE.BoxBufferGeometry(300, 300, 300);
     // box.scale(0.001, 0.001, 0.001);
     const mesh = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
-    hitbox = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xeeeeee}));
-    mesh.position.set(100, 100, 100);
+    hitbox = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xffaaaa}));
+    mesh.position.set(150, 150, 150);
     objects.push(mesh);
     scene.add(mesh);
-    scene.add( axesHelper );
 }
 
 function initLight() {
@@ -84,18 +108,29 @@ function initControls() {
     controls.mouseButtons = {
         ORBIT: THREE.MOUSE.RIGHT,
         PAN: THREE.MOUSE.LEFT
-    } 
+    }
 
     controls.enableKeys = false;
 }
 
 function render() {
+    renderer.clear();
     renderer.render(scene, camera);
+    renderer.clearDepth();
+    renderer.render(sceneOrtho, cameraOrtho);
 }
 
 function windowResize(w, h) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+
+    cameraOrtho.left = -w/2;
+    cameraOrtho.right = w/2;
+    cameraOrtho.top = -h/2;
+    cameraOrtho.bottom = h/2;
+    cameraOrtho.position.x = w/2-8;
+    cameraOrtho.position.y = h/2+64;
+    cameraOrtho.updateProjectionMatrix();
 
     renderer.setSize(w, h);
 }
@@ -119,51 +154,133 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+let shiftDown = false;
 
 function onDocumentKeyDown(event) {
-    let keyCode = event.which;
-    if (keyCode == 80) {
-        console.log('p pressed');
-        controls.enablePan = !controls.enablePan;
-        console.log(controls.enablePan)
+    let {which: keyCode} = event;
+    console.log(keyCode + 'down')
+    if (keyCode === 16) {
+        shiftDown = true;
+        controls.enablePan = true;
         controls.update();
-    } 
+    }
 }
-function onClick( event ) {
+
+function onDocumentKeyUp(event) {
+    let {which: keyCode} = event;
+    console.log(keyCode + 'up')
+    if (keyCode === 16) {
+        shiftDown = false;
+        controls.enablePan = false;
+        controls.update();
+    }
+}
+
+function getCurrentMouse(event){
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    return mouse;
+}
+
+function onClick(event) {
 
     event.preventDefault();
 
-    var mouse = new THREE.Vector2();
-    var raycaster = new THREE.Raycaster();
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    const mouse = getCurrentMouse(event);
 
-    raycaster.setFromCamera( mouse, camera );
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
 
-    var intersections = raycaster.intersectObjects( objects, true );
+    const intersections = raycaster.intersectObjects(objects, true);
 
-    if( intersections.length > 0) {
+    if (intersections.length > 0) {
         intersections[0].object.add(hitbox);
-        console.log( intersections);
+        console.log(intersections);
     } else {
         var parent = hitbox.parent;
-        if(parent) parent.remove(hitbox);
+        if (parent) parent.remove(hitbox);
     }
-    
+
+}
+let mouseDown = false;
+let dragInitX, dragInitY, lineFrame;
+function drawLineFrame() {
+
+    const points = [];
+    points.push(new THREE.Vector3(-0.5,-0.5, 0));
+    points.push(new THREE.Vector3(0.5, -0.5, 0));
+    points.push(new THREE.Vector3(0.5, 0.5, 0));
+    points.push(new THREE.Vector3(-0.5, 0.5, 0));
+    points.push(new THREE.Vector3(-0.5, -0.5, 0));
+
+    const geometry = new THREE.BufferGeometry().setFromPoints( points );
+    const material = new THREE.LineDashedMaterial({color: 0x000000});
+    lineFrame = new THREE.Line(geometry, material);
+    sceneOrtho.add(lineFrame);
 }
 
+
+function onMouseDown(event){
+    let {which: keyCode} = event;
+    if(keyCode === 1) {
+        console.log('mouse down' + keyCode)
+        mouseDown=true;
+
+        dragInitX = event.clientX;
+        dragInitY = event.clientY;
+
+        drawLineFrame();
+        lineFrame.position.set(dragInitX, dragInitY);
+        // mouseInit = new THREE.Vector2(event.clientX, event.clientY);
+        //
+        // geometry = new THREE.PlaneBufferGeometry( 1, 1, 32 );
+        // var material = new THREE.MeshBasicMaterial( {color: 0xff0000, side: THREE.DoubleSide} );
+        // plane = new THREE.Mesh( geometry, material );
+        // sceneOrtho.add(plane);
+    }
+}
+
+function onMouseMove(event){
+    let {which: keyCode} = event;
+    if(keyCode === 1 && mouseDown===true && shiftDown === false) {
+        console.log('mouse move' + keyCode)
+        console.log(event);
+
+        // plane.scale.set(event.clientX - mouseInit.x, event.clientY - mouseInit.y, 1);
+        // plane.position.set((mouseInit.x + event.clientX)/2,(mouseInit.y + event.clientY)/2);
+        // drawLineFrame(dragInitX, dragInitY, event.clientX, event.clientY);
+        lineFrame.scale.set(event.clientX - dragInitX, event.clientY - dragInitY);
+        lineFrame.position.set((event.clientX + dragInitX)/2, (event.clientY + dragInitY)/2);
+    }
+}
+
+function onMouseUp(event) {
+    let {which: keyCode} = event;
+    if(keyCode === 1) {
+        console.log('mouse up' + keyCode)
+        mouseDown = false;
+        sceneOrtho.remove(lineFrame);
+    }
+}
 
 function init() {
     initRender();
     initScene();
+    initOrthoScene();
     initPerspectiveCamera();
+    initOrthoCamera();
     initLight();
     initControls();
 
     animate();
     window.onresize = onWindowResize;
-    document.addEventListener( 'keydown', onDocumentKeyDown, false);
-    document.addEventListener( 'click', onClick, false );
+    document.addEventListener('keydown', onDocumentKeyDown, false);
+    document.addEventListener('keyup', onDocumentKeyUp, false);
+    document.addEventListener('click', onClick, false);
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('mouseup', onMouseUp, false);
+    document.addEventListener('mousemove', onMouseMove, false);
 }
 
 function addToDOM() {
@@ -183,4 +300,5 @@ function main() {
 export {
     main,
     windowResize,
+    axesUpdate,
 }
