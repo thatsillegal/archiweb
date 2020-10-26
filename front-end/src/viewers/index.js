@@ -11,9 +11,9 @@ let controls;
 
 let sceneOrtho, cameraOrtho;
 
-const offsetHeight = 190;
+const OFFSET_HEIGHT = 188;
 let width = window.innerWidth;
-let height = window.innerHeight - offsetHeight;
+let height = window.innerHeight - OFFSET_HEIGHT;
 
 const objects = [];
 let hitbox;
@@ -119,7 +119,6 @@ function controlsUpdate(method) {
 
 }
 
-//用户交互插件 鼠标左键按住旋转，右键按住平移，滚轮缩放
 function initMouseControls() {
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -130,7 +129,6 @@ function initMouseControls() {
         RIGHT: THREE.MOUSE.ROTATE
     }
 
-    // controls.enableKeys = false;
 }
 
 function initWASDControls() {
@@ -163,7 +161,7 @@ function windowResize(w, h) {
 //窗口变动触发的函数
 function onWindowResize() {
     width = window.innerWidth;
-    height = window.innerHeight - offsetHeight;
+    height = window.innerHeight - OFFSET_HEIGHT;
 
     windowResize(width, height);
 

@@ -2,6 +2,7 @@
     <v-footer
             padless
             color="black"
+            dark
     >
         <v-card
                 class="lighten-1 white--text text-center"
@@ -18,7 +19,7 @@
                         target="_blank"
                         v-for="(icon, id) in icons"
                 >
-                    <v-icon size="24px" color="black">{{ icon.icon }}</v-icon>
+                    <v-icon size="24px" color="white">{{ icon.icon }}</v-icon>
                 </v-btn>
             </v-card-text>
 <!--            <v-card-text>-->
@@ -26,9 +27,9 @@
 <!--            </v-card-text>-->
             <v-divider></v-divider>
 
-            <v-card-text class="black--text">
+            <v-card-text class="white--text">
                 {{ new Date().getFullYear() }} — 
-                                        <a class="text-decoration-none" href="http://labaaa.org" style="color:#000000;" target="_blank">
+                                        <a class="text-decoration-none" href="http://labaaa.org" style="color:#ffffff;" target="_blank">
                         <strong>Inst. AAA</strong>
                     </a>
                     
