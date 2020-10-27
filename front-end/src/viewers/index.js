@@ -5,8 +5,6 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { FlyControls } from "three/examples/jsm/controls/FlyControls";
 import { DragControls } from "three/examples/jsm/controls/DragControls";
-import { SelectionBox } from "three/examples/jsm/interactive/SelectionBox";
-import { SelectionHelper } from "three/examples/jsm/interactive/SelectionHelper";
 
 // const OrbitControls = require('three-orbit-controls');
 
@@ -24,6 +22,8 @@ let width = window.innerWidth;
 let height = window.innerHeight - OFFSET_HEIGHT;
 
 const objects = [];
+
+let selected = null;
 
 
 function initRender() {
@@ -114,6 +114,7 @@ function controlsUpdate(method) {
 function initDragFrames() {
 
     dragFrames = new DragFrames(objects, camera, scene, sceneOrtho, renderer);
+
     dragFrames.enabled = false;
 }
 
@@ -184,10 +185,15 @@ function onWindowResize() {
     gui.window.height = height;
 }
 
+
 function animate() {
     //更新控制器
     controls.update();
     render();
+    let selected = dragFrames.getSelected();
+    if(selected != null && selected.length > 0) {
+            console.log(selected);
+    }
 
     requestAnimationFrame(animate);
 }
