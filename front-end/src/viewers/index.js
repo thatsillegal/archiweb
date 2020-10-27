@@ -7,12 +7,15 @@ import { FlyControls } from "three/examples/jsm/controls/FlyControls";
 import { DragControls } from "three/examples/jsm/controls/DragControls";
 import { SelectionBox } from "three/examples/jsm/interactive/SelectionBox";
 import { SelectionHelper } from "three/examples/jsm/interactive/SelectionHelper";
+
 // const OrbitControls = require('three-orbit-controls');
+
+import { DragFrames } from "@/viewers/DragFrames";
 
 const gui = require('@/viewers/gui')
 
 let renderer, camera, scene, light;
-let controls, dragControls;
+let controls, dragControls, dragFrames;
 
 let sceneOrtho, cameraOrtho;
 
@@ -22,21 +25,6 @@ let height = window.innerHeight - OFFSET_HEIGHT;
 
 const objects = [];
 
-// function scaleRatio(mesh) {
-//     let ratio = 1;
-//     switch (gui.window.unit) {
-//         case 'Millimeters':
-//             ratio = 0.001;
-//             break;
-//         case 'Kilometers':
-//             ratio = 1000;
-//             break;
-//         default:
-//             ratio = 1;
-//     }
-//     mesh.geometry.scale(ratio, ratio, ratio);
-//     return mesh;
-// }
 
 function initRender() {
     renderer = new THREE.WebGLRenderer({antialias: true,  alpha: true });
@@ -121,6 +109,12 @@ function controlsUpdate(method) {
 
     }
 
+}
+
+function initDragFrames() {
+
+    dragFrames = new DragFrames(objects, camera, scene, sceneOrtho, renderer);
+    dragFrames.enabled = false;
 }
 
 function initDragControls() {
@@ -209,6 +203,7 @@ function onDocumentKeyDown(event) {
     }
     if (keyCode === 17) {
         controls.enabled = false;
+        dragFrames.enabled = true;
     }
     if(keyCode === 18) {
         controls.enabled = false;
@@ -225,105 +220,13 @@ function onDocumentKeyUp(event) {
         controls.update();
     }
     if(keyCode === 17) {
+        dragFrames.enabled = false;
         controls.enabled = true;
     }
     if(keyCode === 18) {
         dragControls.enabled = false;
         controls.enabled = true;
     }
-}
-
-
-let dragInitX, dragInitY, lineFrame;
-function drawLineFrame() {
-
-    const points = [];
-    points.push(new THREE.Vector3(-0.5,-0.5, 0));
-    points.push(new THREE.Vector3(0.5, -0.5, 0));
-    points.push(new THREE.Vector3(0.5, 0.5, 0));
-    points.push(new THREE.Vector3(-0.5, 0.5, 0));
-    points.push(new THREE.Vector3(-0.5, -0.5, 0));
-
-    let geometry = new THREE.BufferGeometry().setFromPoints( points );
-    let material = new THREE.LineBasicMaterial({color: 0x000000});
-    lineFrame = new THREE.Line(geometry, material);
-}
-
-
-function initBoxSelection() {
-    var selectionBox = new SelectionBox( camera, scene );
-    var helper = new SelectionHelper( selectionBox, renderer, 'selectBox' );
-    drawLineFrame();
-    document.addEventListener( 'pointerdown', function ( event ) {
-
-        for ( var item of selectionBox.collection ) {
-
-            item.material.emissive.set( 0x000000 );
-
-        }
-
-        selectionBox.startPoint.set(
-            ( event.clientX / window.innerWidth ) * 2 - 1,
-            - ( event.clientY / window.innerHeight ) * 2 + 1,
-            0.5 );
-
-        dragInitX = event.clientX;
-        dragInitY = event.clientY;
-
-        sceneOrtho.add(lineFrame);
-        lineFrame.scale.set(1,1,1);
-        lineFrame.position.set(dragInitX, dragInitY);
-
-    } );
-
-    document.addEventListener( 'pointermove', function ( event ) {
-
-        if ( helper.isDown ) {
-
-            for (let i = 0; i < selectionBox.collection.length; i ++ ) {
-
-                selectionBox.collection[ i ].material.emissive.set( 0x000000 );
-
-            }
-
-            selectionBox.endPoint.set(
-                ( event.clientX / window.innerWidth ) * 2 - 1,
-                - ( event.clientY / window.innerHeight ) * 2 + 1,
-                0.5 );
-
-            const allSelected = selectionBox.select();
-
-            for (let i = 0; i < allSelected.length; i ++ ) {
-
-                allSelected[ i ].material.emissive.set( 0xffffff );
-
-            }
-
-            lineFrame.scale.set(event.clientX - dragInitX, event.clientY - dragInitY);
-            lineFrame.position.set((event.clientX + dragInitX)/2, (event.clientY + dragInitY)/2);
-
-        }
-
-    } );
-
-    document.addEventListener( 'pointerup', function ( event ) {
-
-        selectionBox.endPoint.set(
-            ( event.clientX / window.innerWidth ) * 2 - 1,
-            - ( event.clientY / window.innerHeight ) * 2 + 1,
-            0.5 );
-
-        var allSelected = selectionBox.select();
-
-        for ( var i = 0; i < allSelected.length; i ++ ) {
-
-            allSelected[ i ].material.emissive.set( 0xffffff );
-
-        }
-
-        sceneOrtho.remove(lineFrame);
-
-    } );
 }
 
 
@@ -336,7 +239,9 @@ function init() {
     initLight();
     controlsUpdate(gui.controls.control);
     //
-    initBoxSelection();
+    // initBoxSelection();
+    initDragFrames();
+
     animate();
 }
 
