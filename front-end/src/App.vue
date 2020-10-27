@@ -1,9 +1,7 @@
 <template>
   <v-app>
     <TopNav/>
-    <v-main>
-      <router-view></router-view>
-    </v-main>
+    <router-view></router-view>
     <Footer/>
   </v-app>
 </template>

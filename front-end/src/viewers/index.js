@@ -1,22 +1,26 @@
+/* eslint-disable no-unused-vars */
 "use strict";
+
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import {FlyControls} from "three/examples/jsm/controls/FlyControls";
+import { FlyControls } from "three/examples/jsm/controls/FlyControls";
+import { DragControls } from "three/examples/jsm/controls/DragControls";
+import { SelectionBox } from "three/examples/jsm/interactive/SelectionBox";
+import { SelectionHelper } from "three/examples/jsm/interactive/SelectionHelper";
 // const OrbitControls = require('three-orbit-controls');
 
 const gui = require('@/viewers/gui')
 
 let renderer, camera, scene, light;
-let controls;
+let controls, dragControls;
 
 let sceneOrtho, cameraOrtho;
 
-const OFFSET_HEIGHT = 188;
+const OFFSET_HEIGHT = 0;
 let width = window.innerWidth;
 let height = window.innerHeight - OFFSET_HEIGHT;
 
 const objects = [];
-let hitbox;
 
 // function scaleRatio(mesh) {
 //     let ratio = 1;
@@ -57,7 +61,7 @@ function initPerspectiveCamera() {
 function initOrthoCamera() {
     cameraOrtho = new THREE.OrthographicCamera(-width/2, width/2, -height/2, height/2, 1, 10);
     cameraOrtho.position.x = width/2-8;
-    cameraOrtho.position.y = height/2+64;
+    cameraOrtho.position.y = height/2;
     cameraOrtho.position.z = 10;
 }
 
@@ -88,7 +92,6 @@ function initScene() {
     objects.push(b2);
     scene.add(b2);
 
-    hitbox = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xffaaaa}));
 
 }
 
@@ -107,6 +110,7 @@ function controlsUpdate(method) {
 
         initPerspectiveCamera();
         initMouseControls();
+        initDragControls();
     }
     if(method === 'WASD') {
         console.log('now WASD')
@@ -117,6 +121,23 @@ function controlsUpdate(method) {
 
     }
 
+}
+
+function initDragControls() {
+    dragControls = new DragControls(objects, camera, renderer.domElement);
+
+    dragControls.addEventListener( 'dragstart', function ( event ) {
+
+        event.object.material.emissive.set( 0xaaaaaa );
+
+    } );
+
+    dragControls.addEventListener( 'dragend', function ( event ) {
+
+        event.object.material.emissive.set( 0x000000 );
+
+    } );
+    dragControls.enabled = false;
 }
 
 function initMouseControls() {
@@ -152,7 +173,7 @@ function windowResize(w, h) {
     cameraOrtho.top = -h/2;
     cameraOrtho.bottom = h/2;
     cameraOrtho.position.x = w/2-8;
-    cameraOrtho.position.y = h/2+64;
+    cameraOrtho.position.y = h/2;
     cameraOrtho.updateProjectionMatrix();
 
     renderer.setSize(w, h);
@@ -177,13 +198,11 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-let shiftDown = false;
 
 function onDocumentKeyDown(event) {
     let {which: keyCode} = event;
     console.log(keyCode + 'down')
     if (keyCode === 16) {
-        shiftDown = true;
         controls.enableRotate = false;
         controls.enablePan = true;
         controls.update();
@@ -191,13 +210,16 @@ function onDocumentKeyDown(event) {
     if (keyCode === 17) {
         controls.enabled = false;
     }
+    if(keyCode === 18) {
+        controls.enabled = false;
+        dragControls.enabled = true;
+    }
 }
 
 function onDocumentKeyUp(event) {
     let {which: keyCode} = event;
     console.log(keyCode + 'up')
     if (keyCode === 16) {
-        shiftDown = false;
         controls.enableRotate = true;
         controls.enablePan = false;
         controls.update();
@@ -205,42 +227,13 @@ function onDocumentKeyUp(event) {
     if(keyCode === 17) {
         controls.enabled = true;
     }
-}
-
-function getMouseNDC(clientX, clientY){
-    const mouse = new THREE.Vector2();
-    mouse.x = (clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(clientY / window.innerHeight) * 2 + 1;
-    return mouse;
-}
-
-function getIntersections(clientX, clientY) {
-    const mouse = getMouseNDC(clientX, clientY);
-
-    const rayCaster = new THREE.Raycaster();
-    rayCaster.setFromCamera(mouse, camera);
-
-    return rayCaster.intersectObjects(objects, true);
-
-}
-
-function onClick(event) {
-
-    event.preventDefault();
-
-    const intersections = getIntersections(event.clientX, event.clientY);
-
-    if (intersections.length > 0) {
-
-        intersections[0].object.add(hitbox)
-        console.log(intersections[0].object);
-    } else {
-        let parent = hitbox.parent;
-        if (parent) parent.remove(hitbox);
+    if(keyCode === 18) {
+        dragControls.enabled = false;
+        controls.enabled = true;
     }
-
 }
-let mouseDown = false;
+
+
 let dragInitX, dragInitY, lineFrame;
 function drawLineFrame() {
 
@@ -257,13 +250,22 @@ function drawLineFrame() {
 }
 
 
-function onMouseDown(event){
-    let {which: keyCode} = event;
-    if(event.type !== 'mousemove')
-        console.log(event.type)
-    // console.log(keyCode + ' mouse down');
-    if(keyCode === 1) {
-        mouseDown=true;
+function initBoxSelection() {
+    var selectionBox = new SelectionBox( camera, scene );
+    var helper = new SelectionHelper( selectionBox, renderer, 'selectBox' );
+    drawLineFrame();
+    document.addEventListener( 'pointerdown', function ( event ) {
+
+        for ( var item of selectionBox.collection ) {
+
+            item.material.emissive.set( 0x000000 );
+
+        }
+
+        selectionBox.startPoint.set(
+            ( event.clientX / window.innerWidth ) * 2 - 1,
+            - ( event.clientY / window.innerHeight ) * 2 + 1,
+            0.5 );
 
         dragInitX = event.clientX;
         dragInitY = event.clientY;
@@ -271,62 +273,57 @@ function onMouseDown(event){
         sceneOrtho.add(lineFrame);
         lineFrame.scale.set(1,1,1);
         lineFrame.position.set(dragInitX, dragInitY);
-        // mouseInit = new THREE.Vector2(event.clientX, event.clientY);
-        //
-        // geometry = new THREE.PlaneBufferGeometry( 1, 1, 32 );
-        // var material = new THREE.MeshBasicMaterial( {color: 0xff0000, side: THREE.DoubleSide} );
-        // plane = new THREE.Mesh( geometry, material );
-        // sceneOrtho.add(plane);
-    }
-}
 
-function onMouseMove(event){
-    let {which: keyCode} = event;
-    // console.log(event.type)
-    // console.log(keyCode + ' mouse move');
-    if(keyCode === 1 && mouseDown===true && shiftDown === false) {
+    } );
 
-        lineFrame.scale.set(event.clientX - dragInitX, event.clientY - dragInitY);
-        lineFrame.position.set((event.clientX + dragInitX)/2, (event.clientY + dragInitY)/2);
-    }
-}
+    document.addEventListener( 'pointermove', function ( event ) {
 
-function onMouseUp(event) {
-    console.log(event.type);
-    let {which: keyCode} = event;
-    console.log(keyCode + ' mouse up');
-    if(keyCode === 1 && mouseDown === true) {
-        mouseDown = false;
+        if ( helper.isDown ) {
+
+            for (let i = 0; i < selectionBox.collection.length; i ++ ) {
+
+                selectionBox.collection[ i ].material.emissive.set( 0x000000 );
+
+            }
+
+            selectionBox.endPoint.set(
+                ( event.clientX / window.innerWidth ) * 2 - 1,
+                - ( event.clientY / window.innerHeight ) * 2 + 1,
+                0.5 );
+
+            const allSelected = selectionBox.select();
+
+            for (let i = 0; i < allSelected.length; i ++ ) {
+
+                allSelected[ i ].material.emissive.set( 0xffffff );
+
+            }
+
+            lineFrame.scale.set(event.clientX - dragInitX, event.clientY - dragInitY);
+            lineFrame.position.set((event.clientX + dragInitX)/2, (event.clientY + dragInitY)/2);
+
+        }
+
+    } );
+
+    document.addEventListener( 'pointerup', function ( event ) {
+
+        selectionBox.endPoint.set(
+            ( event.clientX / window.innerWidth ) * 2 - 1,
+            - ( event.clientY / window.innerHeight ) * 2 + 1,
+            0.5 );
+
+        var allSelected = selectionBox.select();
+
+        for ( var i = 0; i < allSelected.length; i ++ ) {
+
+            allSelected[ i ].material.emissive.set( 0xffffff );
+
+        }
+
         sceneOrtho.remove(lineFrame);
 
-        calcIntersections(dragInitX, dragInitY, event.clientX, event.clientY);
-
-    }
-}
-
-function calcIntersections(x1, y1, x2, y2) {
-    [x1, x2] = x1 > x2 ? [x2, x1] : [x1, x2];
-    [y1, y2] = y1 > y2 ? [y2, y1] : [y1, y2];
-
-    const delta = 5;
-    const sets = new Set();
-    for(let x = x1; x + delta < x2; x += delta) {
-        for(let y = y1; y + delta < y2; y += delta) {
-            const intersections = getIntersections(x, y);
-            intersections.forEach(function(o){
-                sets.add(o.object);
-            });
-            if(intersections.length > 0) {
-                sets.add(intersections[0].object);
-            }
-        }
-    }
-    sets.forEach(function(o) {
-        console.log(o)
-        o.add(hitbox);
-    })
-
-
+    } );
 }
 
 
@@ -339,7 +336,7 @@ function init() {
     initLight();
     controlsUpdate(gui.controls.control);
     //
-    drawLineFrame();
+    initBoxSelection();
     animate();
 }
 
@@ -352,12 +349,9 @@ function addToDOM() {
     container.appendChild(renderer.domElement);
 
     window.onresize = onWindowResize;
-    document.addEventListener('keydown', onDocumentKeyDown, false);
-    document.addEventListener('keyup', onDocumentKeyUp, false);
-    document.addEventListener('click', onClick, false);
-    document.addEventListener('mousedown', onMouseDown, false);
-    document.addEventListener('mousemove', onMouseMove, false);
-    document.addEventListener('mouseup', onMouseUp, false);
+    renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
+    renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
+
 }
 
 

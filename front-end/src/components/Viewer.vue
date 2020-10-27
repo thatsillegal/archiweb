@@ -3,10 +3,10 @@
     <section>
         <div
                 id="gui-container"
-                style="position:absolute;right:0"
+                style="position:absolute;right:0;z-index:999"
         ></div>
         <template
-                style="overflow:auto;background:#ffffff;"
+                style="overflow:hidden;background:#ffffff;"
         >
 
             <div class="d-flex justify-sm-center" id="container"></div>

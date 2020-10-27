@@ -2,31 +2,29 @@
     <div>
         <v-app-bar
                 app
-                color="black"
+                color="transparent"
                 flat
         >
-            <div class="d-flex">
+            <div class="d-flex align-end">
+              <a class="text-decoration-none" href="http://labaaa.org" style="color:#000000;" target="_blank">
                 <v-img
                         alt="Logo"
                         class="shrink mr-2"
                         contain
-                        src="@/assets/AAA-logo-text.png"
+                        src="@/assets/AAA_x128_black.png"
                         transition="scale-transition"
                         width="40"
                 />
+              </a>
+              <a class="text-decoration-none" href="https://github.com/Inst-AAA/archiweb" style="color:#000000;" target="_blank">
 
-                <div class="d-flex hidden-md-and-down align-end">
-                    <a class="text-decoration-none" href="http://labaaa.org" style="color:#ffffff;" target="_blank">
-                        <h2 class="pr-2">ArchiWeb</h2>
-                    </a>
+              <h2 class="pr-2">ArchiWeb</h2>
 
-                </div>
+              </a>
 
             </div>
-            <v-spacer></v-spacer>
-            <v-btn class="white--text" text>
-                <v-icon color="white">mdi-cog</v-icon>
-            </v-btn>
+
+
         </v-app-bar>
     </div>
 </template>
