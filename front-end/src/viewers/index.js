@@ -3,8 +3,8 @@
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { FlyControls } from "three/examples/jsm/controls/FlyControls";
 import { DragControls } from "three/examples/jsm/controls/DragControls";
+import { FlyControls } from "three/examples/jsm/controls/FlyControls";
 
 // const OrbitControls = require('three-orbit-controls');
 
@@ -24,6 +24,7 @@ let height = window.innerHeight - OFFSET_HEIGHT;
 const objects = [];
 
 let selected = null;
+let grouped;
 
 
 function initRender() {
@@ -90,6 +91,8 @@ function initScene() {
     objects.push(b2);
     scene.add(b2);
 
+    grouped = new THREE.Group();
+    scene.add(grouped);
 
 }
 
@@ -131,15 +134,21 @@ function initDragFrames() {
 function initDragControls() {
     dragControls = new DragControls(objects, camera, renderer.domElement);
 
+    let posZ = 0;
     dragControls.addEventListener( 'dragstart', function ( event ) {
 
         event.object.material.emissive.set( 0xaaaaaa );
+        posZ = event.object.position.z;
 
     } );
 
+    dragControls.addEventListener('drag', function (event) {
+        event.object.position.z = posZ;
+    });
     dragControls.addEventListener( 'dragend', function ( event ) {
 
         event.object.material.emissive.set( 0x000000 );
+        // event.object.position.z = 0;
 
     } );
     dragControls.enabled = false;
@@ -159,6 +168,12 @@ function initMouseControls() {
 
 function initWASDControls() {
     controls = new FlyControls(camera, renderer.domElement);
+
+    controls.movementSpeed = 1000;
+    controls.domElement = renderer.domElement;
+    controls.rollSpeed = Math.PI / 24;
+    controls.autoForward = true;
+    controls.dragToLook = true;
 
 }
 
@@ -225,6 +240,7 @@ function onDocumentKeyDown(event) {
         controls.enabled = false;
         dragControls.enabled = true;
     }
+
 }
 
 function onDocumentKeyUp(event) {
@@ -249,11 +265,13 @@ function onDocumentKeyUp(event) {
 function init() {
     initRender();
     initScene();
-    // initPerspectiveCamera();
     initOrthoScene();
     initOrthoCamera();
     initLight();
-    controlsUpdate(gui.controls.control);
+    initPerspectiveCamera();
+    // initWASDControls();
+    initMouseControls();
+    // controlsUpdate(gui.controls.control);
     //
     // initBoxSelection();
     initDragFrames();
@@ -262,8 +280,8 @@ function init() {
 }
 
 function addToDOM() {
-    var container = document.getElementById('container');
-    var canvas = container.getElementsByTagName('canvas');
+    const container = document.getElementById('container');
+    const canvas = container.getElementsByTagName('canvas');
     if (canvas.length > 0) {
         container.removeChild(canvas[0]);
     }

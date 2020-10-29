@@ -10,7 +10,7 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
     let _domElement = _renderer.domElement;
     let _dragInitX;
     let _dragInitY
-    let _lineFrame;
+    let _lineFrame, _geometry = null;
     let _selectDown = false;
 
     let _selected = null;
@@ -37,8 +37,9 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
         points.push(new THREE.Vector3(l, t, 0));
         points.push(new THREE.Vector3(l, b, 0));
 
-        let geometry = new THREE.BufferGeometry().setFromPoints( points );
-        _lineFrame = new THREE.Line(geometry, material);
+        if(_geometry != null) _geometry.dispose();
+        _geometry = new THREE.BufferGeometry().setFromPoints( points );
+        _lineFrame = new THREE.Line(_geometry, material);
         _lineFrame.computeLineDistances();
         _orthoScene.add(_lineFrame);
     }
