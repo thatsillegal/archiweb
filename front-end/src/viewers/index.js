@@ -41,7 +41,7 @@ function initOrthoScene() {
 }
 
 function initPerspectiveCamera() {
-    camera = new THREE.PerspectiveCamera(40, width / height, 1, 10000);
+    camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
     camera.position.set(1000, -1500, 1000);
     camera.up = new THREE.Vector3(0, 0, 1);
 }
@@ -53,7 +53,17 @@ function initOrthoCamera() {
     cameraOrtho.position.z = 10;
 }
 
-const axesHelper = new THREE.AxesHelper(5000);
+let axesHelper = new THREE.AxesHelper(5000);
+let gridHelper = new THREE.GridHelper(1000,20);
+
+function gridUpdate(value) {
+    scene.remove(gridHelper);
+    if(value > 0) {
+        gridHelper = new THREE.GridHelper(value, 20);
+        gridHelper.rotateX(Math.PI/2.0);
+        scene.add(gridHelper);
+    }
+}
 
 function axesUpdate(value) {
     if(value === false)
@@ -275,4 +285,5 @@ export {
     windowResize,
     axesUpdate,
     controlsUpdate,
+    gridUpdate,
 }
