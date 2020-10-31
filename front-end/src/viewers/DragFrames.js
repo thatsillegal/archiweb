@@ -1,12 +1,10 @@
 // /* eslint-disable no-unused-vars */
 import * as THREE from 'three'
 import { SelectionBox } from "three/examples/jsm/interactive/SelectionBox";
-// import { SelectionHelper } from "three/examples/jsm/interactive/SelectionHelper";
 
-var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
+const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) {
 
-    let _selectionBox = new SelectionBox( _camera, _scene );
-    // let _helper = new SelectionHelper( _selectionBox, _renderer, 'selectBox' );
+    let _selectionBox = new SelectionBox(_camera, _scene);
     let _domElement = _renderer.domElement;
     let _dragInitX;
     let _dragInitY
@@ -22,7 +20,7 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
         _orthoScene.remove(_lineFrame);
 
         let material = (initX > X) ?
-            new THREE.LineDashedMaterial({color: 0x000000, dashSize: 5, gapSize: 3}):
+            new THREE.LineDashedMaterial({color: 0x000000, dashSize: 5, gapSize: 3}) :
             new THREE.LineBasicMaterial({color: 0x000000});
 
         let l = Math.min(initX, X);
@@ -31,14 +29,14 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
         let t = Math.max(initY, Y);
 
         const points = [];
-        points.push(new THREE.Vector3(l,b, 0));
+        points.push(new THREE.Vector3(l, b, 0));
         points.push(new THREE.Vector3(r, b, 0));
         points.push(new THREE.Vector3(r, t, 0));
         points.push(new THREE.Vector3(l, t, 0));
         points.push(new THREE.Vector3(l, b, 0));
 
-        if(_geometry != null) _geometry.dispose();
-        _geometry = new THREE.BufferGeometry().setFromPoints( points );
+        if (_geometry != null) _geometry.dispose();
+        _geometry = new THREE.BufferGeometry().setFromPoints(points);
         _lineFrame = new THREE.Line(_geometry, material);
         _lineFrame.computeLineDistances();
         _orthoScene.add(_lineFrame);
@@ -46,17 +44,17 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
 
 
     function activate() {
-        _domElement.addEventListener( 'pointerdown', onDocumentPointerDown, false);
-        _domElement.addEventListener( 'pointermove', onDocumentPointerMove, false);
-        _domElement.addEventListener( 'pointerup', onDocumentPointerUp, false);
+        _domElement.addEventListener('pointerdown', onDocumentPointerDown, false);
+        _domElement.addEventListener('pointermove', onDocumentPointerMove, false);
+        _domElement.addEventListener('pointerup', onDocumentPointerUp, false);
 
     }
 
 
     function deactivate() {
-        _domElement.removeEventListener( 'pointerdown', onDocumentPointerDown, false);
-        _domElement.removeEventListener( 'pointermove', onDocumentPointerMove, false);
-        _domElement.removeEventListener( 'pointerup', onDocumentPointerUp, false);
+        _domElement.removeEventListener('pointerdown', onDocumentPointerDown, false);
+        _domElement.removeEventListener('pointermove', onDocumentPointerMove, false);
+        _domElement.removeEventListener('pointerup', onDocumentPointerUp, false);
     }
 
     function dispose() {
@@ -76,20 +74,20 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
     }
 
 
-    function onDocumentPointerDown( event ) {
-        for (const item of _selectionBox.collection ) {
+    function onDocumentPointerDown(event) {
+        for (const item of _selectionBox.collection) {
 
-            if(item.type === "AxesHelper") continue;
-            item.material.emissive.set( 0x000000 );
+            if (item.type === "AxesHelper") continue;
+            item.material.emissive.set(0x000000);
 
         }
         _selected = null;
 
-        if(scope.enabled) {
+        if (scope.enabled) {
             _selectionBox.startPoint.set(
-                ( event.clientX / window.innerWidth ) * 2 - 1,
-                - ( event.clientY / window.innerHeight ) * 2 + 1,
-                0.5 );
+                (event.clientX / window.innerWidth) * 2 - 1,
+                -(event.clientY / window.innerHeight) * 2 + 1,
+                0.5);
 
             _dragInitX = event.clientX;
             _dragInitY = event.clientY;
@@ -103,19 +101,19 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
     }
 
 
-    function onDocumentPointerMove( event ) {
+    function onDocumentPointerMove(event) {
 
-        if ( _selectDown ) {
-                for (const item of _selectionBox.collection ) {
+        if (_selectDown) {
+            for (const item of _selectionBox.collection) {
 
-                if(item.type === "AxesHelper") continue;
-                if(item.type === "GridHelper") continue;
-                item.material.emissive.set( 0x000000 );
+                if (item.type === "AxesHelper") continue;
+                if (item.type === "GridHelper") continue;
+                item.material.emissive.set(0x000000);
 
             }
             _selected = null;
 
-            if(scope.enabled) {
+            if (scope.enabled) {
 
                 _selectionBox.endPoint.set(
                     (event.clientX / window.innerWidth) * 2 - 1,
@@ -125,8 +123,8 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
                 const allSelected = _selectionBox.select();
 
                 for (const item of allSelected) {
-                    if(item.type === "AxesHelper") continue;
-                    if(item.type === "GridHelper") continue;
+                    if (item.type === "AxesHelper") continue;
+                    if (item.type === "GridHelper") continue;
                     item.material.emissive.set(0x666666);
 
                 }
@@ -146,30 +144,29 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
     }
 
 
-    function onDocumentPointerUp( event ) {
+    function onDocumentPointerUp(event) {
         _orthoScene.remove(_lineFrame);
         _selectDown = false;
 
-        if(scope.enabled) {
+        if (scope.enabled) {
             _selectionBox.endPoint.set(
                 (event.clientX / window.innerWidth) * 2 - 1,
                 -(event.clientY / window.innerHeight) * 2 + 1,
                 0.5);
 
 
-
             var allSelected = _selectionBox.select();
 
             for (const item of allSelected) {
-                if(item.type === "AxesHelper") continue;
-                if(item.type === "GridHelper") continue;
+                if (item.type === "AxesHelper") continue;
+                if (item.type === "GridHelper") continue;
                 item.material.emissive.set(0x666666);
 
             }
             _selected = _selectionBox.select();
         }
 
-            // scope.dispatchEvent({type: 'drag'}, _objects = _selected);
+        // scope.dispatchEvent({type: 'drag'}, _objects = _selected);
 
 
     }
@@ -183,7 +180,7 @@ var DragFrames = function(_objects, _camera, _scene, _orthoScene, _renderer) {
     this.dispose = dispose;
     this.getObjects = getObjects;
     this.getSelected = getSelected;
-}
+};
 
 DragFrames.prototype = Object.create( THREE.EventDispatcher.prototype );
 DragFrames.prototype.constructor = DragFrames;
