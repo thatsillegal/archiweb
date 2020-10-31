@@ -11,6 +11,7 @@ const window = new function () {
     this.grid = 0;
 
     this.unit = 'Millimeters'
+    this.info = false;
 
     this.update = function () {
         index.windowResize(this.width, this.height);
@@ -65,7 +66,19 @@ function initGUI() {
 
     const util = gui.addFolder('Utils');
     util.add(window, 'update');
+    util.add(window, 'info').onChange(
+        function () {
+            let x = document.getElementById("info-card");
+            if (window.info === true) {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+
+        }
+    );
     util.open();
+
 
     const container = document.getElementById('gui-container');
     container.appendChild(gui.domElement);

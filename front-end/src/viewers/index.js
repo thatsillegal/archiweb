@@ -9,17 +9,18 @@ import { FlyControls } from "three/examples/jsm/controls/FlyControls";
 // const OrbitControls = require('three-orbit-controls');
 
 import { DragFrames } from "@/viewers/DragFrames";
+import {SceneBasic} from "@/viewers/SceneBasic";
 
 const gui = require('@/viewers/gui')
 
 let renderer, camera, scene, light;
 let controls, dragControls, dragFrames;
+let sceneBasic;
 
 let sceneOrtho, cameraOrtho;
 
-const OFFSET_HEIGHT = 0;
 let width = window.innerWidth;
-let height = window.innerHeight - OFFSET_HEIGHT;
+let height = window.innerHeight;
 
 const objects = [];
 
@@ -34,6 +35,10 @@ function initRender() {
     renderer.setSize(width, height);
     gui.window.width = width;
     gui.window.height = height;
+
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     addToDOM();
 }
 
@@ -60,7 +65,7 @@ let gridHelper = new THREE.GridHelper(1000,20);
 function gridUpdate(value) {
     scene.remove(gridHelper);
     if(value > 0) {
-        gridHelper = new THREE.GridHelper(value, 20);
+        gridHelper = new THREE.GridHelper(2*value, 20);
         gridHelper.rotateX(Math.PI/2.0);
         scene.add(gridHelper);
     }
@@ -74,6 +79,7 @@ function axesUpdate(value) {
 }
 
 function initScene() {
+    sceneBasic = new THREE.Scene();
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xfafafa);
 
@@ -81,11 +87,13 @@ function initScene() {
     const box = new THREE.BoxBufferGeometry(300, 300, 300);
     // box.scale(0.001, 0.001, 0.001);
     const b1 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+    b1.castShadow = true;
     b1.position.set(150, 150, 150);
     objects.push(b1);
     scene.add(b1);
 
     const b2 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+    b2.castShadow = true;
     b2.scale.set(1, 1, 1.0/3);
     b2.position.set(-300,-300, 50);
     objects.push(b2);
@@ -164,6 +172,7 @@ function initMouseControls() {
         RIGHT: THREE.MOUSE.ROTATE
     }
 
+
 }
 
 function initWASDControls() {
@@ -178,6 +187,8 @@ function initWASDControls() {
 }
 
 function render() {
+    renderer.clear();
+    renderer.render(sceneBasic, camera);
     renderer.clear();
     renderer.render(scene, camera);
     renderer.clearDepth();
@@ -202,7 +213,7 @@ function windowResize(w, h) {
 //窗口变动触发的函数
 function onWindowResize() {
     width = window.innerWidth;
-    height = window.innerHeight - OFFSET_HEIGHT;
+    height = window.innerHeight;
 
     windowResize(width, height);
 
@@ -268,13 +279,14 @@ function init() {
     initOrthoScene();
     initOrthoCamera();
     initLight();
-    initPerspectiveCamera();
+    // initPerspectiveCamera();
     // initWASDControls();
-    initMouseControls();
-    // controlsUpdate(gui.controls.control);
+    // initMouseControls();
+    controlsUpdate(gui.controls.control);
     //
     // initBoxSelection();
     initDragFrames();
+    let sb = new SceneBasic(scene);
 
     animate();
 }
