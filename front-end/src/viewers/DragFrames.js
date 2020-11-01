@@ -1,10 +1,7 @@
-// /* eslint-disable no-unused-vars */
 import * as THREE from 'three'
-// import {SelectionBox} from "three/examples/jsm/interactive/SelectionBox";
 
 const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) {
   
-  // let _selectionBox = new SelectionBox(_camera, _scene);
   let _domElement = _renderer.domElement;
   let _dragInitX, _dragInitY;
   let _startPoint = new THREE.Vector3();
@@ -63,29 +60,18 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
   }
   
   function dispose() {
-    
     deactivate();
-    
   }
   
-  function getObjects() {
-    
-    return _objects;
-    
-  }
-  
-  function getSelected() {
-    return _selected;
+  function unSelected() {
+    for(let i = 0; i < _selected.length; ++ i) {
+      _selected[i].material.emissive.set(0x000000);
+    }
+    _selected = [];
   }
   
   
   function onDocumentPointerDown(event) {
-    for (const item of _selected) {
-      
-      item.material.emissive.set(0x000000);
-      
-    }
-    _selected = [];
     
     if (scope.enabled) {
       _startPoint.set(
@@ -97,7 +83,7 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
       _dragInitY = event.clientY;
       
       _selectDown = true;
-      
+  
     }
   }
   
@@ -105,14 +91,7 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
   function onDocumentPointerMove(event) {
     
     if (_selectDown) {
-      for (const item of _selected) {
-        
-        if (item.type === "AxesHelper") continue;
-        if (item.type === "GridHelper") continue;
-        item.material.emissive.set(0x000000);
-        
-      }
-      _selected = [];
+
       
       if (scope.enabled) {
         
@@ -122,15 +101,10 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
           0.5);
         
         _selected = select();
-        
-        for (const item of _selected) {
-          item.material.emissive.set(0x666666);
-          
-        }
-        //
-        // scope.dispatchEvent({type: 'drag'}, _objects = _selected);
-        drawLineFrame(_dragInitX, _dragInitY, event.clientX, event.clientY);
 
+        scope.dispatchEvent({type: 'selectdown', object: _selected});
+        drawLineFrame(_dragInitX, _dragInitY, event.clientX, event.clientY);
+  
       }
     }
     
@@ -148,15 +122,10 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
         -(event.clientY / window.innerHeight) * 2 + 1,
         0.5);
       
-      
       _selected = select();
-      
-      for (const item of _selected) {
-        item.material.emissive.set(0x666666);
-      }
+
+      scope.dispatchEvent({type: 'selectup', object: _selected});
     }
-    
-    
     
   }
   
@@ -177,18 +146,14 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
   function updateFrustum(startPoint, endPoint) {
     startPoint = startPoint || _startPoint;
     endPoint = endPoint || _endPoint;
+    
     // Avoid invalid frustum
-  
     if ( startPoint.x === endPoint.x ) {
-    
       endPoint.x += Number.EPSILON;
-    
     }
   
     if ( startPoint.y === endPoint.y ) {
-    
       endPoint.y += Number.EPSILON;
-    
     }
     
     _camera.updateProjectionMatrix();
@@ -289,14 +254,10 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
   
   this.enabled = true;
   
-  this.activate = activate;
-  this.deactivate = deactivate;
   this.dispose = dispose;
-  this.getObjects = getObjects;
-  this.getSelected = getSelected;
+  this.unSelected = unSelected;
 };
 
 DragFrames.prototype = Object.create(THREE.EventDispatcher.prototype);
-DragFrames.prototype.constructor = DragFrames;
 
 export {DragFrames};

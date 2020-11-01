@@ -9,9 +9,9 @@
       flat
       tile
     >
-      <v-card-title class="py-2 white--text">
+      <v-card-title class="py-2 white--text body-2">
         
-        {{ new Date().getFullYear() }}-
+        {{ new Date().getFullYear() }} - ©
         <a class="text-decoration-none" href="http://labaaa.org" style="color:#ffffff;" target="_blank">
           <strong>Inst. AAA</strong>
         </a>

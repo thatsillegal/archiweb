@@ -6,7 +6,6 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {DragControls} from "three/examples/jsm/controls/DragControls";
 import {FlyControls} from "three/examples/jsm/controls/FlyControls";
 
-// const OrbitControls = require('three-orbit-controls');
 import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
 
@@ -16,14 +15,13 @@ let renderer, camera, scene, light;
 let controls, dragControls, dragFrames;
 let sceneBasic;
 
-let sceneOrtho, cameraOrtho;
+let sceneOtho, cameraOtho;
 
 let width = window.innerWidth;
 let height = window.innerHeight;
 
 const objects = [];
 
-let selected = null;
 let grouped;
 
 
@@ -32,17 +30,13 @@ function initRender() {
   renderer.setClearColor(0x000000, 0);
   renderer.autoClear = false;
   renderer.setSize(width, height);
-  gui.window.width = width;
-  gui.window.height = height;
   
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
   addToDOM();
 }
 
 function initOrthoScene() {
-  sceneOrtho = new THREE.Scene();
+  sceneOtho = new THREE.Scene();
 }
 
 function initPerspectiveCamera() {
@@ -52,29 +46,10 @@ function initPerspectiveCamera() {
 }
 
 function initOrthoCamera() {
-  cameraOrtho = new THREE.OrthographicCamera(-width / 2, width / 2, -height / 2, height / 2, 1, 10);
-  cameraOrtho.position.x = width / 2 - 8;
-  cameraOrtho.position.y = height / 2;
-  cameraOrtho.position.z = 10;
-}
-
-let axesHelper = new THREE.AxesHelper(5000);
-let gridHelper = new THREE.GridHelper(1000, 20);
-
-function gridUpdate(value) {
-  scene.remove(gridHelper);
-  if (value > 0) {
-    gridHelper = new THREE.GridHelper(2 * value, 20);
-    gridHelper.rotateX(Math.PI / 2.0);
-    scene.add(gridHelper);
-  }
-}
-
-function axesUpdate(value) {
-  if (value === false)
-    scene.remove(axesHelper);
-  else
-    scene.add(axesHelper);
+  cameraOtho = new THREE.OrthographicCamera(-width / 2, width / 2, -height / 2, height / 2, 1, 10);
+  cameraOtho.position.x = width / 2 - 8;
+  cameraOtho.position.y = height / 2;
+  cameraOtho.position.z = 10;
 }
 
 function initScene() {
@@ -82,7 +57,6 @@ function initScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xfafafa);
   
-  scene.add(axesHelper);
   const box = new THREE.BoxBufferGeometry(300, 300, 300);
   // box.scale(0.001, 0.001, 0.001);
   const b1 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
@@ -99,9 +73,6 @@ function initScene() {
   scene.add(b2);
   
   grouped = new THREE.Group();
-  grouped.add(b1);
-  grouped.add(b2);
-  objects.push(grouped);
   scene.add(grouped);
   
 }
@@ -136,9 +107,22 @@ function controlsUpdate(method) {
 
 function initDragFrames() {
   
-  dragFrames = new DragFrames(objects, camera, scene, sceneOrtho, renderer);
+  dragFrames = new DragFrames(objects, camera, scene, sceneOtho, renderer);
   
   dragFrames.enabled = false;
+  
+  dragFrames.addEventListener('selectdown', function(event) {
+    for(let i = 0; i < event.object.length; ++ i) {
+      event.object[i].material.emissive.set(0x666600);
+    }
+  });
+  
+  dragFrames.addEventListener('selectup', function (event){
+    console.log("out");
+    for(let i = 0; i < event.object.length; ++ i) {
+      event.object[i].material.emissive.set(0x000000);
+    }
+  });
 }
 
 function initDragControls() {
@@ -147,6 +131,7 @@ function initDragControls() {
   let posZ = 0;
   dragControls.addEventListener('dragstart', function (event) {
     
+    console.log(event);
     event.object.material.emissive.set(0xaaaaaa);
     posZ = event.object.position.z;
     
@@ -190,24 +175,22 @@ function initWASDControls() {
 
 function render() {
   renderer.clear();
-  renderer.render(sceneBasic, camera);
-  renderer.clear();
   renderer.render(scene, camera);
   renderer.clearDepth();
-  renderer.render(sceneOrtho, cameraOrtho);
+  renderer.render(sceneOtho, cameraOtho);
 }
 
 function windowResize(w, h) {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   
-  cameraOrtho.left = -w / 2;
-  cameraOrtho.right = w / 2;
-  cameraOrtho.top = -h / 2;
-  cameraOrtho.bottom = h / 2;
-  cameraOrtho.position.x = w / 2 - 8;
-  cameraOrtho.position.y = h / 2;
-  cameraOrtho.updateProjectionMatrix();
+  cameraOtho.left = -w / 2;
+  cameraOtho.right = w / 2;
+  cameraOtho.top = -h / 2;
+  cameraOtho.bottom = h / 2;
+  cameraOtho.position.x = w / 2 - 8;
+  cameraOtho.position.y = h / 2;
+  cameraOtho.updateProjectionMatrix();
   
   renderer.setSize(w, h);
 }
@@ -218,9 +201,7 @@ function onWindowResize() {
   height = window.innerHeight;
   
   windowResize(width, height);
-  
-  gui.window.width = width;
-  gui.window.height = height;
+
 }
 
 
@@ -228,10 +209,10 @@ function animate() {
   //更新控制器
   controls.update();
   render();
-  let selected = dragFrames.getSelected();
-  if (selected != null && selected.length > 0) {
-    console.log(selected);
-  }
+  // let selected = dragFrames.getSelected();
+  // if (selected != null && selected.length > 0) {
+  //   console.log(selected);
+  // }
   
   requestAnimationFrame(animate);
 }
@@ -265,6 +246,7 @@ function onDocumentKeyUp(event) {
     controls.update();
   }
   if (keyCode === 17) {
+    dragFrames.unSelected();
     dragFrames.enabled = false;
     controls.enabled = true;
   }
@@ -275,23 +257,7 @@ function onDocumentKeyUp(event) {
 }
 
 
-function init() {
-  initRender();
-  initScene();
-  initOrthoScene();
-  initOrthoCamera();
-  initLight();
-  // initPerspectiveCamera();
-  // initWASDControls();
-  // initMouseControls();
-  controlsUpdate(gui.controls.control);
-  //
-  // initBoxSelection();
-  initDragFrames();
-  let sb = new SceneBasic(scene);
-  
-  animate();
-}
+
 
 function addToDOM() {
   const container = document.getElementById('container');
@@ -307,6 +273,26 @@ function addToDOM() {
   
 }
 
+function init() {
+  initRender();
+  initScene();
+  initOrthoScene();
+  initOrthoCamera();
+  initLight();
+  gui.initGUI();
+  // initPerspectiveCamera();
+  // initWASDControls();
+  // initMouseControls();
+  controlsUpdate(gui.controls.control);
+  //
+  initDragFrames();
+  sceneBasic = new SceneBasic(scene, renderer);
+  sceneBasic.addGUI(gui.gui);
+
+  console.log(sceneBasic.floor.material)
+  
+  animate();
+}
 
 function main() {
   init();
@@ -315,7 +301,5 @@ function main() {
 export {
   main,
   windowResize,
-  axesUpdate,
   controlsUpdate,
-  gridUpdate,
 }
