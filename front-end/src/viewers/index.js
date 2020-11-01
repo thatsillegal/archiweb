@@ -5,6 +5,9 @@ import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {DragControls} from "three/examples/jsm/controls/DragControls";
 import {FlyControls} from "three/examples/jsm/controls/FlyControls";
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
+import {Wireframe} from "three/examples/jsm/lines/Wireframe";
+import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 
 import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
@@ -52,6 +55,15 @@ function initOrthoCamera() {
   cameraOtho.position.z = 10;
 }
 
+function meshLine(geometry, color, linewidth) {
+  const matLine = new LineMaterial( {color: color, linewidth: linewidth} );
+  const geoLine = new WireframeGeometry2(geometry);
+  const wireframe = new Wireframe( geoLine, matLine );
+  wireframe.computeLineDistances();
+  wireframe.scale.set( 1, 1, 1 );
+  return wireframe;
+}
+
 function initScene() {
   sceneBasic = new THREE.Scene();
   scene = new THREE.Scene();
@@ -59,9 +71,10 @@ function initScene() {
   
   const box = new THREE.BoxBufferGeometry(300, 300, 300);
   // box.scale(0.001, 0.001, 0.001);
+  
+  
   const b1 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
-  const wireframeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } );
-  b1.add(new THREE.Mesh(box, wireframeMaterial));
+  b1.add(meshLine(box, 0xffff00, 0.005));
   b1.children[0].visible = false;
   
   b1.castShadow = true;
@@ -71,14 +84,15 @@ function initScene() {
   
   
   const b2 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
-  b2.add(new THREE.Mesh(box, wireframeMaterial));
+  b2.add(meshLine(box, 0xffff00, 0.005));
   b2.children[0].visible = false;
+
   b2.castShadow = true;
   b2.scale.set(1, 1, 1.0 / 3);
   b2.position.set(-300, -300, 50);
   objects.push(b2);
   scene.add(b2);
-  
+
   grouped = new THREE.Group();
   scene.add(grouped);
   

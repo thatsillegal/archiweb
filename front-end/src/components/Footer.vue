@@ -9,7 +9,7 @@
       flat
       tile
     >
-      <v-card-title class="py-2 white--text body-2">
+      <v-card-title class="py-2 white--text body-1">
         
         {{ new Date().getFullYear() }} - ©
         <a class="text-decoration-none" href="http://labaaa.org" style="color:#ffffff;" target="_blank">
