@@ -67,7 +67,7 @@ const SceneBasic = function (_scene, _renderer) {
   
   function skyColorUpdate() {
     _scene.background = new THREE.Color(scope.skyColor);
-    _scene.fog = new THREE.Fog(scope.skyColor, 100, 10000);
+    _scene.fog = new THREE.Fog(scope.skyColor, 1000, 10000);
   
   }
   

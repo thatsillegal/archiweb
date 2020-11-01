@@ -11,7 +11,7 @@
             alt="Logo"
             class="shrink mr-2"
             contain
-            src="@/assets/AAA_x128_black.png"
+            src="@/assets/AAA-logo-text-black.png"
             transition="scale-transition"
             width="40"
           />
