@@ -66,6 +66,9 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
   function unSelected() {
     for(let i = 0; i < _selected.length; ++ i) {
       _selected[i].material.emissive.set(0x000000);
+      if(_selected[i].children.length > 0) {
+        _selected[i].children[0].visible = false;
+      }
     }
     _selected = [];
   }

@@ -60,12 +60,19 @@ function initScene() {
   const box = new THREE.BoxBufferGeometry(300, 300, 300);
   // box.scale(0.001, 0.001, 0.001);
   const b1 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  const wireframeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } );
+  b1.add(new THREE.Mesh(box, wireframeMaterial));
+  b1.children[0].visible = false;
+  
   b1.castShadow = true;
   b1.position.set(150, 150, 150);
   objects.push(b1);
   scene.add(b1);
   
+  
   const b2 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  b2.add(new THREE.Mesh(box, wireframeMaterial));
+  b2.children[0].visible = false;
   b2.castShadow = true;
   b2.scale.set(1, 1, 1.0 / 3);
   b2.position.set(-300, -300, 50);
@@ -113,7 +120,11 @@ function initDragFrames() {
   
   dragFrames.addEventListener('selectdown', function(event) {
     for(let i = 0; i < event.object.length; ++ i) {
+      console.log(event.object[i]);
       event.object[i].material.emissive.set(0x666600);
+      if(event.object[i].children.length > 0)
+        event.object[i].children[0].visible = true;
+      // event.object[i].material.wireframe = true;
     }
   });
   
@@ -121,6 +132,9 @@ function initDragFrames() {
     console.log("out");
     for(let i = 0; i < event.object.length; ++ i) {
       event.object[i].material.emissive.set(0x000000);
+      // event.object[i].material.wireframe = false;
+      if(event.object[i].children.length > 0)
+        event.object[i].children[0].visible = false;
     }
   });
 }
@@ -195,24 +209,11 @@ function windowResize(w, h) {
   renderer.setSize(w, h);
 }
 
-//窗口变动触发的函数
-function onWindowResize() {
-  width = window.innerWidth;
-  height = window.innerHeight;
-  
-  windowResize(width, height);
-
-}
-
 
 function animate() {
-  //更新控制器
+  
   controls.update();
   render();
-  // let selected = dragFrames.getSelected();
-  // if (selected != null && selected.length > 0) {
-  //   console.log(selected);
-  // }
   
   requestAnimationFrame(animate);
 }
@@ -267,7 +268,9 @@ function addToDOM() {
   }
   container.appendChild(renderer.domElement);
   
-  window.onresize = onWindowResize;
+  window.onresize = function () {
+    windowResize(window.innerWidth, window.innerHeight);
+  };
   renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
   renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
   
