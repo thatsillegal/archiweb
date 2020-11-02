@@ -25,6 +25,7 @@ const SceneBasic = function (_scene, _renderer) {
     skyColorUpdate();
 
     //TODO light modifier and shadow bugs
+  
     
     const dirLight = new THREE.DirectionalLight(0xffffff);
     dirLight.position.set(200, -400, 500);

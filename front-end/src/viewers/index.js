@@ -1,11 +1,11 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars,no-case-declarations */
 "use strict";
 
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
-import {DragControls} from "three/examples/jsm/controls/DragControls";
-import {FlyControls} from "three/examples/jsm/controls/FlyControls";
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
+import {TransformControls} from "three/examples/jsm/controls/TransformControls";
+
+import {LineMaterial} from 'three/examples/jsm/lines/LineMaterial';
 import {Wireframe} from "three/examples/jsm/lines/Wireframe";
 import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 
@@ -14,53 +14,63 @@ import {SceneBasic} from "@/viewers/SceneBasic";
 
 const gui = require('@/viewers/gui')
 
-let renderer, camera, scene, light;
-let controls, dragControls, dragFrames;
-let sceneBasic;
+let renderer, scene;
+let orbit, control;
+let cameraPersp, cameraOrtho, currentCamera;
+let sceneBasic, dragFrames;
 
-let sceneOtho, cameraOtho;
-
-let width = window.innerWidth;
-let height = window.innerHeight;
+let scene2D, camera2D;
 
 const objects = [];
+let selected = [];
 
 let grouped;
-
 
 function initRender() {
   renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
   renderer.setClearColor(0x000000, 0);
   renderer.autoClear = false;
-  renderer.setSize(width, height);
   
-
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  
   addToDOM();
 }
 
-function initOrthoScene() {
-  sceneOtho = new THREE.Scene();
+function initCamera(width, height) {
+  initPerspectiveCamera(width, height);
+  initOrthographicCamera(width, height);
+  initCamera2D(width, height);
+  
+  currentCamera = cameraPersp;
 }
 
-function initPerspectiveCamera() {
-  camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-  camera.position.set(1000, -1500, 1000);
-  camera.up = new THREE.Vector3(0, 0, 1);
+function initOrthographicCamera(width, height) {
+  let aspect = width / height;
+  cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 0.01, 30000);
 }
 
-function initOrthoCamera() {
-  cameraOtho = new THREE.OrthographicCamera(-width / 2, width / 2, -height / 2, height / 2, 1, 10);
-  cameraOtho.position.x = width / 2 - 8;
-  cameraOtho.position.y = height / 2;
-  cameraOtho.position.z = 10;
+function initPerspectiveCamera(width, height) {
+  cameraPersp = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+  cameraPersp.position.set(1000, -1500, 1000);
+  cameraPersp.up = new THREE.Vector3(0, 0, 1);
+}
+
+function initCamera2D(width, height) {
+  
+  scene2D = new THREE.Scene();
+  
+  camera2D = new THREE.OrthographicCamera(-width / 2, width / 2, -height / 2, height / 2, 1, 10);
+  camera2D.position.x = width / 2 - 8;
+  camera2D.position.y = height / 2;
+  camera2D.position.z = 10;
 }
 
 function meshLine(geometry, color, linewidth) {
-  const matLine = new LineMaterial( {color: color, linewidth: linewidth} );
+  const matLine = new LineMaterial({color: color, linewidth: linewidth});
   const geoLine = new WireframeGeometry2(geometry);
-  const wireframe = new Wireframe( geoLine, matLine );
+  const wireframe = new Wireframe(geoLine, matLine);
   wireframe.computeLineDistances();
-  wireframe.scale.set( 1, 1, 1 );
+  wireframe.scale.set(1, 1, 1);
   return wireframe;
 }
 
@@ -86,192 +96,313 @@ function initScene() {
   const b2 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
   b2.add(meshLine(box, 0xffff00, 0.005));
   b2.children[0].visible = false;
-
+  
   b2.castShadow = true;
   b2.scale.set(1, 1, 1.0 / 3);
   b2.position.set(-300, -300, 50);
   objects.push(b2);
   scene.add(b2);
-
+  
+  const b3 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  b3.add(meshLine(box, 0xffff00, 0.005));
+  b3.children[0].visible = false;
+  
+  b3.castShadow = true;
+  b3.scale.set(1, 1, 1.0 / 2);
+  b3.position.set(300, -500, 75);
+  objects.push(b3);
+  scene.add(b3) ;
+  
   grouped = new THREE.Group();
   scene.add(grouped);
   
+  
 }
 
-function initLight() {
-  scene.add(new THREE.AmbientLight(0x404040));
-  
-  light = new THREE.DirectionalLight(0xffffff, 1);
-  light.position.set(10, -20, 15);
-  scene.add(light);
-}
-
-function controlsUpdate(method) {
-  if (method === 'Mouse') {
-    console.log('now Mouse')
+function attachObject(objs) {
+  if(objs.length === 1) {
+    control.attach(objs[0]);
+    dragFrames.enabled = false;
+  } else if (objs.length > 1) {
+    // grouped = new THREE.Group();
     
-    
-    initPerspectiveCamera();
-    initMouseControls();
-    initDragControls();
+    for(let i = 0; i < objs.length; ++ i) {
+      grouped.add(objs[i]);
+    }
+    control.attach(grouped);
+    dragFrames.enabled = false;
   }
-  if (method === 'WASD') {
-    console.log('now WASD')
-    
-    
-    initPerspectiveCamera();
-    initWASDControls();
-    
-  }
-  
 }
 
 function initDragFrames() {
   
-  dragFrames = new DragFrames(objects, camera, scene, sceneOtho, renderer);
+  dragFrames = new DragFrames(objects, cameraPersp, scene, scene2D, renderer);
   
-  dragFrames.enabled = false;
+  dragFrames.enabled = true;
   
   dragFrames.addEventListener('selectdown', function(event) {
-    for(let i = 0; i < event.object.length; ++ i) {
-      console.log(event.object[i]);
-      event.object[i].material.emissive.set(0x666600);
-      if(event.object[i].children.length > 0)
-        event.object[i].children[0].visible = true;
-      // event.object[i].material.wireframe = true;
+    for (let i = 0; i < event.object.length; ++ i) {
+      scene.attach(event.object[i]);
     }
   });
   
-  dragFrames.addEventListener('selectup', function (event){
-    console.log("out");
-    for(let i = 0; i < event.object.length; ++ i) {
+  dragFrames.addEventListener('select', function (event) {
+    for (let i = 0; i < event.object.length; ++i) {
+      event.object[i].material.emissive.set(0x666600);
+      if (event.object[i].children.length > 0)
+        event.object[i].children[0].visible = true;
+    }
+    selected = event.object;
+  });
+  
+  dragFrames.addEventListener('selectup', function (event) {
+    for (let i = 0; i < event.object.length; ++i) {
       event.object[i].material.emissive.set(0x000000);
-      // event.object[i].material.wireframe = false;
-      if(event.object[i].children.length > 0)
+      if (event.object[i].children.length > 0)
         event.object[i].children[0].visible = false;
     }
+    selected = event.object;
   });
 }
 
-function initDragControls() {
-  dragControls = new DragControls(objects, camera, renderer.domElement);
-  
-  let posZ = 0;
-  dragControls.addEventListener('dragstart', function (event) {
-    
-    console.log(event);
-    event.object.material.emissive.set(0xaaaaaa);
-    posZ = event.object.position.z;
-    
-  });
-  
-  dragControls.addEventListener('drag', function (event) {
-    event.object.position.z = posZ;
-  });
-  dragControls.addEventListener('dragend', function (event) {
-    
-    event.object.material.emissive.set(0x000000);
-    // event.object.position.z = 0;
-    
-  });
-  dragControls.enabled = false;
-}
 
-function initMouseControls() {
+function initControls() {
   
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enablePan = false;
+  orbit = new OrbitControls(cameraPersp, renderer.domElement);
+  orbit.enablePan = false;
   
-  controls.mouseButtons = {
+  orbit.mouseButtons = {
     LEFT: THREE.MOUSE.PAN,
     RIGHT: THREE.MOUSE.ROTATE
   }
   
+  orbit.addEventListener( 'change', render );
   
-}
-
-function initWASDControls() {
-  controls = new FlyControls(camera, renderer.domElement);
+  control = new TransformControls( currentCamera, renderer.domElement );
+  control.addEventListener( 'change', render );
   
-  controls.movementSpeed = 1000;
-  controls.domElement = renderer.domElement;
-  controls.rollSpeed = Math.PI / 24;
-  controls.autoForward = true;
-  controls.dragToLook = true;
+  control.addEventListener( 'dragging-changed', function ( event ) {
   
-}
-
-function render() {
-  renderer.clear();
-  renderer.render(scene, camera);
-  renderer.clearDepth();
-  renderer.render(sceneOtho, cameraOtho);
+    console.log(event.value);
+    orbit.enabled = ! event.value;
+    
+  } );
+  
+  scene.add( control );
+  
 }
 
 function windowResize(w, h) {
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
+  cameraPersp.aspect = w / h;
+  cameraPersp.updateProjectionMatrix();
   
-  cameraOtho.left = -w / 2;
-  cameraOtho.right = w / 2;
-  cameraOtho.top = -h / 2;
-  cameraOtho.bottom = h / 2;
-  cameraOtho.position.x = w / 2 - 8;
-  cameraOtho.position.y = h / 2;
-  cameraOtho.updateProjectionMatrix();
+  camera2D.left = -w / 2;
+  camera2D.right = w / 2;
+  camera2D.top = -h / 2;
+  camera2D.bottom = h / 2;
+  camera2D.position.x = w / 2 - 8;
+  camera2D.position.y = h / 2;
+  camera2D.updateProjectionMatrix();
+  
+  cameraOrtho.left = cameraOrtho.bottom * w / h;
+  cameraOrtho.right = cameraOrtho.top * w / h;
+  cameraOrtho.updateProjectionMatrix();
   
   renderer.setSize(w, h);
 }
 
 
+function render() {
+  renderer.clear();
+  renderer.render(scene, cameraPersp);
+  renderer.clearDepth();
+  renderer.render(scene2D, camera2D);
+}
+
+
 function animate() {
   
-  controls.update();
+  orbit.update();
   render();
-  
+
   requestAnimationFrame(animate);
 }
 
 
 function onDocumentKeyDown(event) {
-  let {which: keyCode} = event;
-  console.log(keyCode + 'down')
-  if (keyCode === 16) {
-    controls.enableRotate = false;
-    controls.enablePan = true;
-    controls.update();
-  }
-  if (keyCode === 17) {
-    controls.enabled = false;
-    dragFrames.enabled = true;
-  }
-  if (keyCode === 18) {
-    controls.enabled = false;
-    dragControls.enabled = true;
+  switch (event.keyCode) {
+    
+    case 81: // Q
+      control.setSpace(control.space === "local" ? "world" : "local");
+      break;
+    
+    case 16: // Shift
+      control.setTranslationSnap(100);
+      control.setRotationSnap(THREE.MathUtils.degToRad(15));
+      control.setScaleSnap(0.25);
+      break;
+    
+    case 87: // W
+      control.setMode("translate");
+      break;
+    
+    case 69: // E
+      control.setMode("rotate");
+      break;
+    
+    case 82: // R
+      control.setMode("scale");
+      break;
+    
+    case 67: // C
+      const position = currentCamera.position.clone();
+      
+      currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
+      currentCamera.position.copy(position);
+      
+      orbit.object = currentCamera;
+      control.camera = currentCamera;
+      
+      currentCamera.lookAt(orbit.target.x, orbit.target.y, orbit.target.z);
+      windowResize();
+      break;
+    
+    case 86: // V
+      const randomFoV = Math.random() + 0.1;
+      const randomZoom = Math.random() + 0.1;
+      
+      cameraPersp.fov = randomFoV * 160;
+      cameraOrtho.bottom = -randomFoV * 500;
+      cameraOrtho.top = randomFoV * 500;
+      
+      cameraPersp.zoom = randomZoom * 5;
+      cameraOrtho.zoom = randomZoom * 5;
+      windowResize();
+      break;
+    
+    case 187:
+    case 107: // +, =, num+
+      control.setSize(control.size + 0.1);
+      break;
+    
+    case 189:
+    case 109: // -, _, num-
+      control.setSize(Math.max(control.size - 0.1, 0.1));
+      break;
+
+    
+    case 32: // Spacebar
+      control.enabled = !control.enabled;
+      break;
+    
   }
   
 }
 
 function onDocumentKeyUp(event) {
-  let {which: keyCode} = event;
-  console.log(keyCode + 'up')
-  if (keyCode === 16) {
-    controls.enableRotate = true;
-    controls.enablePan = false;
-    controls.update();
+  switch (event.keyCode) {
+    
+    case 16: // Shift
+      control.setTranslationSnap(null);
+      control.setRotationSnap(null);
+      control.setScaleSnap(null);
+      break;
+    
   }
-  if (keyCode === 17) {
-    dragFrames.unSelected();
-    dragFrames.enabled = false;
-    controls.enabled = true;
+  
+}
+
+function setChildMatrix(object, matrix) {
+  if(!object.isGroup) {
+    object.matrix *= matrix;
+    return;
   }
-  if (keyCode === 18) {
-    dragControls.enabled = false;
-    controls.enabled = true;
+  for (let i = 0; i < object.children.length; ++ i) {
+    setChildMatrix(object.children[i], matrix);
+  }
+}
+
+function setChildPosition(object, position) {
+  if(!object.isGroup) {
+    // object.position.copy(position);
+    object.position.x += position.x;
+    object.position.y += position.y;
+    object.position.z += position.z;
+  
+    object.updateMatrixWorld(true);
+    return;
+  }
+  for(let i = 0; i < object.children.length; ++ i) {
+    setChildPosition(object.children[i], position);
+  }
+}
+
+function setChildRotation(object, rotation) {
+  if(!object.isGroup) {
+    object.rotation.x += rotation.x;
+    object.rotation.y += rotation.y;
+    object.rotation.z += rotation.z;
+    object.updateMatrixWorld(true);
+    return;
+  }
+  for(let i = 0; i < object.children.length; ++ i) {
+    setChildPosition(object.children[i], rotation);
+  }
+}
+
+function setChildScale(object, scale) {
+  if(!object.isGroup) {
+    object.scale.x *= scale.x;
+    object.scale.y *= scale.y;
+    object.scale.z *= scale.z;
+    return;
+  }
+  for(let i = 0; i < object.children.length; ++ i) {
+    setChildPosition(object.children[i], scale);
   }
 }
 
 
+function onClick(event) {
+  
+  
+  const mouse = new THREE.Vector2(), raycaster = new THREE.Raycaster();
+  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  raycaster.setFromCamera( mouse, currentCamera );
+  
+  const intersections = raycaster.intersectObjects( objects, true );
+  
+  console.log("inter " + intersections.length);
+  console.log("selec " + selected.length);
+  
+  if(selected.length > 0) {
+     attachObject(selected);
+     selected = [];
+  } else if ( intersections.length > 0 ) {
+    attachObject([intersections[0].object]);
+  } else {
+    // control.object;
+    let object = control.object;
+    if(object !== undefined && object.isGroup) {
+  
+      console.log(object);
+      console.log(object.rotation)
+      console.log( object.matrix);
+      console.log( object.matrixWorld);
+      
+      setChildPosition(object, object.position);
+      setChildRotation(object, object.rotation);
+      setChildScale(object, object.scale);
+  
+      object.position.set(0,0,0);
+      object.rotation.set(0,0,0);
+      object.scale.set(1,1,1);
+    }
+    control.detach();
+    dragFrames.enabled = true;
+  }
+}
 
 
 function addToDOM() {
@@ -287,36 +418,28 @@ function addToDOM() {
   };
   renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
   renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
+  renderer.domElement.addEventListener('click', onClick, false);
   
 }
 
 function init() {
   initRender();
   initScene();
-  initOrthoScene();
-  initOrthoCamera();
-  initLight();
+  initCamera(window.innerWidth, window.innerHeight);
+  initControls();
+  
   gui.initGUI();
-  // initPerspectiveCamera();
-  // initWASDControls();
-  // initMouseControls();
-  controlsUpdate(gui.controls.control);
-  //
   initDragFrames();
   sceneBasic = new SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui.gui);
-
-  console.log(sceneBasic.floor.material)
   
-  animate();
 }
 
 function main() {
   init();
+  animate();
 }
 
 export {
   main,
-  windowResize,
-  controlsUpdate,
 }
