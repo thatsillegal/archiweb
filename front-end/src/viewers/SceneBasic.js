@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 
 
-const SceneBasic = function (_scene, _renderer) {
+const SceneBasic = function (_scene, _renderer, _control) {
   let scope = this;
   this.floorColor = '#898970';
   this.skyColor = '#bddbdb';
@@ -91,6 +91,16 @@ const SceneBasic = function (_scene, _renderer) {
       .listen().onChange(
       function () {
         gridUpdate(scope.grid);
+  
+        if(scope.grid > 0) {
+          _control.setTranslationSnap(scope.grid);
+          _control.setRotationSnap(THREE.MathUtils.degToRad(15));
+          _control.setScaleSnap(0.25);
+        } else {
+          _control.setTranslationSnap(null);
+          _control.setRotationSnap(null);
+          _control.setScaleSnap(null);
+        }
       }
     );
     sceneBasic.addColor(scope, 'skyColor').name('sky').onChange(function() {

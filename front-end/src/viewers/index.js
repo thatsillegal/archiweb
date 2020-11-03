@@ -244,9 +244,7 @@ function onDocumentKeyDown(event) {
       break;
     
     case 16: // Shift
-      control.setTranslationSnap(100);
-      control.setRotationSnap(THREE.MathUtils.degToRad(15));
-      control.setScaleSnap(0.25);
+
       break;
     
     case 87: // W
@@ -437,7 +435,7 @@ function init() {
   
   gui.initGUI();
   initDragFrames();
-  sceneBasic = new SceneBasic(scene, renderer);
+  sceneBasic = new SceneBasic(scene, renderer, control);
   sceneBasic.addGUI(gui.gui);
   
 }
