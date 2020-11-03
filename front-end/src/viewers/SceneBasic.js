@@ -10,6 +10,7 @@ const SceneBasic = function (_scene, _renderer) {
   const matFloor = new THREE.MeshPhongMaterial({color: scope.floorColor, depthWrite: false});
   const geoFloor = new THREE.PlaneBufferGeometry(20000, 20000);
   const mshFloor = new THREE.Mesh(geoFloor, matFloor);
+  const dirLight = new THREE.DirectionalLight(0xffffff);
   
   let gridHelper = new THREE.GridHelper(1000, 20);
   let axesHelper = new THREE.AxesHelper(5000);
@@ -25,22 +26,22 @@ const SceneBasic = function (_scene, _renderer) {
     skyColorUpdate();
 
     //TODO light modifier and shadow bugs
+    _scene.add( new THREE.AmbientLight( 0x444445 ) );
   
-    
-    const dirLight = new THREE.DirectionalLight(0xffffff);
-    dirLight.position.set(200, -400, 500);
+  
+    dirLight.position.set(200, -400, 400);
     dirLight.castShadow = true;
-    dirLight.shadow.camera.top = 50;
-    dirLight.shadow.camera.bottom = -25;
-    dirLight.shadow.camera.left = -25;
-    dirLight.shadow.camera.right = 25;
-    dirLight.shadow.camera.near = 0.1;
-    dirLight.shadow.camera.far = 200;
+    dirLight.shadow.camera.top = 5000;
+    dirLight.shadow.camera.bottom = -2500;
+    dirLight.shadow.camera.left = -2500;
+    dirLight.shadow.camera.right = 2500;
+    dirLight.shadow.camera.near = 10;
+    dirLight.shadow.camera.far = 8000;
     dirLight.shadow.mapSize.set(10240, 10240);
     _scene.add(dirLight);
     
-    _scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
-    _scene.add( new THREE.DirectionalLightHelper(dirLight));
+    // _scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
+    // _scene.add( new THREE.DirectionalLightHelper(dirLight));
     
     _renderer.outputEncoding = THREE.sRGBEncoding;
     _renderer.shadowMap.enabled = true;
@@ -82,6 +83,10 @@ const SceneBasic = function (_scene, _renderer) {
         axesUpdate(scope.axes);
       }
     );
+    sceneBasic.add(scope, 'shadow')
+      .listen().onChange(function () {
+        dirLight.castShadow = scope.shadow;
+    });
     sceneBasic.add(scope, 'grid').min(0).max(500).step(10)
       .listen().onChange(
       function () {
@@ -94,12 +99,26 @@ const SceneBasic = function (_scene, _renderer) {
     sceneBasic.addColor(scope, 'floorColor').name('floor').onChange(function () {
       mshFloor.material.color = new THREE.Color(scope.floorColor);
     });
+    let sun = sceneBasic.addFolder('Sun Position')
+    sun.add(scope, 'x').min(-2000).max(2000).step(10).onChange(function() {
+      dirLight.position.x = scope.x;
+    });
+    sun.add(scope, 'y').min(-1500).max(200).step(10).onChange(function() {
+      dirLight.position.y = scope.y;
+    });
+    sun.add(scope, 'z').min(0).max(3000).step(10).onChange(function() {
+      dirLight.position.z = scope.z;
+    });
   }
   init();
   
+  this.x = 200;
+  this.y = -400;
+  this.z = 400;
   // APIs
   this.floor = mshFloor;
   this.axes = true;
+  this.shadow = true;
   this.grid = 0;
   this.addGUI = addGUI;
 };

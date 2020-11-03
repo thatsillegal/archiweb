@@ -47,6 +47,8 @@ function initCamera(width, height) {
 function initOrthographicCamera(width, height) {
   let aspect = width / height;
   cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 0.01, 30000);
+  cameraOrtho.position.set(1000,-1500,1000);
+  cameraOrtho.up = new THREE.Vector3(0,0,1);
 }
 
 function initPerspectiveCamera(width, height) {
@@ -88,6 +90,7 @@ function initScene() {
   b1.children[0].visible = false;
   
   b1.castShadow = true;
+  b1.receiveShadow = true;
   b1.position.set(150, 150, 150);
   objects.push(b1);
   scene.add(b1);
@@ -98,6 +101,7 @@ function initScene() {
   b2.children[0].visible = false;
   
   b2.castShadow = true;
+  b2.receiveShadow = true;
   b2.scale.set(1, 1, 1.0 / 3);
   b2.position.set(-300, -300, 50);
   objects.push(b2);
@@ -108,6 +112,7 @@ function initScene() {
   b3.children[0].visible = false;
   
   b3.castShadow = true;
+  b3.receiveShadow = true;
   b3.scale.set(1, 1, 1.0 / 2);
   b3.position.set(300, -500, 75);
   objects.push(b3);
@@ -136,7 +141,7 @@ function attachObject(objs) {
 
 function initDragFrames() {
   
-  dragFrames = new DragFrames(objects, cameraPersp, scene, scene2D, renderer);
+  dragFrames = new DragFrames(objects, currentCamera, scene, scene2D, renderer);
   
   dragFrames.enabled = true;
   
@@ -168,7 +173,7 @@ function initDragFrames() {
 
 function initControls() {
   
-  orbit = new OrbitControls(cameraPersp, renderer.domElement);
+  orbit = new OrbitControls(currentCamera, renderer.domElement);
   orbit.enablePan = false;
   
   orbit.mouseButtons = {
@@ -209,12 +214,14 @@ function windowResize(w, h) {
   cameraOrtho.updateProjectionMatrix();
   
   renderer.setSize(w, h);
+  
+  render();
 }
 
 
 function render() {
   renderer.clear();
-  renderer.render(scene, cameraPersp);
+  renderer.render(scene, currentCamera);
   renderer.clearDepth();
   renderer.render(scene2D, camera2D);
 }
@@ -264,7 +271,7 @@ function onDocumentKeyDown(event) {
       control.camera = currentCamera;
       
       currentCamera.lookAt(orbit.target.x, orbit.target.y, orbit.target.z);
-      windowResize();
+      windowResize(window.innerWidth, window.innerHeight);
       break;
     
     case 86: // V
@@ -277,7 +284,7 @@ function onDocumentKeyDown(event) {
       
       cameraPersp.zoom = randomZoom * 5;
       cameraOrtho.zoom = randomZoom * 5;
-      windowResize();
+      windowResize(window.innerWidth, window.innerHeight);
       break;
     
     case 187:
