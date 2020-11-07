@@ -19,13 +19,13 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     control = new TransformControls(_camera, _renderer.domElement);
     
     control.addEventListener('dragging-changed', function (event) {
+      dragged = !event.value;
       if(event.value === true) {
         clonedObject = control.object.clone();
         console.log(control.object);
       }
-      dragged = !event.value;
       
-      if(copy) {
+      if(copy && event.value === false) {
         addClonedObject(clonedObject);
         copy = false;
       }
@@ -39,6 +39,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     _renderer.domElement.addEventListener('click', onClick, false);
   }
   
+  // TODO 有bug
   function addClonedObject(object) {
     if(!object.isGroup) {
       _scene.add(object);
