@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 
 
-const SceneBasic = function (_scene, _renderer, _transformer) {
+const SceneBasic = function (_scene, _renderer) {
   let scope = this;
   this.floorColor = '#898970';
   this.skyColor = '#bddbdb';
@@ -15,6 +15,7 @@ const SceneBasic = function (_scene, _renderer, _transformer) {
   let gridHelper = new THREE.GridHelper(1000, 20);
   let axesHelper = new THREE.AxesHelper(5000);
   
+  let _control;
   
   
   function init() {
@@ -90,7 +91,6 @@ const SceneBasic = function (_scene, _renderer, _transformer) {
       .listen().onChange(
       function () {
         gridUpdate(scope.grid);
-        let _control = _transformer.control;
         if(_control === undefined) return;
         
         if(scope.grid > 0) {
@@ -121,6 +121,10 @@ const SceneBasic = function (_scene, _renderer, _transformer) {
       dirLight.position.z = scope.z;
     });
   }
+  
+  function setControl(control) {
+    _control = control;
+  }
   init();
   
   this.x = 200;
@@ -132,6 +136,7 @@ const SceneBasic = function (_scene, _renderer, _transformer) {
   this.shadow = true;
   this.grid = 0;
   this.addGUI = addGUI;
+  this.setControl = setControl;
 };
 
 

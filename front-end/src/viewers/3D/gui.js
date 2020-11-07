@@ -1,8 +1,6 @@
 "use strict";
 import * as dat from 'dat.gui';
 
-const index = require('@/viewers/3D/index');
-
 let gui;
 
 const controls = new function () {
@@ -13,16 +11,7 @@ const controls = new function () {
 
 function initGUI() {
   gui = new dat.GUI({autoPlace: false});
-  
 
-  const camera = gui.addFolder('Camera');
-  camera.add(controls, 'control', ['WASD', 'Mouse']).onChange(
-    function () {
-      index.controlsUpdate(controls.control);
-    }
-  );
-  camera.add(controls, 'mode', ['2D', 'Perspective', 'Parallel']);
-  camera.open();
   
   const util = gui.addFolder('Utils');
   util.add(controls, 'info').listen().onChange(()=> {

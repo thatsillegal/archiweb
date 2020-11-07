@@ -104,7 +104,7 @@ function initScene() {
   scene.add(b3) ;
   
   
-  sceneBasic = new SceneBasic(scene, renderer, transformer);
+  sceneBasic = new SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui.gui);
 }
 
@@ -151,6 +151,7 @@ function initControls() {
   
   transformer = new Transformer(scene, renderer, currentCamera, objects, dragFrames);
   transformer.addGUI(gui.gui);
+  
   
 }
 
