@@ -1,7 +1,7 @@
 "use strict";
 import * as dat from 'dat.gui';
 
-const index = require('@/viewers/index');
+const index = require('@/viewers/3D/index');
 
 let gui;
 

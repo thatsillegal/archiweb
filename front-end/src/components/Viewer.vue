@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import {main} from '@/viewers/index.js'
+import {main} from '@/viewers/3D/index'
 import InfoCard from "@/components/InfoCard";
 
 export default {

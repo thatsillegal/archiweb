@@ -12,7 +12,7 @@ import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
 
-const gui = require('@/viewers/gui')
+const gui = require('@/viewers/3D/gui')
 
 let renderer, scene;
 let orbit, control;
@@ -25,6 +25,7 @@ const objects = [];
 let selected = [];
 
 let grouped;
+let dragged = false;
 
 function initRender() {
   renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -129,7 +130,6 @@ function attachObject(objs) {
     control.attach(objs[0]);
     dragFrames.enabled = false;
   } else if (objs.length > 1) {
-    // grouped = new THREE.Group();
     
     for(let i = 0; i < objs.length; ++ i) {
       grouped.add(objs[i]);
@@ -146,9 +146,11 @@ function initDragFrames() {
   dragFrames.enabled = true;
   
   dragFrames.addEventListener('selectdown', function(event) {
+    console.log("event len" + event.object.length);
     for (let i = 0; i < event.object.length; ++ i) {
       scene.attach(event.object[i]);
     }
+    console.log("cur group" + grouped.children.length);
   });
   
   dragFrames.addEventListener('select', function (event) {
@@ -181,15 +183,13 @@ function initControls() {
     RIGHT: THREE.MOUSE.ROTATE
   }
   
-  orbit.addEventListener( 'change', render );
   
   control = new TransformControls( currentCamera, renderer.domElement );
-  control.addEventListener( 'change', render );
   
   control.addEventListener( 'dragging-changed', function ( event ) {
   
-    console.log(event.value);
-    orbit.enabled = ! event.value;
+    orbit.enabled = !event.value;
+    dragged = !event.value;
     
   } );
   
@@ -244,7 +244,7 @@ function onDocumentKeyDown(event) {
       break;
     
     case 16: // Shift
-
+      orbit.enablePan = true;
       break;
     
     case 87: // W
@@ -308,32 +308,30 @@ function onDocumentKeyUp(event) {
   switch (event.keyCode) {
     
     case 16: // Shift
-      control.setTranslationSnap(null);
-      control.setRotationSnap(null);
-      control.setScaleSnap(null);
+      orbit.enablePan = false;
       break;
     
   }
   
 }
 
-function setChildMatrix(object, matrix) {
+function setChildScale(object, scale) {
   if(!object.isGroup) {
-    object.matrix *= matrix;
+    object.scale.multiply(scale);
+    object.position.multiply(scale);
+    object.updateMatrixWorld(true);
     return;
   }
-  for (let i = 0; i < object.children.length; ++ i) {
-    setChildMatrix(object.children[i], matrix);
+  for(let i = 0; i < object.children.length; ++ i) {
+    setChildScale(object.children[i], scale);
   }
 }
+
 
 function setChildPosition(object, position) {
   if(!object.isGroup) {
     // object.position.copy(position);
-    object.position.x += position.x;
-    object.position.y += position.y;
-    object.position.z += position.z;
-  
+    object.position.add(position);
     object.updateMatrixWorld(true);
     return;
   }
@@ -342,34 +340,26 @@ function setChildPosition(object, position) {
   }
 }
 
-function setChildRotation(object, rotation) {
+function setChildQuaternion(object, quaternion) {
   if(!object.isGroup) {
-    object.rotation.x += rotation.x;
-    object.rotation.y += rotation.y;
-    object.rotation.z += rotation.z;
+    object.quaternion.premultiply(quaternion);
+    object.position.applyQuaternion(quaternion);
+    
     object.updateMatrixWorld(true);
     return;
   }
   for(let i = 0; i < object.children.length; ++ i) {
-    setChildPosition(object.children[i], rotation);
+    setChildQuaternion(object.children[i], quaternion);
   }
 }
 
-function setChildScale(object, scale) {
-  if(!object.isGroup) {
-    object.scale.x *= scale.x;
-    object.scale.y *= scale.y;
-    object.scale.z *= scale.z;
-    return;
-  }
-  for(let i = 0; i < object.children.length; ++ i) {
-    setChildPosition(object.children[i], scale);
-  }
-}
 
 
 function onClick(event) {
-  
+  if(dragged) {
+    dragged = !dragged;
+    return;
+  }
   
   const mouse = new THREE.Vector2(), raycaster = new THREE.Raycaster();
   mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -381,6 +371,29 @@ function onClick(event) {
   console.log("inter " + intersections.length);
   console.log("selec " + selected.length);
   
+  let object = control.object;
+  if(object !== undefined && object.isGroup) {
+    
+
+    object.matrixAutoUpdate = false;
+    
+    console.log(object.scale);
+    console.log(object.children[0].scale);
+    
+    setChildQuaternion(object, object.quaternion);
+    setChildPosition(object, object.position);
+    setChildScale(object, object.scale);
+
+    object.position.set(0,0,0);
+    object.quaternion.set(0,0,0, 1);
+    object.scale.set(1,1,1);
+  
+    console.log(object.scale);
+    console.log(object.children[0].scale);
+    object.updateMatrixWorld(true);
+    object.matrixAutoUpdate = true;
+  }
+  
   if(selected.length > 0) {
      attachObject(selected);
      selected = [];
@@ -388,22 +401,6 @@ function onClick(event) {
     attachObject([intersections[0].object]);
   } else {
     // control.object;
-    let object = control.object;
-    if(object !== undefined && object.isGroup) {
-  
-      console.log(object);
-      console.log(object.rotation)
-      console.log( object.matrix);
-      console.log( object.matrixWorld);
-      
-      setChildPosition(object, object.position);
-      setChildRotation(object, object.rotation);
-      setChildScale(object, object.scale);
-  
-      object.position.set(0,0,0);
-      object.rotation.set(0,0,0);
-      object.scale.set(1,1,1);
-    }
     control.detach();
     dragFrames.enabled = true;
   }

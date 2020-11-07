@@ -25,7 +25,6 @@ const SceneBasic = function (_scene, _renderer, _control) {
     
     skyColorUpdate();
 
-    //TODO light modifier and shadow bugs
     _scene.add( new THREE.AmbientLight( 0x444445 ) );
   
   
@@ -61,7 +60,7 @@ const SceneBasic = function (_scene, _renderer, _control) {
   function gridUpdate(size) {
     _scene.remove(gridHelper);
     if (size > 0) {
-      gridHelper = new THREE.GridHelper(20 * size, 20);
+      gridHelper = new THREE.GridHelper(20 * size, 20, 0x222222, 0x444444);
       gridHelper.rotateX(Math.PI / 2.0);
       _scene.add(gridHelper);
     }
