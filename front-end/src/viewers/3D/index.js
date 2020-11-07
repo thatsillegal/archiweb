@@ -11,13 +11,14 @@ import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 
 import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
+import {Transformer} from "@/viewers/Transformer";
 
 const gui = require('@/viewers/3D/gui')
 
 let renderer, scene;
-let orbit, control;
+let orbit;
 let cameraPersp, cameraOrtho, currentCamera;
-let sceneBasic, dragFrames;
+let sceneBasic, dragFrames, transformer;
 
 let scene2D, camera2D;
 
@@ -25,7 +26,6 @@ const objects = [];
 let selected = [];
 
 let grouped;
-let dragged = false;
 
 function initRender() {
   renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -127,14 +127,14 @@ function initScene() {
 
 function attachObject(objs) {
   if(objs.length === 1) {
-    control.attach(objs[0]);
+    transformer.control.attach(objs[0]);
     dragFrames.enabled = false;
   } else if (objs.length > 1) {
     
     for(let i = 0; i < objs.length; ++ i) {
       grouped.add(objs[i]);
     }
-    control.attach(grouped);
+    transformer.control.attach(grouped);
     dragFrames.enabled = false;
   }
 }
@@ -184,16 +184,7 @@ function initControls() {
   }
   
   
-  control = new TransformControls( currentCamera, renderer.domElement );
-  
-  control.addEventListener( 'dragging-changed', function ( event ) {
-  
-    orbit.enabled = !event.value;
-    dragged = !event.value;
-    
-  } );
-  
-  scene.add( control );
+
   
 }
 
@@ -238,68 +229,34 @@ function animate() {
 
 function onDocumentKeyDown(event) {
   switch (event.keyCode) {
-    
-    case 81: // Q
-      control.setSpace(control.space === "local" ? "world" : "local");
-      break;
-    
     case 16: // Shift
       orbit.enablePan = true;
       break;
-    
-    case 87: // W
-      control.setMode("translate");
-      break;
-    
-    case 69: // E
-      control.setMode("rotate");
-      break;
-    
-    case 82: // R
-      control.setMode("scale");
-      break;
-    
     case 67: // C
       const position = currentCamera.position.clone();
-      
+    
       currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
       currentCamera.position.copy(position);
-      
+    
       orbit.object = currentCamera;
-      control.camera = currentCamera;
-      
+      transformer.control.camera = currentCamera;
+    
       currentCamera.lookAt(orbit.target.x, orbit.target.y, orbit.target.z);
       windowResize(window.innerWidth, window.innerHeight);
       break;
-    
     case 86: // V
       const randomFoV = Math.random() + 0.1;
       const randomZoom = Math.random() + 0.1;
-      
+    
       cameraPersp.fov = randomFoV * 160;
       cameraOrtho.bottom = -randomFoV * 500;
       cameraOrtho.top = randomFoV * 500;
-      
+    
       cameraPersp.zoom = randomZoom * 5;
       cameraOrtho.zoom = randomZoom * 5;
       windowResize(window.innerWidth, window.innerHeight);
       break;
-    
-    case 187:
-    case 107: // +, =, num+
-      control.setSize(control.size + 0.1);
-      break;
-    
-    case 189:
-    case 109: // -, _, num-
-      control.setSize(Math.max(control.size - 0.1, 0.1));
-      break;
-
-    
-    case 32: // Spacebar
-      control.enabled = !control.enabled;
-      break;
-    
+  
   }
   
 }
@@ -315,49 +272,14 @@ function onDocumentKeyUp(event) {
   
 }
 
-function setChildScale(object, scale) {
-  if(!object.isGroup) {
-    object.scale.multiply(scale);
-    object.position.multiply(scale);
-    object.updateMatrixWorld(true);
-    return;
-  }
-  for(let i = 0; i < object.children.length; ++ i) {
-    setChildScale(object.children[i], scale);
-  }
-}
-
-
-function setChildPosition(object, position) {
-  if(!object.isGroup) {
-    // object.position.copy(position);
-    object.position.add(position);
-    object.updateMatrixWorld(true);
-    return;
-  }
-  for(let i = 0; i < object.children.length; ++ i) {
-    setChildPosition(object.children[i], position);
-  }
-}
-
-function setChildQuaternion(object, quaternion) {
-  if(!object.isGroup) {
-    object.quaternion.premultiply(quaternion);
-    object.position.applyQuaternion(quaternion);
-    
-    object.updateMatrixWorld(true);
-    return;
-  }
-  for(let i = 0; i < object.children.length; ++ i) {
-    setChildQuaternion(object.children[i], quaternion);
-  }
-}
 
 
 
 function onClick(event) {
-  if(dragged) {
-    dragged = !dragged;
+    
+    //TODO
+  if(transformer.dragged) {
+    transformer.dragged = !transformer.dragged;
     return;
   }
   
@@ -371,28 +293,7 @@ function onClick(event) {
   console.log("inter " + intersections.length);
   console.log("selec " + selected.length);
   
-  let object = control.object;
-  if(object !== undefined && object.isGroup) {
-    
 
-    object.matrixAutoUpdate = false;
-    
-    console.log(object.scale);
-    console.log(object.children[0].scale);
-    
-    setChildQuaternion(object, object.quaternion);
-    setChildPosition(object, object.position);
-    setChildScale(object, object.scale);
-
-    object.position.set(0,0,0);
-    object.quaternion.set(0,0,0, 1);
-    object.scale.set(1,1,1);
-  
-    console.log(object.scale);
-    console.log(object.children[0].scale);
-    object.updateMatrixWorld(true);
-    object.matrixAutoUpdate = true;
-  }
   
   if(selected.length > 0) {
      attachObject(selected);
@@ -400,8 +301,8 @@ function onClick(event) {
   } else if ( intersections.length > 0 ) {
     attachObject([intersections[0].object]);
   } else {
-    // control.object;
-    control.detach();
+    
+    transformer.control.detach();
     dragFrames.enabled = true;
   }
 }
@@ -432,7 +333,10 @@ function init() {
   
   gui.initGUI();
   initDragFrames();
-  sceneBasic = new SceneBasic(scene, renderer, control);
+  
+  transformer = new Transformer(scene,orbit, renderer, currentCamera);
+  
+  sceneBasic = new SceneBasic(scene, renderer, transformer.control);
   sceneBasic.addGUI(gui.gui);
   
 }
