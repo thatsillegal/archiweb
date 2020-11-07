@@ -3,7 +3,6 @@
 
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
-import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 
 import {LineMaterial} from 'three/examples/jsm/lines/LineMaterial';
 import {Wireframe} from "three/examples/jsm/lines/Wireframe";
@@ -20,16 +19,11 @@ let orbit;
 let cameraPersp, cameraOrtho, currentCamera;
 let sceneBasic, dragFrames, transformer;
 
-let scene2D, camera2D;
 
 const objects = [];
-let selected = [];
-
-let grouped;
 
 function initRender() {
   renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
-  renderer.setClearColor(0x000000, 0);
   renderer.autoClear = false;
   
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -40,7 +34,6 @@ function initRender() {
 function initCamera(width, height) {
   initPerspectiveCamera(width, height);
   initOrthographicCamera(width, height);
-  initCamera2D(width, height);
   
   currentCamera = cameraPersp;
 }
@@ -58,15 +51,6 @@ function initPerspectiveCamera(width, height) {
   cameraPersp.up = new THREE.Vector3(0, 0, 1);
 }
 
-function initCamera2D(width, height) {
-  
-  scene2D = new THREE.Scene();
-  
-  camera2D = new THREE.OrthographicCamera(-width / 2, width / 2, -height / 2, height / 2, 1, 10);
-  camera2D.position.x = width / 2 - 8;
-  camera2D.position.y = height / 2;
-  camera2D.position.z = 10;
-}
 
 function meshLine(geometry, color, linewidth) {
   const matLine = new LineMaterial({color: color, linewidth: linewidth});
@@ -78,7 +62,7 @@ function meshLine(geometry, color, linewidth) {
 }
 
 function initScene() {
-  sceneBasic = new THREE.Scene();
+  
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xfafafa);
   
@@ -119,38 +103,19 @@ function initScene() {
   objects.push(b3);
   scene.add(b3) ;
   
-  grouped = new THREE.Group();
-  scene.add(grouped);
   
-  
+  sceneBasic = new SceneBasic(scene, renderer, transformer);
+  sceneBasic.addGUI(gui.gui);
 }
 
-function attachObject(objs) {
-  if(objs.length === 1) {
-    transformer.control.attach(objs[0]);
-    dragFrames.enabled = false;
-  } else if (objs.length > 1) {
-    
-    for(let i = 0; i < objs.length; ++ i) {
-      grouped.add(objs[i]);
-    }
-    transformer.control.attach(grouped);
-    dragFrames.enabled = false;
-  }
-}
 
 function initDragFrames() {
   
-  dragFrames = new DragFrames(objects, currentCamera, scene, scene2D, renderer);
-  
+  dragFrames = new DragFrames(objects, currentCamera, scene, renderer);
   dragFrames.enabled = true;
   
   dragFrames.addEventListener('selectdown', function(event) {
-    console.log("event len" + event.object.length);
-    for (let i = 0; i < event.object.length; ++ i) {
-      scene.attach(event.object[i]);
-    }
-    console.log("cur group" + grouped.children.length);
+    transformer.clear();
   });
   
   dragFrames.addEventListener('select', function (event) {
@@ -159,7 +124,6 @@ function initDragFrames() {
       if (event.object[i].children.length > 0)
         event.object[i].children[0].visible = true;
     }
-    selected = event.object;
   });
   
   dragFrames.addEventListener('selectup', function (event) {
@@ -168,7 +132,7 @@ function initDragFrames() {
       if (event.object[i].children.length > 0)
         event.object[i].children[0].visible = false;
     }
-    selected = event.object;
+    transformer.setSelected(event.object);
   });
 }
 
@@ -183,8 +147,10 @@ function initControls() {
     RIGHT: THREE.MOUSE.ROTATE
   }
   
+  initDragFrames();
   
-
+  transformer = new Transformer(scene, renderer, currentCamera, objects, dragFrames);
+  transformer.addGUI(gui.gui);
   
 }
 
@@ -192,14 +158,7 @@ function windowResize(w, h) {
   cameraPersp.aspect = w / h;
   cameraPersp.updateProjectionMatrix();
   
-  camera2D.left = -w / 2;
-  camera2D.right = w / 2;
-  camera2D.top = -h / 2;
-  camera2D.bottom = h / 2;
-  camera2D.position.x = w / 2 - 8;
-  camera2D.position.y = h / 2;
-  camera2D.updateProjectionMatrix();
-  
+
   cameraOrtho.left = cameraOrtho.bottom * w / h;
   cameraOrtho.right = cameraOrtho.top * w / h;
   cameraOrtho.updateProjectionMatrix();
@@ -213,8 +172,9 @@ function windowResize(w, h) {
 function render() {
   renderer.clear();
   renderer.render(scene, currentCamera);
-  renderer.clearDepth();
-  renderer.render(scene2D, camera2D);
+  
+  if (dragFrames !== undefined)
+    dragFrames.render();
 }
 
 
@@ -239,10 +199,8 @@ function onDocumentKeyDown(event) {
       currentCamera.position.copy(position);
     
       orbit.object = currentCamera;
-      transformer.control.camera = currentCamera;
+      transformer.setCamera(currentCamera);
     
-      currentCamera.lookAt(orbit.target.x, orbit.target.y, orbit.target.z);
-      windowResize(window.innerWidth, window.innerHeight);
       break;
     case 86: // V
       const randomFoV = Math.random() + 0.1;
@@ -254,7 +212,6 @@ function onDocumentKeyDown(event) {
     
       cameraPersp.zoom = randomZoom * 5;
       cameraOrtho.zoom = randomZoom * 5;
-      windowResize(window.innerWidth, window.innerHeight);
       break;
   
   }
@@ -272,42 +229,6 @@ function onDocumentKeyUp(event) {
   
 }
 
-
-
-
-function onClick(event) {
-    
-    //TODO
-  if(transformer.dragged) {
-    transformer.dragged = !transformer.dragged;
-    return;
-  }
-  
-  const mouse = new THREE.Vector2(), raycaster = new THREE.Raycaster();
-  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-  raycaster.setFromCamera( mouse, currentCamera );
-  
-  const intersections = raycaster.intersectObjects( objects, true );
-  
-  console.log("inter " + intersections.length);
-  console.log("selec " + selected.length);
-  
-
-  
-  if(selected.length > 0) {
-     attachObject(selected);
-     selected = [];
-  } else if ( intersections.length > 0 ) {
-    attachObject([intersections[0].object]);
-  } else {
-    
-    transformer.control.detach();
-    dragFrames.enabled = true;
-  }
-}
-
-
 function addToDOM() {
   const container = document.getElementById('container');
   const canvas = container.getElementsByTagName('canvas');
@@ -321,23 +242,18 @@ function addToDOM() {
   };
   renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
   renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
-  renderer.domElement.addEventListener('click', onClick, false);
   
 }
 
 function init() {
+  
+  gui.initGUI();
+  
   initRender();
   initScene();
   initCamera(window.innerWidth, window.innerHeight);
   initControls();
   
-  gui.initGUI();
-  initDragFrames();
-  
-  transformer = new Transformer(scene,orbit, renderer, currentCamera);
-  
-  sceneBasic = new SceneBasic(scene, renderer, transformer.control);
-  sceneBasic.addGUI(gui.gui);
   
 }
 

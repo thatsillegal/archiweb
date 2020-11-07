@@ -46,6 +46,5 @@ function elementDisplay(elementId, isShow) {
 
 export {
   gui,
-  controls,
   initGUI
 }

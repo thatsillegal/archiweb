@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) {
+const DragFrames = function (_objects, _camera, _scene, _renderer) {
   
   let _domElement = _renderer.domElement;
   let _dragInitX, _dragInitY;
@@ -13,6 +13,7 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
   let _frustum = new THREE.Frustum();
   let _selected = [];
   
+  let scene2D, camera2D;
   let scope = this;
   
   function minMax(a, b) {
@@ -21,7 +22,7 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
   
   
   function drawLineFrame(initX, initY, X, Y) {
-    _orthoScene.remove(_lineFrame);
+    scene2D.remove(_lineFrame);
     
     let material = (initX > X) ?
       new THREE.LineDashedMaterial({color: 0x000000, dashSize: 5, gapSize: 3}) :
@@ -41,15 +42,35 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
     _geometry = new THREE.BufferGeometry().setFromPoints(points);
     _lineFrame = new THREE.Line(_geometry, material);
     _lineFrame.computeLineDistances();
-    _orthoScene.add(_lineFrame);
+    scene2D.add(_lineFrame);
   }
   
   
   function activate() {
+    
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+  
+    scene2D = new THREE.Scene();
+  
+    camera2D = new THREE.OrthographicCamera(-width / 2, width / 2, -height / 2, height / 2, 1, 10);
+    camera2D.position.x = width / 2 - 8;
+    camera2D.position.y = height / 2;
+    camera2D.position.z = 10;
+    
     _domElement.addEventListener('pointerdown', onDocumentPointerDown, false);
     _domElement.addEventListener('pointermove', onDocumentPointerMove, false);
     _domElement.addEventListener('pointerup', onDocumentPointerUp, false);
-    
+  
+    window.onresize = function () {
+      camera2D.left = -width / 2;
+      camera2D.right = width / 2;
+      camera2D.top = -height / 2;
+      camera2D.bottom = height / 2;
+      camera2D.position.x = width / 2 - 8;
+      camera2D.position.y = height / 2;
+      camera2D.updateProjectionMatrix();
+    };
   }
   
   
@@ -110,7 +131,7 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
   
   
   function onDocumentPointerUp(event) {
-    _orthoScene.remove(_lineFrame);
+    scene2D.remove(_lineFrame);
     _selectDown = false;
     
     if (scope.enabled) {
@@ -246,6 +267,10 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
     }
   }
   
+  function render() {
+    _renderer.clearDepth();
+    _renderer.render(scene2D, camera2D);
+  }
   
   activate();
   
@@ -253,6 +278,7 @@ const DragFrames = function (_objects, _camera, _scene, _orthoScene, _renderer) 
   
   this.dispose = dispose;
   this.unSelected = unSelected;
+  this.render = render;
 };
 
 DragFrames.prototype = Object.create(THREE.EventDispatcher.prototype);

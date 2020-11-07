@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 
 
-const SceneBasic = function (_scene, _renderer, _control) {
+const SceneBasic = function (_scene, _renderer, _transformer) {
   let scope = this;
   this.floorColor = '#898970';
   this.skyColor = '#bddbdb';
@@ -90,7 +90,9 @@ const SceneBasic = function (_scene, _renderer, _control) {
       .listen().onChange(
       function () {
         gridUpdate(scope.grid);
-  
+        let _control = _transformer.control;
+        if(_control === undefined) return;
+        
         if(scope.grid > 0) {
           _control.setTranslationSnap(scope.grid);
           _control.setRotationSnap(THREE.MathUtils.degToRad(15));
