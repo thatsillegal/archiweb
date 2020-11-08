@@ -150,7 +150,7 @@ function initControls() {
 
 function windowResize(w, h) {
   
-
+  multiCamera.onWindowResize(w, h);
   dragFrames.onWindowResize(w, h);
   
   renderer.setSize(w, h);
@@ -164,7 +164,7 @@ function render() {
   // console.log(multiCamera.camera);
   renderer.clear();
   renderer.render(scene, multiCamera.camera);
-  
+
   if (dragFrames !== undefined)
     dragFrames.render();
 }
@@ -194,12 +194,7 @@ function onDocumentKeyUp(event) {
     
     case 16: // Shift
       orbit.enablePan = false;
-      // console.log(multiCamera.camera.position);
-      //
-      // console.log(THREE.MathUtils.radToDeg(multiCamera.camera.rotation.x));
-      // console.log(THREE.MathUtils.radToDeg(multiCamera.camera.rotation.y));
-      // console.log(THREE.MathUtils.radToDeg(multiCamera.camera.rotation.z));
-      // console.log(orbit.target)
+
       break;
     
   }

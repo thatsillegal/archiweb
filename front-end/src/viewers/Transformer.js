@@ -180,9 +180,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   
   
   function onDocumentKeyDown(event) {
-    console.log(event.keyCode)
     switch (event.keyCode) {
-      
       
       case 81: // Q
         if (scope.world === false) {
