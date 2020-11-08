@@ -41,8 +41,8 @@ function initCamera(width, height) {
 function initOrthographicCamera(width, height) {
   let aspect = width / height;
   cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 0.01, 30000);
-  cameraOrtho.position.set(1000,-1500,1000);
-  cameraOrtho.up = new THREE.Vector3(0,0,1);
+  cameraOrtho.position.set(1000, -1500, 1000);
+  cameraOrtho.up = new THREE.Vector3(0, 0, 1);
 }
 
 function initPerspectiveCamera(width, height) {
@@ -67,11 +67,14 @@ function initScene() {
   scene.background = new THREE.Color(0xfafafa);
   
   const box = new THREE.BoxBufferGeometry(300, 300, 300);
+  const edges = new THREE.EdgesGeometry(box);
+  const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0x000000}));
   // box.scale(0.001, 0.001, 0.001);
   
   
   const b1 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
   b1.add(meshLine(box, 0xffff00, 0.005));
+  b1.add(line);
   b1.children[0].visible = false;
   
   b1.castShadow = true;
@@ -83,6 +86,7 @@ function initScene() {
   
   const b2 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
   b2.add(meshLine(box, 0xffff00, 0.005));
+  b2.add(line.clone());
   b2.children[0].visible = false;
   
   b2.castShadow = true;
@@ -94,6 +98,7 @@ function initScene() {
   
   const b3 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
   b3.add(meshLine(box, 0xffff00, 0.005));
+  b3.add(line.clone());
   b3.children[0].visible = false;
   
   b3.castShadow = true;
@@ -101,7 +106,7 @@ function initScene() {
   b3.scale.set(1, 1, 1.0 / 2);
   b3.position.set(300, -500, 75);
   objects.push(b3);
-  scene.add(b3) ;
+  scene.add(b3);
   
   
   sceneBasic = new SceneBasic(scene, renderer);
@@ -114,23 +119,27 @@ function initDragFrames() {
   dragFrames = new DragFrames(objects, currentCamera, scene, renderer);
   dragFrames.enabled = true;
   
-  dragFrames.addEventListener('selectdown', function(event) {
+  dragFrames.addEventListener('selectdown', function (event) {
     transformer.clear();
   });
   
   dragFrames.addEventListener('select', function (event) {
     for (let i = 0; i < event.object.length; ++i) {
       event.object[i].material.emissive.set(0x666600);
-      if (event.object[i].children.length > 0)
+      if (event.object[i].children.length > 0) {
         event.object[i].children[0].visible = true;
+        event.object[i].children[1].visible = false;
+      }
     }
   });
   
   dragFrames.addEventListener('selectup', function (event) {
     for (let i = 0; i < event.object.length; ++i) {
       event.object[i].material.emissive.set(0x000000);
-      if (event.object[i].children.length > 0)
+      if (event.object[i].children.length > 0) {
         event.object[i].children[0].visible = false;
+        event.object[i].children[1].visible = true;
+      }
     }
     transformer.setSelected(event.object);
   });
@@ -160,7 +169,7 @@ function windowResize(w, h) {
   cameraPersp.aspect = w / h;
   cameraPersp.updateProjectionMatrix();
   
-
+  
   cameraOrtho.left = cameraOrtho.bottom * w / h;
   cameraOrtho.right = cameraOrtho.top * w / h;
   cameraOrtho.updateProjectionMatrix();
@@ -186,7 +195,7 @@ function animate() {
   
   orbit.update();
   render();
-
+  
   requestAnimationFrame(animate);
 }
 
@@ -198,26 +207,26 @@ function onDocumentKeyDown(event) {
       break;
     case 67: // C
       const position = currentCamera.position.clone();
-    
+      
       currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
       currentCamera.position.copy(position);
-    
+      
       orbit.object = currentCamera;
       transformer.setCamera(currentCamera);
-    
+      
       break;
     case 86: // V
       const randomFoV = Math.random() + 0.1;
       const randomZoom = Math.random() + 0.1;
-    
+      
       cameraPersp.fov = randomFoV * 160;
       cameraOrtho.bottom = -randomFoV * 500;
       cameraOrtho.top = randomFoV * 500;
-    
+      
       cameraPersp.zoom = randomZoom * 5;
       cameraOrtho.zoom = randomZoom * 5;
       break;
-  
+    
   }
   
 }

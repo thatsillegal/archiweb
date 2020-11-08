@@ -21,13 +21,13 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     control.addEventListener('dragging-changed', function (event) {
       dragged = !event.value;
       
-      if(event.value === true) {
+      if (event.value === true) {
         clonedObject = [];
         setCloneObject(control.object);
         console.log(control.object);
       }
       
-      if(copy && event.value === false) {
+      if (copy && event.value === false) {
         addClonedObject(clonedObject);
         copy = false;
       }
@@ -42,7 +42,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   }
   
   function setCloneObject(object) {
-    if(!object.isGroup) {
+    if (!object.isGroup) {
       const cloned = object.clone();
       cloned.material = cloned.material.clone();
       clonedObject.push(cloned);
@@ -108,11 +108,12 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   }
   
   function deleteObject(object) {
-    if(object === undefined) return;
-    if(!object.isGroup) {
-      _scene.remove(object)
+    if (object === undefined) return;
+    if (!object.isGroup) {
+      console.log(object)
+      _scene.remove(object);
     } else {
-      for(let i = 0; i < object.children.length; ++ i) {
+      for (let i = 0; i < object.children.length; ++i) {
         deleteObject(object.children[i]);
       }
     }
@@ -232,7 +233,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
       case 109: // -, _, num-
         control.setSize(Math.max(control.size - 0.1, 0.1));
         break;
-        
+      
       case 18: // alt
         copy = !copy;
         break;
@@ -241,7 +242,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
         applyTransformGroup();
         control.detach();
         break;
-        
+      
       case 46: // delete
         deleteObject(control.object);
         control.detach();

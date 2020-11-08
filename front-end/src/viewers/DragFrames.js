@@ -50,9 +50,9 @@ const DragFrames = function (_objects, _camera, _scene, _renderer) {
     
     let width = window.innerWidth;
     let height = window.innerHeight;
-  
+    
     scene2D = new THREE.Scene();
-  
+    
     camera2D = new THREE.OrthographicCamera(-width / 2, width / 2, -height / 2, height / 2, 1, 10);
     camera2D.position.x = width / 2 - 8;
     camera2D.position.y = height / 2;
@@ -61,8 +61,8 @@ const DragFrames = function (_objects, _camera, _scene, _renderer) {
     _domElement.addEventListener('pointerdown', onDocumentPointerDown, false);
     _domElement.addEventListener('pointermove', onDocumentPointerMove, false);
     _domElement.addEventListener('pointerup', onDocumentPointerUp, false);
-  
-
+    
+    
   }
   
   
@@ -110,7 +110,7 @@ const DragFrames = function (_objects, _camera, _scene, _renderer) {
       
       _selectDown = true;
       scope.dispatchEvent({type: 'selectdown', object: _selected});
-  
+      
     }
   }
   

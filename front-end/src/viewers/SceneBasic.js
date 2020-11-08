@@ -6,6 +6,9 @@ const SceneBasic = function (_scene, _renderer) {
   let scope = this;
   this.floorColor = '#898970';
   this.skyColor = '#bddbdb';
+  this.x = 400;
+  this.y = -700;
+  this.z = 400;
   
   const matFloor = new THREE.MeshPhongMaterial({color: scope.floorColor, depthWrite: false});
   const geoFloor = new THREE.PlaneBufferGeometry(20000, 20000);
@@ -20,16 +23,16 @@ const SceneBasic = function (_scene, _renderer) {
   
   function init() {
     mshFloor.receiveShadow = true;
-    mshFloor.position.set(0, 0, 0);
+    mshFloor.position.set(0, 0, -0.5);
     _scene.add(mshFloor);
     
     
     skyColorUpdate();
-
-    _scene.add( new THREE.AmbientLight( 0x444445 ) );
-  
-  
-    dirLight.position.set(200, -400, 400);
+    
+    _scene.add(new THREE.AmbientLight(0x444445));
+    
+    
+    dirLight.position.set(scope.x, scope.y, scope.z);
     dirLight.castShadow = true;
     dirLight.shadow.camera.top = 5000;
     dirLight.shadow.camera.bottom = -2500;
@@ -70,10 +73,10 @@ const SceneBasic = function (_scene, _renderer) {
   function skyColorUpdate() {
     _scene.background = new THREE.Color(scope.skyColor);
     _scene.fog = new THREE.Fog(scope.skyColor, 1000, 10000);
-  
+    
   }
   
-
+  
   function addGUI(gui) {
     let sceneBasic = gui.addFolder('Scene Basic')
     sceneBasic.open();
@@ -85,15 +88,15 @@ const SceneBasic = function (_scene, _renderer) {
     );
     sceneBasic.add(scope, 'shadow')
       .listen().onChange(function () {
-        dirLight.castShadow = scope.shadow;
+      dirLight.castShadow = scope.shadow;
     });
     sceneBasic.add(scope, 'grid').min(0).max(500).step(10)
       .listen().onChange(
       function () {
         gridUpdate(scope.grid);
-        if(_control === undefined) return;
+        if (_control === undefined) return;
         
-        if(scope.grid > 0) {
+        if (scope.grid > 0) {
           _control.setTranslationSnap(scope.grid);
           _control.setRotationSnap(THREE.MathUtils.degToRad(15));
           _control.setScaleSnap(0.25);
@@ -104,20 +107,20 @@ const SceneBasic = function (_scene, _renderer) {
         }
       }
     );
-    sceneBasic.addColor(scope, 'skyColor').name('sky').onChange(function() {
+    sceneBasic.addColor(scope, 'skyColor').name('sky').onChange(function () {
       skyColorUpdate(scope.skyColor);
     });
     sceneBasic.addColor(scope, 'floorColor').name('floor').onChange(function () {
       mshFloor.material.color = new THREE.Color(scope.floorColor);
     });
     let sun = sceneBasic.addFolder('Sun Position')
-    sun.add(scope, 'x').min(-2000).max(2000).step(10).onChange(function() {
+    sun.add(scope, 'x').min(-2000).max(2000).step(10).onChange(function () {
       dirLight.position.x = scope.x;
     });
-    sun.add(scope, 'y').min(-1500).max(200).step(10).onChange(function() {
+    sun.add(scope, 'y').min(-1500).max(200).step(10).onChange(function () {
       dirLight.position.y = scope.y;
     });
-    sun.add(scope, 'z').min(0).max(3000).step(10).onChange(function() {
+    sun.add(scope, 'z').min(0).max(3000).step(10).onChange(function () {
       dirLight.position.z = scope.z;
     });
   }
@@ -125,11 +128,9 @@ const SceneBasic = function (_scene, _renderer) {
   function setControl(control) {
     _control = control;
   }
+  
   init();
   
-  this.x = 200;
-  this.y = -400;
-  this.z = 400;
   // APIs
   this.floor = mshFloor;
   this.axes = true;

@@ -14,9 +14,9 @@
       id="info"
       style="position:fixed;top:64px;left:20px;z-index:1"
     >
-      "W" translate | "E" rotate | "R" scale<br/>
-      "Q" toggle world/local space | "Shift" snap to grid<br/>
-      "C" toggle camera | "T" toggle enabled
+      "W" translate | "E" rotate | "R" scale | "+/-" size<br/>
+      "Q" toggle world/local space | "S" snap to grid<br/>
+      "C" toggle camera | "1-9" different camera view
     </div>
     
     <template style="background:#ffffff;">

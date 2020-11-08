@@ -11,10 +11,10 @@ const controls = new function () {
 
 function initGUI() {
   gui = new dat.GUI({autoPlace: false});
-
+  
   
   const util = gui.addFolder('Utils');
-  util.add(controls, 'info').listen().onChange(()=> {
+  util.add(controls, 'info').listen().onChange(() => {
       elementDisplay("info-card", controls.info);
     }
   );
