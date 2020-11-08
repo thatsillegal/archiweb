@@ -326,6 +326,8 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   this.rotationSnap = 15;
   this.scaleSnap = 0.25;
   
+  this.isTransformer = true;
+  
 }
 
 export {Transformer};

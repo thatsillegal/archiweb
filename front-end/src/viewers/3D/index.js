@@ -11,13 +11,14 @@ import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
 import {Transformer} from "@/viewers/Transformer";
+import {MultiCamera} from "@/viewers/MultiCamera";
 
 const gui = require('@/viewers/3D/gui')
 
 let renderer, scene;
 let orbit;
-let cameraPersp, cameraOrtho, currentCamera;
 let sceneBasic, dragFrames, transformer;
+let multiCamera;
 
 
 const objects = [];
@@ -31,25 +32,6 @@ function initRender() {
   addToDOM();
 }
 
-function initCamera(width, height) {
-  initPerspectiveCamera(width, height);
-  initOrthographicCamera(width, height);
-  
-  currentCamera = cameraPersp;
-}
-
-function initOrthographicCamera(width, height) {
-  let aspect = width / height;
-  cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 0.01, 30000);
-  cameraOrtho.position.set(1000, -1500, 1000);
-  cameraOrtho.up = new THREE.Vector3(0, 0, 1);
-}
-
-function initPerspectiveCamera(width, height) {
-  cameraPersp = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-  cameraPersp.position.set(1000, -1500, 1000);
-  cameraPersp.up = new THREE.Vector3(0, 0, 1);
-}
 
 
 function meshLine(geometry, color, linewidth) {
@@ -116,7 +98,7 @@ function initScene() {
 
 function initDragFrames() {
   
-  dragFrames = new DragFrames(objects, currentCamera, scene, renderer);
+  dragFrames = new DragFrames(objects, multiCamera.camera, scene, renderer);
   dragFrames.enabled = true;
   
   dragFrames.addEventListener('selectdown', function (event) {
@@ -148,32 +130,27 @@ function initDragFrames() {
 
 function initControls() {
   
-  orbit = new OrbitControls(currentCamera, renderer.domElement);
+  orbit = new OrbitControls(multiCamera.camera, renderer.domElement);
   orbit.enablePan = false;
   
   orbit.mouseButtons = {
     LEFT: THREE.MOUSE.PAN,
     RIGHT: THREE.MOUSE.ROTATE
   }
+  multiCamera.addControllers(orbit);
   
   initDragFrames();
   
-  transformer = new Transformer(scene, renderer, currentCamera, objects, dragFrames);
+  transformer = new Transformer(scene, renderer, multiCamera.camera, objects, dragFrames);
   transformer.addGUI(gui.gui);
   
+  multiCamera.addControllers(transformer);
   
 }
 
 function windowResize(w, h) {
   
-  cameraPersp.aspect = w / h;
-  cameraPersp.updateProjectionMatrix();
-  
-  
-  cameraOrtho.left = cameraOrtho.bottom * w / h;
-  cameraOrtho.right = cameraOrtho.top * w / h;
-  cameraOrtho.updateProjectionMatrix();
-  
+
   dragFrames.onWindowResize(w, h);
   
   renderer.setSize(w, h);
@@ -183,8 +160,10 @@ function windowResize(w, h) {
 
 
 function render() {
+  
+  // console.log(multiCamera.camera);
   renderer.clear();
-  renderer.render(scene, currentCamera);
+  renderer.render(scene, multiCamera.camera);
   
   if (dragFrames !== undefined)
     dragFrames.render();
@@ -205,27 +184,6 @@ function onDocumentKeyDown(event) {
     case 16: // Shift
       orbit.enablePan = true;
       break;
-    case 67: // C
-      const position = currentCamera.position.clone();
-      
-      currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
-      currentCamera.position.copy(position);
-      
-      orbit.object = currentCamera;
-      transformer.setCamera(currentCamera);
-      
-      break;
-    case 86: // V
-      const randomFoV = Math.random() + 0.1;
-      const randomZoom = Math.random() + 0.1;
-      
-      cameraPersp.fov = randomFoV * 160;
-      cameraOrtho.bottom = -randomFoV * 500;
-      cameraOrtho.top = randomFoV * 500;
-      
-      cameraPersp.zoom = randomZoom * 5;
-      cameraOrtho.zoom = randomZoom * 5;
-      break;
     
   }
   
@@ -236,6 +194,12 @@ function onDocumentKeyUp(event) {
     
     case 16: // Shift
       orbit.enablePan = false;
+      // console.log(multiCamera.camera.position);
+      //
+      // console.log(THREE.MathUtils.radToDeg(multiCamera.camera.rotation.x));
+      // console.log(THREE.MathUtils.radToDeg(multiCamera.camera.rotation.y));
+      // console.log(THREE.MathUtils.radToDeg(multiCamera.camera.rotation.z));
+      // console.log(orbit.target)
       break;
     
   }
@@ -264,7 +228,9 @@ function init() {
   
   initRender();
   initScene();
-  initCamera(window.innerWidth, window.innerHeight);
+  
+  multiCamera = new MultiCamera(scene, renderer);
+  multiCamera.addGUI(gui.gui);
   initControls();
   
   
