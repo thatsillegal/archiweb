@@ -62,15 +62,7 @@ const DragFrames = function (_objects, _camera, _scene, _renderer) {
     _domElement.addEventListener('pointermove', onDocumentPointerMove, false);
     _domElement.addEventListener('pointerup', onDocumentPointerUp, false);
   
-    window.onresize = function () {
-      camera2D.left = -width / 2;
-      camera2D.right = width / 2;
-      camera2D.top = -height / 2;
-      camera2D.bottom = height / 2;
-      camera2D.position.x = width / 2 - 8;
-      camera2D.position.y = height / 2;
-      camera2D.updateProjectionMatrix();
-    };
+
   }
   
   
@@ -92,6 +84,16 @@ const DragFrames = function (_objects, _camera, _scene, _renderer) {
       }
     }
     _selected = [];
+  }
+  
+  function onWindowResize(width, height) {
+    camera2D.left = -width / 2;
+    camera2D.right = width / 2;
+    camera2D.top = -height / 2;
+    camera2D.bottom = height / 2;
+    camera2D.position.x = width / 2 - 8;
+    camera2D.position.y = height / 2;
+    camera2D.updateProjectionMatrix();
   }
   
   
@@ -279,6 +281,7 @@ const DragFrames = function (_objects, _camera, _scene, _renderer) {
   this.dispose = dispose;
   this.unSelected = unSelected;
   this.render = render;
+  this.onWindowResize = onWindowResize;
 };
 
 DragFrames.prototype = Object.create(THREE.EventDispatcher.prototype);

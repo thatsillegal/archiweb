@@ -156,6 +156,7 @@ function initControls() {
 }
 
 function windowResize(w, h) {
+  
   cameraPersp.aspect = w / h;
   cameraPersp.updateProjectionMatrix();
   
@@ -163,6 +164,8 @@ function windowResize(w, h) {
   cameraOrtho.left = cameraOrtho.bottom * w / h;
   cameraOrtho.right = cameraOrtho.top * w / h;
   cameraOrtho.updateProjectionMatrix();
+  
+  dragFrames.onWindowResize(w, h);
   
   renderer.setSize(w, h);
   

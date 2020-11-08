@@ -11,7 +11,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   let dragged = false;
   let copy = false;
   //
-  let clonedObject;
+  let clonedObject = [];
   
   //API
   
@@ -20,8 +20,10 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     
     control.addEventListener('dragging-changed', function (event) {
       dragged = !event.value;
+      
       if(event.value === true) {
-        clonedObject = control.object.clone();
+        clonedObject = [];
+        setCloneObject(control.object);
         console.log(control.object);
       }
       
@@ -39,17 +41,22 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     _renderer.domElement.addEventListener('click', onClick, false);
   }
   
-  // TODO 有bug
-  function addClonedObject(object) {
+  function setCloneObject(object) {
     if(!object.isGroup) {
-      _scene.add(object);
-      _objects.push(object);
+      const cloned = object.clone();
+      cloned.material = cloned.material.clone();
+      clonedObject.push(cloned);
     } else {
-      console.log(object);
       for (let i = 0; i < object.children.length; ++i) {
-        _scene.add(object.children[i]);
-        _objects.push(object.children[i]);
+        setCloneObject(object.children[i]);
       }
+    }
+  }
+  
+  function addClonedObject(object) {
+    for (let i = 0; i < object.length; ++i) {
+      _scene.add(object[i]);
+      _objects.push(object[i]);
     }
   }
   
