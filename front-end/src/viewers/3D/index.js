@@ -112,17 +112,29 @@ function initScene() {
   //   sceneAddMesh(tree, line);
   // });
   //
-  loader.load('/models/schematic-tree.dae', function (obj) {
-    let meshGeometry = new THREE.Geometry();
+  loader.load('/models/apple-tree.dae', function (obj) {
     let lineGeometry = new THREE.BufferGeometry();
 
 
     buffer = new Float32Array();
     const meshes = [];
-    searchChild(obj.scene, meshes);
+    const materials = new Set();
+    
+    searchMaterials(obj.scene, materials);
+    console.log(materials);
+    
+    materials.forEach(function (item) {
+      console.log(item);
+      let meshGeometry = new THREE.Geometry();
+      searchMaterialChild(item, obj.scene, meshGeometry);
+      meshes.push(new THREE.Mesh(meshGeometry, item));
+    });
+  
+    searchLines(obj.scene);
+    // searchChild(obj.scene, meshes);
     
     const tree = mergeMeshes(meshes);
-    console.log(tree.material);
+    console.log(tree);
 
     lineGeometry.setAttribute( 'position', new THREE.BufferAttribute( buffer, 3 ) );
 
@@ -134,8 +146,47 @@ function initScene() {
   
 }
 
+function searchMaterials(object, materials) {
+  if (object.isMesh) {
+    if(object.material.length > 0) {
+      materials.add(object.material[0]);
+    } else {
+      materials.add(object.material);
+    }
+    // object.geometry = new Geometry().fromBufferGeometry(object.geometry);
+    // object.geometry.applyMatrix4(matrix);
+    return;
+  }
+  if(object.isGroup) {
+    for(let i = 0; i < object.children.length; ++ i) {
+      searchMaterials(object.children[i], materials);
+    }
+  }
+}
 
+function searchMaterialChild(material, object, meshGeometry, matrix) {
+  if(matrix === undefined) matrix = new THREE.Matrix4();
+  if(object.isMesh ) {
+    let omaterial = object.material;
+    if(omaterial.length > 0) {
+      omaterial = omaterial[0];
+    }
+    if(omaterial === material) {
+      object.geometry = new Geometry().fromBufferGeometry(object.geometry);
+      object.geometry.applyMatrix4(matrix);
+      meshGeometry.merge(object.geometry, object.matrix);
+    }
+    return;
+  }
+  
+  if(object.isGroup) {
+    for(let i = 0; i < object.children.length; ++ i) {
+      searchMaterialChild(material, object.children[i], meshGeometry, object.matrix.premultiply(matrix));
+    }
+  }
+}
 function mergeMeshes(meshes, toBufferGeometry) {
+  if(meshes.length === 1) return meshes[0];
   
   var finalGeometry,
     materials = [],
@@ -167,15 +218,9 @@ function mergeMeshes(meshes, toBufferGeometry) {
   
 }
 
-function searchChild(object, meshes, matrix) {
+function searchLines(object, matrix) {
   if(matrix === undefined) matrix = new THREE.Matrix4();
-  console.log(meshes);
-  if(object.isMesh) {
-    object.geometry = new Geometry().fromBufferGeometry(object.geometry);
-    object.geometry.applyMatrix4(matrix);
-    meshes.push(object);
-    return;
-  }
+
   if(object.isLineSegments) {
     object.geometry.applyMatrix4(matrix);
     const posArr = object.geometry.getAttribute('position').array;
@@ -183,9 +228,9 @@ function searchChild(object, meshes, matrix) {
     return;
   }
   
-  if(object.children !== undefined) {
+  if(object.isGroup) {
     for(let i = 0; i < object.children.length; ++ i) {
-      searchChild(object.children[i], meshes, object.matrix.premultiply(matrix));
+      searchLines(object.children[i], object.matrix.premultiply(matrix));
     }
   }
 }
