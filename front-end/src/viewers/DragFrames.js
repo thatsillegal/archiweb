@@ -227,7 +227,7 @@ const DragFrames = function (_objects, _camera, _scene, _renderer) {
     vectemp2.add(vecNear);
     vectemp3.add(vecNear);
     
-    var planes = _frustum.planes;
+    const planes = _frustum.planes;
     
     planes[0].setFromCoplanarPoints(vecNear, vecTopLeft, vecTopRight);
     planes[1].setFromCoplanarPoints(vecNear, vecTopRight, vecDownRight);

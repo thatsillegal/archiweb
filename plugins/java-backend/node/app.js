@@ -12,8 +12,8 @@ let app = new Koa();
 let router = new Router();
 
 
-var http = require('http').createServer(app.callback());
-var io = require('socket.io')(http);
+const http = require('http').createServer(app.callback());
+const io = require('socket.io')(http);
 
 function static(dir) {
     return async (ctx, next) => {

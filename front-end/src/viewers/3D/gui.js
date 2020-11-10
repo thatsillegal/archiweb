@@ -5,8 +5,23 @@ let gui;
 
 const controls = new function () {
   this.info = false;
-  this.mode = 'Perspective';
-  this.control = 'Mouse';
+  this.import = function() {
+    fileInput.click();
+  }
+  let form = document.createElement( 'form' );
+  form.style.display = 'none';
+  document.body.appendChild( form );
+  
+  let fileInput = document.createElement( 'input' );
+  fileInput.multiple = true;
+  fileInput.type = 'file';
+  fileInput.addEventListener( 'change', function () {
+  
+    console.log(fileInput.files[0]);
+    form.reset();
+    
+  } );
+  form.appendChild( fileInput );
 };
 
 function initGUI() {
@@ -18,6 +33,7 @@ function initGUI() {
       elementDisplay("info-card", controls.info);
     }
   );
+  util.add(controls, 'import');
   util.open();
   
   
