@@ -42,8 +42,8 @@ const SceneBasic = function (_scene, _renderer) {
     dirLight.shadow.mapSize.set(20480, 20480);
     _scene.add(dirLight);
     
-    _scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
-    _scene.add( new THREE.DirectionalLightHelper(dirLight));
+    // _scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
+    // _scene.add( new THREE.DirectionalLightHelper(dirLight));
     
     _renderer.outputEncoding = THREE.sRGBEncoding;
     _renderer.shadowMap.enabled = true;

@@ -15,6 +15,7 @@ import {Transformer} from "@/viewers/Transformer";
 import {MultiCamera} from "@/viewers/MultiCamera";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
+import {Geometry, log} from "three";
 
 const gui = require('@/viewers/3D/gui')
 
@@ -71,48 +72,15 @@ function initScene() {
   const b3 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
   b3.scale.set(1, 1, 1.0 / 2);
   b3.position.set(300, -500, 75);
+  console.log(b3.material);
   
   sceneAddMesh(b3, line.clone());
   
   
   
-  sceneBasic = new SceneBasic(scene, renderer);
-  sceneBasic.addGUI(gui.gui);
   
   let loader = new ColladaLoader();
-  loader.load('/models/spruce-tree.dae', function (obj) {
-    let meshGeometry = new THREE.Geometry();
-    let lineGeometry = new THREE.BufferGeometry();
-  
-  
-    buffer = new Float32Array();
-    searchChild(obj.scene, meshGeometry);
-
-    lineGeometry.setAttribute( 'position', new THREE.BufferAttribute( buffer, 3 ) );
-  
-    const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
-    const tree = new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({color: 0x567736, transparent:true, opacity:0.6}));
-    tree.position.set(0, -200, 0);
-    sceneAddMesh(tree, line);
-  });
-  
-  loader.load('/models/apple-tree.dae', function (obj) {
-    let meshGeometry = new THREE.Geometry();
-    let lineGeometry = new THREE.BufferGeometry();
-    
-    
-    buffer = new Float32Array();
-    searchChild(obj.scene, meshGeometry);
-    
-    lineGeometry.setAttribute( 'position', new THREE.BufferAttribute( buffer, 3 ) );
-    
-    const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
-    const tree = new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({color: 0x567736, transparent:true, opacity:0.6}));
-    tree.position.set(500, 200, 0);
-    sceneAddMesh(tree, line);
-  });
-  
-  // loader.load('/models/deciduous-tree.dae', function (obj) {
+  // loader.load('/models/spruce-tree.dae', function (obj) {
   //   let meshGeometry = new THREE.Geometry();
   //   let lineGeometry = new THREE.BufferGeometry();
   //
@@ -124,24 +92,92 @@ function initScene() {
   //
   //   const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
   //   const tree = new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({color: 0x567736, transparent:true, opacity:0.6}));
-  //   tree.position.set(-300, -500, 0);
+  //   tree.position.set(0, -200, 0);
   //   sceneAddMesh(tree, line);
   // });
+  //
+  // loader.load('/models/apple-tree.dae', function (obj) {
+  //   let meshGeometry = new THREE.Geometry();
+  //   let lineGeometry = new THREE.BufferGeometry();
+  //
+  //
+  //   buffer = new Float32Array();
+  //   searchChild(obj.scene, meshGeometry);
+  //
+  //   lineGeometry.setAttribute( 'position', new THREE.BufferAttribute( buffer, 3 ) );
+  //
+  //   const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
+  //   const tree = new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({color: 0x567736, transparent:true, opacity:0.6}));
+  //   tree.position.set(500, 200, 0);
+  //   sceneAddMesh(tree, line);
+  // });
+  //
+  loader.load('/models/schematic-tree.dae', function (obj) {
+    let meshGeometry = new THREE.Geometry();
+    let lineGeometry = new THREE.BufferGeometry();
+
+
+    buffer = new Float32Array();
+    const meshes = [];
+    searchChild(obj.scene, meshes);
+    
+    const tree = mergeMeshes(meshes);
+    console.log(tree.material);
+
+    lineGeometry.setAttribute( 'position', new THREE.BufferAttribute( buffer, 3 ) );
+
+    const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
+    // const tree = new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({color: 0x567736, transparent:true, opacity:0.6}));
+    tree.position.set(-300, -500, 0);
+    sceneAddMesh(tree, line);
+  });
   
 }
 
-function searchChild(object, meshGeometry) {
+
+function mergeMeshes(meshes, toBufferGeometry) {
+  
+  var finalGeometry,
+    materials = [],
+    mergedGeometry = new THREE.Geometry(),
+    mergeMaterial,
+    mergedMesh;
+  
+  meshes.forEach(function(mesh, index) {
+    mesh.updateMatrix();
+    mesh.geometry.faces.forEach(function(face) {face.materialIndex = 0;});
+    mergedGeometry.merge(mesh.geometry, mesh.matrix, index);
+    materials.push(mesh.material);
+  });
+  
+  mergedGeometry.groupsNeedUpdate = true;
+  mergeMaterial = new THREE.MeshFaceMaterial(materials);
+  
+  if (toBufferGeometry) {
+    finalGeometry = new THREE.BufferGeometry().fromGeometry(mergedGeometry);
+  } else {
+    finalGeometry = mergedGeometry;
+  }
+  
+  mergedMesh = new THREE.Mesh(finalGeometry, mergeMaterial);
+  mergedMesh.geometry.computeFaceNormals();
+  mergedMesh.geometry.computeVertexNormals();
+  
+  return mergedMesh;
+  
+}
+
+function searchChild(object, meshes, matrix) {
+  if(matrix === undefined) matrix = new THREE.Matrix4();
+  console.log(meshes);
   if(object.isMesh) {
-    const childGeometry = new THREE.Geometry().fromBufferGeometry( object.geometry );
-    let matrix = object.matrix;
-    if(object.parent) {
-      matrix = object.parent.matrix;
-      console.log(matrix);
-    }
-    meshGeometry.merge(childGeometry, matrix);
+    object.geometry = new Geometry().fromBufferGeometry(object.geometry);
+    object.geometry.applyMatrix4(matrix);
+    meshes.push(object);
     return;
   }
   if(object.isLineSegments) {
+    object.geometry.applyMatrix4(matrix);
     const posArr = object.geometry.getAttribute('position').array;
     buffer = Float32Concat(buffer, posArr);
     return;
@@ -149,7 +185,7 @@ function searchChild(object, meshGeometry) {
   
   if(object.children !== undefined) {
     for(let i = 0; i < object.children.length; ++ i) {
-      searchChild(object.children[i], meshGeometry);
+      searchChild(object.children[i], meshes, object.matrix.premultiply(matrix));
     }
   }
 }
@@ -187,8 +223,14 @@ function initDragFrames() {
   
   dragFrames.addEventListener('select', function (event) {
     for (let i = 0; i < event.object.length; ++i) {
-      if(event.object[i].material)
-        event.object[i].material.emissive.set(0x666600);
+      let materials = event.object[i].material;
+      if(materials.length) {
+        for(let j = 0; j < materials.length; ++ j) {
+          materials[j].emissive.set(0x666600);
+        }
+      } else {
+        materials.emissive.set(0x666600);
+      }
       if (event.object[i].children.length > 0) {
         event.object[i].children[0].visible = true;
       }
@@ -200,8 +242,14 @@ function initDragFrames() {
   
   dragFrames.addEventListener('selectup', function (event) {
     for (let i = 0; i < event.object.length; ++i) {
-      if(event.object[i].material)
-        event.object[i].material.emissive.set(0x000000);
+      let materials = event.object[i].material;
+      if(materials.length) {
+        for(let j = 0; j < materials.length; ++ j) {
+          materials[j].emissive.set(0x000000);
+        }
+      } else {
+        materials.emissive.set(0x000000);
+      }
       if (event.object[i].children.length > 0) {
         event.object[i].children[0].visible = false;
       }
@@ -314,12 +362,15 @@ function init() {
   multiCamera.addGUI(gui.gui);
   initControls();
   
+  sceneBasic = new SceneBasic(scene, renderer);
+  sceneBasic.addGUI(gui.gui);
   
 }
 
 function main() {
   init();
   animate();
+
 }
 
 export {
