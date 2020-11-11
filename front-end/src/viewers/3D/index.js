@@ -85,7 +85,7 @@ function initScene() {
     console.log(mesh);
   });
   
-  loader.loadModel('/models/bug-tree.dae', (mesh) => {
+  loader.loadModel('/models/model.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
     setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x3d2408, transparent:true, opacity:0.6}) )
     console.log(mesh);
