@@ -15,13 +15,13 @@ import {Transformer} from "@/viewers/Transformer";
 import {MultiCamera} from "@/viewers/MultiCamera";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
-import {Geometry, log} from "three";
+import {Loader} from "@/viewers/Loader";
 
 const gui = require('@/viewers/3D/gui')
 
 let renderer, scene;
 let orbit;
-let sceneBasic, dragFrames, transformer;
+let sceneBasic, dragFrames, transformer, loader;
 let multiCamera;
 let buffer = new Float32Array();
 
@@ -79,189 +79,27 @@ function initScene() {
   
   
   
-  let loader = new ColladaLoader();
+  loader = new Loader(scene, objects);
 
-  loader.load('/models/spruce-tree.dae', function (obj) {
-    let lineGeometry = new THREE.BufferGeometry();
+  loader.loadFile('/models/spruce-tree.dae', (mesh) => {
+    mesh.position.set(0, -300, 0);
+    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
 
-
-    buffer = new Float32Array();
-    const meshes = [];
-    const materials = new Set();
-
-    searchMaterials(obj.scene, materials);
-    console.log(materials);
-
-    materials.forEach(function (item) {
-      console.log(item);
-      let meshGeometry = new THREE.Geometry();
-      searchMaterialChild(item, obj.scene, meshGeometry);
-      meshes.push(new THREE.Mesh(meshGeometry, item));
-    });
-
-    searchLines(obj.scene);
-    // searchChild(obj.scene, meshes);
-
-    const tree = mergeMeshes(meshes);
-    console.log(tree);
-
-    lineGeometry.setAttribute( 'position', new THREE.BufferAttribute( buffer, 3 ) );
-
-    const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
-    // const tree = new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({color: 0x567736, transparent:true, opacity:0.6}));
-    tree.position.set(0, -200, 0);
-    sceneAddMesh(tree, line);
-  });
-  loader.load('/models/deciduous-tree.dae', function (obj) {
-    let lineGeometry = new THREE.BufferGeometry();
-
-
-    buffer = new Float32Array();
-    const meshes = [];
-    const materials = new Set();
-
-    searchMaterials(obj.scene, materials);
-    // console.log(materials);
-
-    materials.forEach(function (item) {
-      console.log(item);
-      let meshGeometry = new THREE.Geometry();
-      searchMaterialChild(item, obj.scene, meshGeometry);
-      meshes.push(new THREE.Mesh(meshGeometry, item));
-    });
-
-    searchLines(obj.scene);
-    // searchChild(obj.scene, meshes);
-
-    const tree = mergeMeshes(meshes);
-    console.log(tree);
-
-    lineGeometry.setAttribute( 'position', new THREE.BufferAttribute( buffer, 3 ) );
-
-    const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
-    // const tree = new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({color: 0x567736, transparent:true, opacity:0.6}));
-    tree.position.set(500, 0, 0);
-    sceneAddMesh(tree, line);
-  });
-
-  loader.load('/models/Betula-tree.dae', function (obj) {
-    let lineGeometry = new THREE.BufferGeometry();
-
-
-    buffer = new Float32Array();
-    const meshes = [];
-    const materials = new Set();
-    
-    searchMaterials(obj.scene, materials);
-    // console.log(materials);
-    
-    materials.forEach(function (item) {
-      // console.log(item);
-      let meshGeometry = new THREE.Geometry();
-      searchMaterialChild(item, obj.scene, meshGeometry);
-      meshes.push(new THREE.Mesh(meshGeometry, item));
-    });
-  
-    searchLines(obj.scene);
-    
-    const tree = mergeMeshes(meshes);
-    // console.log(tree);
-
-    lineGeometry.setAttribute( 'position', new THREE.BufferAttribute( buffer, 3 ) );
-
-    const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
-    // const tree = new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({color: 0x567736, transparent:true, opacity:0.6}));
-    tree.position.set(-300, -500, 0);
-    sceneAddMesh(tree, line);
+    console.log(mesh);
   });
   
+  loader.loadFile('/models/apple-tree.dae', (mesh) => {
+    mesh.position.set(500, 0, 0);
+    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
+    console.log(mesh);
+  });
 }
 
-function searchMaterials(object, materials) {
-  if (object.isMesh) {
-    if(object.material.length > 0) {
-      materials.add(object.material[0]);
-    } else {
-      materials.add(object.material);
-    }
-    return;
-  }
-  if(object.isGroup) {
-    for(let i = 0; i < object.children.length; ++ i) {
-      searchMaterials(object.children[i], materials);
-    }
-  }
-}
-
-function searchMaterialChild(material, object, meshGeometry, matrix) {
-  if(matrix === undefined) matrix = new THREE.Matrix4();
-  if(object.isMesh ) {
-    let omaterial = object.material;
-    if(omaterial.length > 0) {
-      omaterial = omaterial[0];
-    }
-    if(omaterial === material) {
-      object.geometry = new Geometry().fromBufferGeometry(object.geometry);
-      object.geometry.applyMatrix4(matrix);
-      meshGeometry.merge(object.geometry, object.matrix);
-    }
-    return;
-  }
-  
-  if(object.isGroup) {
-    for(let i = 0; i < object.children.length; ++ i) {
-      searchMaterialChild(material, object.children[i], meshGeometry, object.matrix.premultiply(matrix));
-    }
-  }
-}
-function mergeMeshes(meshes, toBufferGeometry) {
-  if(meshes.length === 1) return meshes[0];
-  
-  var finalGeometry,
-    materials = [],
-    mergedGeometry = new THREE.Geometry(),
-    mergeMaterial,
-    mergedMesh;
-  
-  meshes.forEach(function(mesh, index) {
-    mesh.updateMatrix();
-    mesh.geometry.faces.forEach(function(face) {face.materialIndex = 0;});
-    mergedGeometry.merge(mesh.geometry, mesh.matrix, index);
-    materials.push(mesh.material);
-  });
-  
-  mergedGeometry.groupsNeedUpdate = true;
-  mergeMaterial = new THREE.MeshFaceMaterial(materials);
-  
-  if (toBufferGeometry) {
-    finalGeometry = new THREE.BufferGeometry().fromGeometry(mergedGeometry);
+function setMeshMaterial(mesh, material) {
+  if(mesh instanceof Array) {
+    mesh.material.forEach((item)=>item=material);
   } else {
-    finalGeometry = mergedGeometry;
-  }
-  
-  mergedMesh = new THREE.Mesh(finalGeometry, mergeMaterial);
-  mergedMesh.geometry.computeFaceNormals();
-  mergedMesh.geometry.computeVertexNormals();
-  
-  return mergedMesh;
-  
-}
-
-function searchLines(object, matrix) {
-  if(matrix === undefined) matrix = new THREE.Matrix4();
-
-  if(object.isLineSegments) {
-    // console.log(matrix);
-    object.geometry.applyMatrix4(matrix);
-    const posArr = object.geometry.getAttribute('position').array;
-    buffer = Float32Concat(buffer, posArr);
-    return;
-  }
-  
-  if(object.isGroup) {
-    for(let i = 0; i < object.children.length; ++ i) {
-      searchLines(object.children[i], object.matrix);
-    }
+    mesh.material=material;
   }
 }
 
@@ -277,16 +115,6 @@ function sceneAddMesh(mesh, line) {
   scene.add(mesh);
 }
 
-function Float32Concat(first, second)
-{
-  let firstLength = first.length,
-    result = new Float32Array(firstLength + second.length);
-  
-  result.set(first);
-  result.set(second, firstLength);
-  
-  return result;
-}
 function initDragFrames() {
   
   dragFrames = new DragFrames(objects, multiCamera.camera, scene, renderer);
