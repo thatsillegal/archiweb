@@ -128,8 +128,12 @@ const Loader = function (_scene, _objects) {
     if (matrix === undefined) matrix = new THREE.Matrix4();
     
     if (object.isLineSegments) {
-      // console.log(matrix);
+      // console.log('----------------')
+      // console.log(object.matrix);
+      // console.log(object.scale)
+      // console.log('---------------')
       object.geometry.applyMatrix4(matrix);
+      
       const posArr = object.geometry.getAttribute('position').array;
       buffer = Float32Concat(buffer, posArr);
       return;
@@ -137,7 +141,7 @@ const Loader = function (_scene, _objects) {
     
     if (object.isGroup) {
       for (let i = 0; i < object.children.length; ++i) {
-        searchLines(object.children[i], object.matrix);
+        searchLines(object.children[i],  object.matrix.premultiply(matrix));
       }
     }
   }
@@ -165,7 +169,7 @@ const Loader = function (_scene, _objects) {
     }
   }
   
-  this.loadFile = function (filename, mesh) {
+  this.loadModel = function (filename, mesh) {
     let extension = filename.split('.').pop().toLowerCase();
     let loader;
     switch (extension) {

@@ -13,8 +13,6 @@ import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
 import {Transformer} from "@/viewers/Transformer";
 import {MultiCamera} from "@/viewers/MultiCamera";
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
 import {Loader} from "@/viewers/Loader";
 
 const gui = require('@/viewers/3D/gui')
@@ -23,7 +21,6 @@ let renderer, scene;
 let orbit;
 let sceneBasic, dragFrames, transformer, loader;
 let multiCamera;
-let buffer = new Float32Array();
 
 
 const objects = [];
@@ -81,22 +78,22 @@ function initScene() {
   
   loader = new Loader(scene, objects);
 
-  loader.loadFile('/models/spruce-tree.dae', (mesh) => {
+  loader.loadModel('/models/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
     setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
 
     console.log(mesh);
   });
   
-  loader.loadFile('/models/apple-tree.dae', (mesh) => {
+  loader.loadModel('/models/bug-tree.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
-    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
+    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x3d2408, transparent:true, opacity:0.6}) )
     console.log(mesh);
   });
 }
 
 function setMeshMaterial(mesh, material) {
-  if(mesh instanceof Array) {
+  if(mesh.material instanceof Array) {
     mesh.material.forEach((item)=>item=material);
   } else {
     mesh.material=material;
