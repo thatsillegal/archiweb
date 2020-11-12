@@ -24,6 +24,7 @@ let multiCamera;
 
 
 const objects = [];
+const toCamera = [];
 
 function initRender() {
   renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -81,19 +82,34 @@ function initScene() {
   loader.loadModel('/models/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
     setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
+    toCamera.push(mesh);
 
     console.log(mesh);
   });
   
-  loader.loadModel('/models/model.dae', (mesh) => {
-    mesh.position.set(500, 0, 0);
-    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x3d2408, transparent:true, opacity:0.6}) )
+  loader.loadModel('/models/test.gltf', (mesh) => {
+    // setMaterialOpacity(mesh, 0.6);
+    mesh.scale.set(0.1, 0.1, 0.1);
+    mesh.position.set(300, -180, -120);
+    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x787774, transparent:true, opacity:0.9, side:THREE.DoubleSide}) )
     console.log(mesh);
   });
 }
 
+function setMaterialOpacity(mesh, opacity) {
+  if(Array.isArray(mesh.material)) {
+    mesh.material.forEach((item)=>{
+      item.transparent = true;
+      item.opacity = opacity;
+    });
+  } else {
+    mesh.material.transparent = true;
+    mesh.material.opacity = opacity;
+  }
+}
+
 function setMeshMaterial(mesh, material) {
-  if(mesh.material instanceof Array) {
+  if(mesh.material.length > 0) {
     mesh.material.forEach((item)=>item=material);
   } else {
     mesh.material=material;
@@ -198,6 +214,10 @@ function render() {
   // console.log(multiCamera.camera);
   renderer.clear();
   renderer.render(scene, multiCamera.camera);
+  
+  for(let i = 0; i < toCamera.length; ++ i){
+    console.log(multiCamera.camera.position);
+  }
 
   if (dragFrames !== undefined)
     dragFrames.render();
@@ -275,4 +295,5 @@ function main() {
 
 export {
   main,
+  loader,
 }

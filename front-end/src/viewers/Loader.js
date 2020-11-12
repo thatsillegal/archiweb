@@ -5,6 +5,8 @@ import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
 import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 import {Wireframe} from "three/examples/jsm/lines/Wireframe";
+import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
+import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 
 const Loader = function (_scene, _objects) {
   
@@ -62,7 +64,6 @@ const Loader = function (_scene, _objects) {
     var finalGeometry,
       materials = [],
       mergedGeometry = new THREE.Geometry(),
-      mergeMaterial,
       mergedMesh;
     
     meshes.forEach(function (mesh, index) {
@@ -75,7 +76,6 @@ const Loader = function (_scene, _objects) {
     });
     
     mergedGeometry.groupsNeedUpdate = true;
-    mergeMaterial = new THREE.Material(materials);
     
     if (toBufferGeometry) {
       finalGeometry = new THREE.BufferGeometry().fromGeometry(mergedGeometry);
@@ -83,7 +83,7 @@ const Loader = function (_scene, _objects) {
       finalGeometry = mergedGeometry;
     }
     
-    mergedMesh = new THREE.Mesh(finalGeometry, mergeMaterial);
+    mergedMesh = new THREE.Mesh(finalGeometry, materials);
     mergedMesh.geometry.computeFaceNormals();
     mergedMesh.geometry.computeVertexNormals();
     
@@ -172,6 +172,7 @@ const Loader = function (_scene, _objects) {
   this.loadModel = function (filename, mesh) {
     let extension = filename.split('.').pop().toLowerCase();
     let loader;
+    const dracoLoader = new DRACOLoader();
     switch (extension) {
       case 'dae':
         loader = new ColladaLoader();
@@ -181,24 +182,45 @@ const Loader = function (_scene, _objects) {
           
         });
         break;
+        
+      case 'gltf':
+      case 'glb':
+        loader = new GLTFLoader();
+        dracoLoader.setDecoderPath( 'three/examples/js/libs/draco/gltf/' );
+        loader.setDRACOLoader( dracoLoader );
+        loader.load(filename, function (gltf) {
+          mesh(loadModel(gltf.scene));
+        });
+        break;
+      case 'obj':
+        loader = new OBJLoader();
+        loader.load(filename, function(obj) {
+          obj.rotateX(Math.PI/2);
+          obj.scale.set(40, 40, 40);
+          obj.updateMatrixWorld(true);
+          mesh(loadModel(obj));
+        });
+        break;
+      default:
+        alert('file format not support');
     }
   }
   
   
-  this.loadFiles = function (file) {
+  this.loadFile = function (file, mesh) {
     let filename = file.name;
     let extension = filename.split('.').pop().toLowerCase();
-    
     let reader = new FileReader();
     reader.addEventListener('progress', function (event) {
       
-      let size = '(' + Math.floor(event.total / 1000).format() + ' KB)';
+      let size = '(' + Math.floor(event.total / 1000) + ' KB)';
       let progress = Math.floor((event.loaded / event.total) * 100) + '%';
       
       console.log('Loading', filename, size, progress);
       
     });
-    
+  
+    const dracoLoader = new DRACOLoader();
     switch (extension) {
       case 'dae':
         reader.addEventListener('load', function (event) {
@@ -207,8 +229,8 @@ const Loader = function (_scene, _objects) {
           
           let loader = new ColladaLoader(manager);
           let collada = loader.parse(contents);
-          
-          loadModel(collada.scene);
+  
+          mesh(loadModel(collada.scene));
           
         }, false);
         reader.readAsText(file);
@@ -218,15 +240,76 @@ const Loader = function (_scene, _objects) {
         reader.addEventListener('load', function (event) {
           
           let contents = event.target.result;
-          let loader = new GLTFLoader(manager);
+          let loader = new GLTFLoader();
+          dracoLoader.setDecoderPath( 'three/examples/js/libs/draco/gltf/' );
+          loader.setDRACOLoader( dracoLoader );
           let gltf = loader.parse(contents);
           
-          loadModel(gltf.scene);
+          mesh(loadModel(gltf.scene));
         }, false);
         reader.readAsText(file);
         break;
+        
+      case 'gltf':
+        reader.addEventListener('load', function (event) {
+    
+          let contents = event.target.result;
+          let loader = new GLTFLoader();
+          if ( isGLTF1( contents ) ) {
+    
+            alert( 'Import of glTF asset not possible. Only versions >= 2.0 are supported. Please try to upgrade the file to glTF 2.0 using glTF-Pipeline.' );
+    
+          } else {
+            dracoLoader.setDecoderPath('three/examples/js/libs/draco/gltf/');
+            loader.setDRACOLoader(dracoLoader);
+            loader.parse(contents, '', function (gltf) {
+  
+              mesh(loadModel(gltf.scene));
+            });
+  
+          }
+        }, false);
+        reader.readAsText(file);
+        break;
+  
+  
+  
+    }
+  }
+  
+  function isGLTF1( contents ) {
+    
+    var resultContent;
+    
+    if ( typeof contents === 'string' ) {
+      
+      // contents is a JSON string
+      resultContent = contents;
+      
+    } else {
+      
+      var magic = THREE.LoaderUtils.decodeText( new Uint8Array( contents, 0, 4 ) );
+      
+      if ( magic === 'glTF' ) {
+        
+        // contents is a .glb file; extract the version
+        var version = new DataView( contents ).getUint32( 4, true );
+        
+        return version < 2;
+        
+      } else {
+        
+        // contents is a .gltf file
+        resultContent = THREE.LoaderUtils.decodeText( new Uint8Array( contents ) );
+        
+      }
       
     }
+    
+    var json = JSON.parse( resultContent );
+    
+    return ( json.asset !== undefined && json.asset.version[ 0 ] < 2 );
+    
   }
 }
 
