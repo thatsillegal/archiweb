@@ -215,9 +215,16 @@ function render() {
   renderer.clear();
   renderer.render(scene, multiCamera.camera);
   
-  for(let i = 0; i < toCamera.length; ++ i){
-    console.log(multiCamera.camera.position);
-  }
+  toCamera.forEach((obj) => {
+    console.log(obj)
+    let dx = multiCamera.camera.position.x - obj.position.x;
+    let dy = multiCamera.camera.position.y - obj.position.y;
+    let theta = -Math.atan2(dx, dy);
+    
+    obj.quaternion.set(0, 0, 0, 1);
+    obj.rotateZ(theta);
+    console.log(dx, dy);
+  });
 
   if (dragFrames !== undefined)
     dragFrames.render();
