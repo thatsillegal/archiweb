@@ -44,6 +44,8 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   function setCloneObject(object) {
     if (!object.isGroup) {
       const cloned = object.clone();
+      if(object.toCamera) cloned.toCamera = true;
+      
       if(cloned.material.length > 0) {
         let materials = []
         for (let i = 0; i < cloned.material.length; ++ i) {

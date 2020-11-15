@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 "use strict";
-
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
@@ -8,6 +7,29 @@ import {LineMaterial} from 'three/examples/jsm/lines/LineMaterial';
 import {Wireframe} from "three/examples/jsm/lines/Wireframe";
 import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 
+
+/**
+ *      ___           ___           ___           ___                       ___           ___           ___
+ *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
+ *    /::\  \       /::\  \       /::\  \       /:/  /         /\  \      /:/ _/_       /::\  \       /::\  \
+ *   /:/\:\  \     /:/\:\  \     /:/\:\  \     /:/__/          \:\  \    /:/ /\__\     /:/\:\  \     /:/\:\  \
+ *  /::\~\:\  \   /::\~\:\  \   /:/  \:\  \   /::\  \ ___      /::\__\  /:/ /:/ _/_   /::\~\:\  \   /::\~\:\__\
+ * /:/\:\ \:\__\ /:/\:\ \:\__\ /:/__/ \:\__\ /:/\:\  /\__\  __/:/\/__/ /:/_/:/ /\__\ /:/\:\ \:\__\ /:/\:\ \:|__|
+ * \/__\:\/:/  / \/_|::\/:/  / \:\  \  \/__/ \/__\:\/:/  / /\/:/  /    \:\/:/ /:/  / \:\~\:\ \/__/ \:\~\:\/:/  /
+ *      \::/  /     |:|::/  /   \:\  \            \::/  /  \::/__/      \::/_/:/  /   \:\ \:\__\    \:\ \::/  /
+ *      /:/  /      |:|\/__/     \:\  \           /:/  /    \:\__\       \:\/:/  /     \:\ \/__/     \:\/:/  /
+ *     /:/  /       |:|  |        \:\__\         /:/  /      \/__/        \::/  /       \:\__\        \::/__/
+ *     \/__/         \|__|         \/__/         \/__/                     \/__/         \/__/         ~~
+ *
+ *
+ *
+ * Copyright (c) 2020-present, Inst.AAA.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * Date: 2020-11-12
+ */
 
 import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
@@ -82,22 +104,35 @@ function initScene() {
   loader.loadModel('/models/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
     setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
-    toCamera.push(mesh);
+    mesh.toCamera = true;
+    // toCamera.push(mesh);
 
     console.log(mesh);
   });
   
-  loader.loadModel('/models/test.gltf', (mesh) => {
-    // setMaterialOpacity(mesh, 0.6);
-    mesh.scale.set(0.1, 0.1, 0.1);
-    mesh.position.set(300, -180, -120);
-    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x787774, transparent:true, opacity:0.9, side:THREE.DoubleSide}) )
+  loader.loadModel('/models/autumn-tree.dae', (mesh) => {
+    mesh.position.set(500, 0, 0);
+    mesh.scale.set(2, 2, 2);
+    setMaterialOpacity(mesh, 0.6);
+    mesh.toCamera = true;
+    // toCamera.push(mesh);
+    //
     console.log(mesh);
   });
+  // loader.loadModel('/models/test.gltf', (mesh) => {
+  //   // setMaterialOpacity(mesh, 0.6);
+  //   mesh.scale.set(0.1, 0.1, 0.1);
+  //   mesh.position.set(300, -180, -120);
+  //   setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x787774, transparent:true, opacity:0.9, side:THREE.DoubleSide}) )
+  //   console.log(mesh);
+  // });
+  //
+  
 }
 
+
 function setMaterialOpacity(mesh, opacity) {
-  if(Array.isArray(mesh.material)) {
+  if(mesh.material.length > 0) {
     mesh.material.forEach((item)=>{
       item.transparent = true;
       item.opacity = opacity;
@@ -109,8 +144,11 @@ function setMaterialOpacity(mesh, opacity) {
 }
 
 function setMeshMaterial(mesh, material) {
+  console.log(mesh.material);
   if(mesh.material.length > 0) {
-    mesh.material.forEach((item)=>item=material);
+    let materials = []
+    mesh.material.forEach(()=>materials.push(material));
+    mesh.material = materials;
   } else {
     mesh.material=material;
   }
@@ -209,22 +247,35 @@ function windowResize(w, h) {
 }
 
 
+
 function render() {
   
   // console.log(multiCamera.camera);
   renderer.clear();
   renderer.render(scene, multiCamera.camera);
   
-  toCamera.forEach((obj) => {
-    console.log(obj)
-    let dx = multiCamera.camera.position.x - obj.position.x;
-    let dy = multiCamera.camera.position.y - obj.position.y;
-    let theta = -Math.atan2(dx, dy);
-    
-    obj.quaternion.set(0, 0, 0, 1);
-    obj.rotateZ(theta);
-    console.log(dx, dy);
+  scene.traverse((obj) => {
+    if(obj.toCamera) {
+      // console.log(obj)
+      let dx = multiCamera.camera.position.x - obj.position.x;
+      let dy = multiCamera.camera.position.y - obj.position.y;
+      let theta = -Math.atan2(dx, dy);
+  
+      obj.quaternion.set(0, 0, 0, 1);
+      obj.rotateZ(theta);
+      // console.log(dx, dy)
+    }
   });
+  // toCamera.forEach((obj) => {
+  //   // console.log(obj)
+  //   let dx = multiCamera.camera.position.x - obj.position.x;
+  //   let dy = multiCamera.camera.position.y - obj.position.y;
+  //   let theta = -Math.atan2(dx, dy);
+  //
+  //   obj.quaternion.set(0, 0, 0, 1);
+  //   obj.rotateZ(theta);
+  //   // console.log(dx, dy);
+  // });
 
   if (dragFrames !== undefined)
     dragFrames.render();

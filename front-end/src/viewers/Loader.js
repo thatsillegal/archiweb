@@ -123,7 +123,7 @@ const Loader = function (_scene, _objects) {
     return result;
   }
   
-  
+  // FIXME: linesigments matrix bug in bug-tree.dae
   function searchLines(object, matrix) {
     if (matrix === undefined) matrix = new THREE.Matrix4();
     
@@ -168,6 +168,10 @@ const Loader = function (_scene, _objects) {
       }
     }
   }
+  
+  
+  
+  /*-------------------- API --------------------*/
   
   this.loadModel = function (filename, mesh) {
     let extension = filename.split('.').pop().toLowerCase();
@@ -271,7 +275,19 @@ const Loader = function (_scene, _objects) {
         }, false);
         reader.readAsText(file);
         break;
-  
+      case 'obj':
+        reader.addEventListener('load', function (event) {
+          let contents = event.target.result;
+          let obj = new OBJLoader().parse( contents );
+          obj.rotateX(Math.PI / 2);
+          obj.scale.set(40, 40, 40);
+          obj.updateMatrixWorld(true);
+          mesh(loadModel(obj));
+        }, false);
+        reader.readAsText(file);
+        break;
+      default:
+        alert('file format not support');
   
   
     }
