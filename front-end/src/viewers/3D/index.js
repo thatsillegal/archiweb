@@ -109,7 +109,7 @@ function initScene() {
 
     console.log(mesh);
   });
-  
+
   loader.loadModel('/models/autumn-tree.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
     mesh.scale.set(2, 2, 2);
@@ -119,6 +119,7 @@ function initScene() {
     //
     console.log(mesh);
   });
+
   // loader.loadModel('/models/test.gltf', (mesh) => {
   //   // setMaterialOpacity(mesh, 0.6);
   //   mesh.scale.set(0.1, 0.1, 0.1);

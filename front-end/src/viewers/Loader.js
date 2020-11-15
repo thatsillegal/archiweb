@@ -1,5 +1,6 @@
-
 import * as THREE from 'three';
+// import { DXFLoader } from 'three-dxf-loader';
+
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
@@ -18,7 +19,6 @@ const Loader = function (_scene, _objects) {
   
   function loadModel(object) {
     
-    let lineGeometry = new THREE.BufferGeometry();
     
     const materials = new Set();
     const meshes = [];
@@ -33,7 +33,8 @@ const Loader = function (_scene, _objects) {
       meshes.push(new THREE.Mesh(meshGeometry, material));
     });
     // console.log(meshes)
-    
+  
+    let lineGeometry = new THREE.BufferGeometry();
     buffer = new Float32Array();
     searchLines(object);
     // console.log(buffer);
@@ -136,6 +137,7 @@ const Loader = function (_scene, _objects) {
     if (matrix === undefined) matrix = new THREE.Matrix4();
     
     if (object.isLineSegments || object.isLine) {
+      console.log(object);
       // console.log('----------------')
       // console.log(object.matrix);
       // console.log(object.scale)
@@ -269,6 +271,23 @@ const Loader = function (_scene, _objects) {
           mesh(loadModel(obj));
         })
         break;
+        
+        // FIXME: not support 3d ?
+      // case 'dxf':
+      //   loader = new DXFLoader();
+      //   loader.load(filename, function(obj) {
+      //     console.log(obj)
+      //     for(let i = 0; i < obj.entities.length; ++ i) {
+      //       let line = obj.entities[i];
+      //       line.applyMatrix4(line.modelViewMatrix);
+      //       line.updateMatrixWorld(true);
+      //       _scene.add(line);
+      //     }
+      //     // const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
+      //     //
+      //     // mesh(line);
+      //   });
+      //   break;
       default:
         alert('file format not support');
     }
