@@ -7,6 +7,9 @@ import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 import {Wireframe} from "three/examples/jsm/lines/Wireframe";
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
+import {Rhino3dmLoader} from "three/examples/jsm/loaders/3DMLoader";
+import {ThreeMFLoader} from "three/examples/jsm/loaders/3MFLoader";
+import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 
 const Loader = function (_scene, _objects) {
   
@@ -39,6 +42,11 @@ const Loader = function (_scene, _objects) {
     
     const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
     sceneAddMesh(result, line);
+    
+    if(checkMaterial(result)) {
+      result.material = new THREE.MeshLambertMaterial({color: 0x787774, side:THREE.DoubleSide});
+      }
+  
     return result;
   }
   
@@ -127,7 +135,7 @@ const Loader = function (_scene, _objects) {
   function searchLines(object, matrix) {
     if (matrix === undefined) matrix = new THREE.Matrix4();
     
-    if (object.isLineSegments) {
+    if (object.isLineSegments || object.isLine) {
       // console.log('----------------')
       // console.log(object.matrix);
       // console.log(object.scale)
@@ -169,7 +177,51 @@ const Loader = function (_scene, _objects) {
     }
   }
   
+  function isGLTF1( contents ) {
+    
+    var resultContent;
+    
+    if ( typeof contents === 'string' ) {
+      
+      // contents is a JSON string
+      resultContent = contents;
+      
+    } else {
+      
+      var magic = THREE.LoaderUtils.decodeText( new Uint8Array( contents, 0, 4 ) );
+      
+      if ( magic === 'glTF' ) {
+        
+        // contents is a .glb file; extract the version
+        var version = new DataView( contents ).getUint32( 4, true );
+        
+        return version < 2;
+        
+      } else {
+        
+        // contents is a .gltf file
+        resultContent = THREE.LoaderUtils.decodeText( new Uint8Array( contents ) );
+        
+      }
+      
+    }
+    
+    var json = JSON.parse( resultContent );
+    
+    return ( json.asset !== undefined && json.asset.version[ 0 ] < 2 );
+    
+  }
   
+  function checkMaterial(mesh) {
+    if(mesh.material.length > 0) {
+      mesh.material.forEach((item)=>{
+        item.side = THREE.DoubleSide;
+      });
+      return mesh.material[0].emissive === undefined;
+    }
+    mesh.material.side = THREE.DoubleSide;
+    return mesh.material.emissive === undefined;
+  }
   
   /*-------------------- API --------------------*/
   
@@ -205,6 +257,18 @@ const Loader = function (_scene, _objects) {
           mesh(loadModel(obj));
         });
         break;
+      case '3mf':
+        loader = new ThreeMFLoader();
+        loader.load(filename, function(obj) {
+          mesh(loadModel(obj));
+        });
+        break;
+      case 'fbx':
+        loader = new FBXLoader();
+        loader.load(filename, function(obj) {
+          mesh(loadModel(obj));
+        })
+        break;
       default:
         alert('file format not support');
     }
@@ -239,8 +303,9 @@ const Loader = function (_scene, _objects) {
         }, false);
         reader.readAsText(file);
         break;
-      
+        
       case 'glb':
+        // FIXME: SyntaxError: Unexpected token g in JSON at position 0
         reader.addEventListener('load', function (event) {
           
           let contents = event.target.result;
@@ -248,7 +313,7 @@ const Loader = function (_scene, _objects) {
           dracoLoader.setDecoderPath( 'three/examples/js/libs/draco/gltf/' );
           loader.setDRACOLoader( dracoLoader );
           let gltf = loader.parse(contents);
-          
+  
           mesh(loadModel(gltf.scene));
         }, false);
         reader.readAsText(file);
@@ -280,12 +345,57 @@ const Loader = function (_scene, _objects) {
           let contents = event.target.result;
           let obj = new OBJLoader().parse( contents );
           obj.rotateX(Math.PI / 2);
-          obj.scale.set(40, 40, 40);
+          // obj.scale.set(40, 40, 40);
           obj.updateMatrixWorld(true);
+
           mesh(loadModel(obj));
+  
         }, false);
         reader.readAsText(file);
         break;
+      case '3dm':
+  
+        reader.addEventListener( 'load', function ( event ) {
+    
+          let contents = event.target.result;
+    
+          let loader = new Rhino3dmLoader();
+          loader.setLibraryPath( 'three/examples/jsm/libs/rhino3dm/' );
+          loader.parse( contents, function ( object ) {
+  
+            mesh(loadModel(object));
+          } );
+    
+        }, false );
+        reader.readAsText( file );
+  
+        break;
+      case '3mf':
+        reader.addEventListener( 'load', function ( event ) {
+    
+          let loader = new ThreeMFLoader();
+          let object = loader.parse( event.target.result );
+  
+          mesh(loadModel(object));
+    
+        }, false );
+        reader.readAsArrayBuffer( file );
+  
+        break;
+      case 'fbx':
+        reader.addEventListener( 'load', function ( event ) {
+    
+          let contents = event.target.result;
+    
+          let loader = new FBXLoader( manager );
+          let object = loader.parse( contents );
+
+          mesh(loadModel(object));
+        }, false );
+        reader.readAsArrayBuffer( file );
+  
+        break;
+  
       default:
         alert('file format not support');
   
@@ -293,40 +403,7 @@ const Loader = function (_scene, _objects) {
     }
   }
   
-  function isGLTF1( contents ) {
-    
-    var resultContent;
-    
-    if ( typeof contents === 'string' ) {
-      
-      // contents is a JSON string
-      resultContent = contents;
-      
-    } else {
-      
-      var magic = THREE.LoaderUtils.decodeText( new Uint8Array( contents, 0, 4 ) );
-      
-      if ( magic === 'glTF' ) {
-        
-        // contents is a .glb file; extract the version
-        var version = new DataView( contents ).getUint32( 4, true );
-        
-        return version < 2;
-        
-      } else {
-        
-        // contents is a .gltf file
-        resultContent = THREE.LoaderUtils.decodeText( new Uint8Array( contents ) );
-        
-      }
-      
-    }
-    
-    var json = JSON.parse( resultContent );
-    
-    return ( json.asset !== undefined && json.asset.version[ 0 ] < 2 );
-    
-  }
+
 }
 
 
