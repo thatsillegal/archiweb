@@ -14,11 +14,13 @@
       id="info"
       style="position:fixed;top:64px;left:20px;z-index:1"
     >
-      "W" translate | "E" rotate | "R" scale | "+/-" size<br/>
-      "Q" toggle world/local space | "S" snap to grid<br/>
-      "C" toggle camera | "1-9" different camera view
+
     </div>
-    
+  
+    <ViewSelectCard
+      style="position:fixed;bottom:64px;left:0px;right:0px;margin-left: auto;"
+    ></ViewSelectCard>
+
     <template style="background:#ffffff;">
       <div id="container" class="d-flex justify-sm-center">
       </div>
@@ -29,15 +31,37 @@
 </template>
 
 <script>
-import {main} from '@/viewers/3D/index'
+import {main} from '@/viewers/3D'
+import {main2D} from '@/viewers/2D'
 import InfoCard from "@/components/InfoCard";
+import ViewSelectCard from "@/components/ViewSelectCard";
 
 export default {
   name: 'Viewer',
-  components: {InfoCard},
+  components: {ViewSelectCard, InfoCard},
   data: () => ({}),
   mounted() {
     main();
+  },
+  methods: {
+    init2D: function () {
+      console.log(ViewSelectCard.data().value);
+      
+      const container = document.getElementById('gui-container');
+      const dg = document.getElementsByClassName('dg main');
+      container.removeChild(dg[0]);
+      main2D()
+    },
+    init3D: function () {
+      console.log(ViewSelectCard.data().value);
+  
+      const container = document.getElementById('gui-container');
+      const dg = document.getElementsByClassName('dg main');
+      container.removeChild(dg[0]);
+      main()
+      
+    }
+    
   }
 }
 </script>

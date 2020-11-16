@@ -1,0 +1,114 @@
+<template>
+  <v-row justify="center">
+    <v-dialog
+      v-model="dialog"
+      max-width="750"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          v-bind="attrs"
+          v-on="on"
+          dark
+          icon
+          large
+        >
+          <v-icon color="black">mdi-cog</v-icon>
+        </v-btn>
+      </template>
+      <v-card
+        class="pa-2"
+      >
+        <v-card-title class="headline justify-center">
+          
+          ArchiWeb User Manual
+        </v-card-title>
+        <v-card-text class="pa-3">
+            <v-col
+              v-for="id in (manual.length/2)"
+              :key="id"
+            >
+              <v-row no-gutters>
+                <v-spacer></v-spacer>
+                <v-col>
+                  {{ manual[(id-1)*2].split(":")[0] }}
+    
+                </v-col>
+                <v-col>
+                  {{ manual[(id-1)*2].split(":")[1] }}
+                </v-col>
+                <v-spacer></v-spacer>
+                <v-col>
+                  {{ manual[(id-1)*2+1].split(":")[0] }}
+  
+                </v-col>
+                <v-col>
+                  {{ manual[(id-1)*2+1].split(":")[1] }}
+                </v-col>
+                <v-spacer></v-spacer>
+              </v-row>
+            </v-col>
+            <v-spacer></v-spacer>
+
+        
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn-toggle
+            v-model="value"
+            rounded
+          >
+            <v-btn
+              color="gray"
+              large
+              @click="to3D"
+            >
+              3D
+            </v-btn>
+            <v-btn
+              color="gray"
+              large
+              @click="to2D"
+            >
+              2D
+            </v-btn>
+          </v-btn-toggle>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-row>
+</template>
+
+<script>
+import Viewer from "@/components/Viewer";
+
+export default {
+  name: "ViewSelectCard",
+  data: () => ({
+      value: 0,
+      dialog: false,
+      
+      manual: ["W:Translate", "E:Rotate", "R:Scale", "+/-:Size"
+        , "Q:World/Local", "S:Snap", "C:Camera", "1-9:Camera View"]
+  }),
+  methods: {
+    to3D: function () {
+      this.value = 0;
+      
+      this.dialog = false;
+      Viewer.methods.init3D();
+      console.log('3d')
+    },
+    to2D: function () {
+      this.value = 1;
+      this.dialog = false;
+      Viewer.methods.init2D();
+      console.log('2d')
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
