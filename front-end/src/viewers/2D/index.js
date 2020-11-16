@@ -78,43 +78,6 @@ function initScene() {
   const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0x000000}));
   // box.scale(0.001, 0.001, 0.001);
   
-  
-  const b1 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
-  b1.position.set(150, 150, 150);
-  sceneAddMesh(b1, line.clone());
-  
-  const b2 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
-  b2.scale.set(1, 1, 1.0 / 3);
-  b2.position.set(-300, -300, 50);
-  
-  sceneAddMesh(b2, line.clone());
-  
-  const b3 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
-  b3.scale.set(1, 1, 1.0 / 2);
-  b3.position.set(300, -500, 75);
-  // console.log(b3.material);
-  
-  sceneAddMesh(b3, line.clone());
-  
-  
-  loader = new Loader(scene, objects);
-
-  loader.loadModel('/models/spruce-tree.dae', (mesh) => {
-    mesh.position.set(0, -300, 0);
-    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
-    mesh.toCamera = true;
-    // toCamera.push(mesh);
-
-    console.log(mesh);
-  });
-
-  loader.loadModel('/models/autumn-tree.dae', (mesh) => {
-    mesh.position.set(500, 0, 0);
-    mesh.scale.set(2, 2, 2);
-    setMaterialOpacity(mesh, 0.6);
-    mesh.toCamera = true;
-    console.log(mesh);
-  });
 
   // loader.loadModel('/models/test.gltf', (mesh) => {
   //   // setMaterialOpacity(mesh, 0.6);
@@ -342,13 +305,13 @@ function init() {
   
 }
 
-function main() {
+function main2D() {
   init();
   animate();
 
 }
 
 export {
-  main,
+  main2D,
   loader,
 }
