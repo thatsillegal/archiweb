@@ -31,8 +31,7 @@
 </template>
 
 <script>
-import {main} from '@/viewers/3D'
-import {main2D} from '@/viewers/2D'
+import {main, scene2D, scene3D} from '@/viewers'
 import InfoCard from "@/components/InfoCard";
 import ViewSelectCard from "@/components/ViewSelectCard";
 
@@ -50,7 +49,7 @@ export default {
       const container = document.getElementById('gui-container');
       const dg = document.getElementsByClassName('dg main');
       container.removeChild(dg[0]);
-      main2D()
+      scene2D()
     },
     init3D: function () {
       console.log(ViewSelectCard.data().value);
@@ -58,7 +57,7 @@ export default {
       const container = document.getElementById('gui-container');
       const dg = document.getElementsByClassName('dg main');
       container.removeChild(dg[0]);
-      main()
+      scene3D()
       
     }
     
