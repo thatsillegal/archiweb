@@ -23,7 +23,6 @@ const MultiCamera = function (_scene, _renderer) {
     let aspect = width / height;
     cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 0.01, 30000);
     cameraOrtho.position.set(1000, -1500, 1000);
-    cameraOrtho.up = new THREE.Vector3(0, 0, 1);
   }
   
   function initPerspectiveCamera(width, height) {

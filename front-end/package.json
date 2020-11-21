@@ -1,6 +1,16 @@
 {
-  "name": "front-end",
+  "name": "archiweb",
   "version": "0.1.0",
+  "description": "ArchiWeb is a front-end web application to display architectural data",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Inst-AAA/archiweb"
+  },
+  "author": {
+    "name": "Yichen Mo",
+    "email": "moyichen@seu.edu.cn"
+  },
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -11,8 +21,7 @@
     "core-js": "^3.6.5",
     "dat.gui": "^0.7.7",
     "three": "^0.121.1",
-    "three-dxf-loader": "^2.0.4",
-    "three-orbit-controls": "^82.1.0",
+    "three-csm": "^1.1.0",
     "vue": "^2.6.11",
     "vue-router": "^3.4.6",
     "vuetify": "^2.2.11"

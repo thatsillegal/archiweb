@@ -1,5 +1,7 @@
-// /* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars */
 import * as THREE from 'three'
+import * as CSM from 'three-csm';
+THREE.CSM = CSM;
 
 const SceneBasic = function (_scene, _renderer) {
   let scope = this;
@@ -18,6 +20,7 @@ const SceneBasic = function (_scene, _renderer) {
   let axesHelper = new THREE.AxesHelper(5000);
   
   let _control;
+  let csm;
   
   
   function init() {
@@ -39,9 +42,11 @@ const SceneBasic = function (_scene, _renderer) {
     dirLight.shadow.camera.right = 5000;
     dirLight.shadow.camera.near = 10;
     dirLight.shadow.camera.far = 10000;
-    dirLight.shadow.mapSize.set(20480, 20480);
+    dirLight.shadow.mapSize.set(4096, 4096);
     _scene.add(dirLight);
+  
     
+
     // _scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
     // _scene.add( new THREE.DirectionalLightHelper(dirLight));
     
@@ -136,6 +141,7 @@ const SceneBasic = function (_scene, _renderer) {
   this.grid = 0;
   this.addGUI = addGUI;
   this.setControl = setControl;
+
 };
 
 
