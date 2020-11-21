@@ -385,8 +385,6 @@ function render() {
 
 
 function animate() {
-  
-  
   requestAnimationFrame(animate);
   render();
 }
@@ -401,9 +399,7 @@ function onDocumentKeyDown(event) {
         orbit.enabled = false;
       }
       break;
-    
   }
-  
 }
 
 function onDocumentKeyUp(event) {
