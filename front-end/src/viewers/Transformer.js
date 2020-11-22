@@ -15,8 +15,34 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   
   //API
   
+  function addToInfoCard(o) {
+    if(o !== undefined) {
+      window.InfoCard.info.uuid = o.uuid;
+      window.InfoCard.info.position = [o.position.x, o.position.y, o.position.z];
+      
+      console.log(o.matrix.elements)
+      // let m = o.material;
+      // console.log(o)
+      let m;
+      try {
+        m = {type: o.material.type, uuid: o.material.uuid, color: o.material.color, opacity:o.material.opacity};
+      } catch (e) {
+        //
+      }
+      window.InfoCard.info.properties = {type: o.type, material:
+          JSON.stringify(m)
+          , matrix:o.matrix.elements};
+    }
+  
+  }
+  
   function init() {
     control = new TransformControls(_camera, _renderer.domElement);
+    control.addEventListener('object-changed', function(event) {
+      
+      addToInfoCard(event.value);
+      // console.log(o);
+    });
     
     control.addEventListener('dragging-changed', function (event) {
       dragged = !event.value;
@@ -27,9 +53,14 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
         // console.log(control.object);
       }
       
-      if (copy && event.value === false) {
-        addClonedObject(clonedObject);
-        copy = false;
+      
+      if (event.value === false) {
+        control.object.updateMatrix();
+        addToInfoCard(control.object);
+        if(copy) {
+          addClonedObject(clonedObject);
+          copy = false;
+        }
       }
     });
     

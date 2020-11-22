@@ -41,7 +41,6 @@ const controls = new function () {
 function initGUI() {
   gui = new dat.GUI({autoPlace: false});
   
-  
   const util = gui.addFolder('Utils');
   util.add(controls, 'info');
   util.add(controls, 'position');

@@ -1,10 +1,11 @@
 <template>
   <v-card
-    class="mx-auto"
+    class="mx-auto overflow-y-auto"
     max-width="344"
+    max-height="800"
     color="rgba(250, 250, 250, 0.5)"
   >
-    <v-list-item three-line>
+    <v-list-item>
       <v-list-item-content
       >
         <div class="overline mb-1" id="object-title">
@@ -58,23 +59,24 @@
   
         <div
           v-if="Object.keys(info.properties).length > 0"
+          class="mb-2"
         >
           Properties
         </div>
         <v-list-item-title
           v-for="(ti,t) in Object.keys(info.properties)"
           :key="t"
-          class="my-2">
-          <v-row>
-            <v-col cols="12">
+          class="pt-2"
+         >
+
               <v-textarea
                 outlined
-                name="input-7-4"
+                rows="0"
+                auto-grow
                 :label="ti"
                 :value="info.properties[ti]"
               ></v-textarea>
-            </v-col>
-          </v-row>
+
         </v-list-item-title>
       </v-list-item-content>
       
@@ -99,7 +101,6 @@
         Close
       </v-btn>
     </v-card-actions>
-    
   </v-card>
 </template>
 
@@ -122,7 +123,7 @@ export default {
           const num = Number(value);
           return !isNaN(num) && isFinite(num) || 'Not a number';
         }
-      }
+      },
     }
   },
   mounted() {
@@ -141,11 +142,14 @@ export default {
       let z = Number(this.$refs.z.lazyValue)
       this.info.position = [x, y, z];
       updateObjectPosition(this.info.uuid, this.info.position);
-    }
+    },
+
   }
 }
 </script>
 
 <style scoped>
-
+.scroll {
+  overflow-y: scroll
+}
 </style>

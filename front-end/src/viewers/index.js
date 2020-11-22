@@ -49,7 +49,7 @@ let camera, drag;
 let InfoCard;
 
 let objects = [];
-let D3 = false;
+let D3 = true;
 
 let pos=[[-10, 30], [0, 10], [30, -10], [40, -30]];
 let curveObject, leftCurve, rightCurve;
@@ -179,18 +179,19 @@ function initScene() {
   const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0x000000}));
   // box.scale(0.001, 0.001, 0.001);
   
+  const material = new THREE.MeshLambertMaterial({color: 0xdddddd});
   
-  const b1 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  const b1 = new THREE.Mesh(box,material);
   b1.position.set(150, 150, 150);
   sceneAddMesh(b1, line.clone());
   
-  const b2 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  const b2 = new THREE.Mesh(box, material);
   b2.scale.set(1, 1, 1.0 / 3);
   b2.position.set(-300, -300, 50);
   
   sceneAddMesh(b2, line.clone());
   
-  const b3 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  const b3 = new THREE.Mesh(box, material);
   b3.scale.set(1, 1, 1.0 / 2);
   b3.position.set(300, -500, 75);
   // console.log(b3.material);
@@ -307,7 +308,7 @@ function initDrag() {
     drag = new DragControls(objects, camera, renderer.domElement);
     drag.addEventListener( 'hoveron', function (event) {
       // console.log(event.object);
-      console.log(InfoCard)
+      // console.log(InfoCard)
       let o = event.object;
       InfoCard.info.uuid = o.uuid;
       InfoCard.info.position = [o.position.x, o.position.y, o.position.z];
@@ -419,6 +420,9 @@ function onDocumentKeyDown(event) {
         orbit.enabled = false;
       }
       break;
+    case 73:
+      window.InfoCard.hideInfoCard(!window.InfoCard.show);
+  
   }
 }
 
@@ -433,7 +437,6 @@ function onDocumentKeyUp(event) {
       }
 
       break;
-    
   }
   
 }
@@ -459,7 +462,7 @@ function updateObjectPosition(uuid, position) {
   o.position.x = position[0];
   o.position.y = position[1];
   o.position.z = position[2];
-  drawSplineLine();
+  // drawSplineLine();
 }
 
 function scene3D() {
@@ -477,7 +480,6 @@ function scene3D() {
   
   sceneBasic = new SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui.gui);
-  
 }
 
 function scene2D() {
@@ -487,7 +489,6 @@ function scene2D() {
   
   let aspect = window.innerWidth / window.innerHeight;
   camera = new THREE.OrthographicCamera(-50 * aspect, 50 * aspect, 50, -50, 0.01, 30000);
-  
   camera.position.set(0, 0, 1000);
   
   initScene2D();
@@ -495,7 +496,7 @@ function scene2D() {
 }
 
 
-function main(params) {
+function main() {
   initRender();
   if (D3) {
     scene3D();
@@ -503,7 +504,7 @@ function main(params) {
     scene2D();
   }
   animate();
-  InfoCard = params;
+  InfoCard = window.InfoCard;
 }
 
 export {

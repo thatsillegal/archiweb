@@ -40,8 +40,7 @@ export default {
   components: {ViewSelectCard, InfoCard},
   data: () => ({}),
   mounted() {
-    console.log(window.InfoCard)
-    main(window.InfoCard);
+    main();
   },
   methods: {
     init2D: function () {
