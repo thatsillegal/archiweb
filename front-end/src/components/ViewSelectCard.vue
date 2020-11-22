@@ -86,12 +86,15 @@ import {D3} from '@/viewers'
 export default {
   name: "ViewSelectCard",
   data: () => ({
-      value: D3,
+      value: 0,
       dialog: false,
       
       manual: ["W:Translate", "E:Rotate", "R:Scale", "+/-:Size"
         , "Q:World/Local", "S:Snap", "C:Camera", "1-9:Camera View"]
   }),
+  mounted() {
+    this.value = D3;
+  },
   methods: {
     to3D: function () {
       this.value = 0;

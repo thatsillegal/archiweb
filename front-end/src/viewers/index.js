@@ -104,7 +104,6 @@ function initScene2D() {
     scene.add(mesh);
   }
   
-  
   drawSplineLine();
 }
 
@@ -143,7 +142,7 @@ function drawOffsetSplineLine(curve) {
     let tangentLine = new THREE.Line(tangentGeometry, new THREE.LineBasicMaterial({color:0xff000}))
     tangentLine.position.copy(point);
     tangentLine.rotateZ(Math.PI/2);
-    scene.add(tangentLine);
+    // scene.add(tangentLine);
   
     tangentLine.updateMatrixWorld(true);
     let normal = tangentLine.geometry.clone();
@@ -308,16 +307,30 @@ function initDrag() {
     drag = new DragControls(objects, camera, renderer.domElement);
     drag.addEventListener( 'hoveron', function (event) {
       // console.log(event.object);
+      console.log(InfoCard)
       let o = event.object;
-      let info = []
-      info.push({title:"uuid", content: o.uuid});
-      info.push({title:"position", content: o.position});
-      InfoCard.info = info;
+      InfoCard.info.uuid = o.uuid;
+      InfoCard.info.position = [o.position.x, o.position.y, o.position.z];
+      InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
+
       orbit.enabled = false; } );
     drag.addEventListener( 'hoveroff', function () { orbit.enabled = true; } );
-    drag.addEventListener('drag', function() {
+    drag.addEventListener('dragend', function(event) {
+      
+      let o = event.object;
+      
+      o.position.x = Math.round(o.position.x);
+      o.position.y = Math.round(o.position.y);
+      o.position.z = Math.round(o.position.z);
+      InfoCard.info.uuid = o.uuid;
+      InfoCard.info.position = [o.position.x, o.position.y, o.position.z];
+
+      InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
       drawSplineLine();
     });
+    drag.addEventListener('drag', function() {
+      drawSplineLine();
+    })
   }
 }
 
@@ -354,7 +367,8 @@ function windowResize(w, h) {
     multiCamera.onWindowResize(w, h);
     drag.onWindowResize(w, h);
   } else {
-    camera.aspect = w/h;
+    camera.left = camera.bottom * w/h;
+    camera.right = camera.top * w/h;
     camera.updateProjectionMatrix();
   }
   renderer.setSize(w, h);
@@ -439,6 +453,15 @@ function addToDOM() {
   renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
 }
 
+
+function updateObjectPosition(uuid, position) {
+  const o = scene.getObjectByProperty('uuid', uuid);
+  o.position.x = position[0];
+  o.position.y = position[1];
+  o.position.z = position[2];
+  drawSplineLine();
+}
+
 function scene3D() {
   D3 = true;
   objects = [];
@@ -463,13 +486,12 @@ function scene2D() {
   gui.initGUI();
   
   let aspect = window.innerWidth / window.innerHeight;
-  // camera = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 0.01, 30000);
-  camera = new THREE.PerspectiveCamera(45, aspect, 1, 10000);
-  camera.position.set(0, 0, 100);
+  camera = new THREE.OrthographicCamera(-50 * aspect, 50 * aspect, 50, -50, 0.01, 30000);
+  
+  camera.position.set(0, 0, 1000);
   
   initScene2D();
   initControls();
-  
 }
 
 
@@ -490,4 +512,5 @@ export {
   scene3D,
   loader,
   D3,
+  updateObjectPosition,
 }

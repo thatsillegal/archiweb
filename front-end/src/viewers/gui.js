@@ -8,7 +8,9 @@ let gui;
 let position;
 
 const controls = new function () {
-  this.info = false;
+  this.info = function () {
+    window.InfoCard.hideInfoCard(!window.InfoCard.show);
+  };
   this.position = '0, 0, 0';
   this.import = function() {
     position = checkPosition(this.position);
@@ -41,10 +43,7 @@ function initGUI() {
   
   
   const util = gui.addFolder('Utils');
-  util.add(controls, 'info').listen().onChange(() => {
-      elementDisplay("info-card", controls.info);
-    }
-  );
+  util.add(controls, 'info');
   util.add(controls, 'position');
   util.add(controls, 'import');
   util.open();
@@ -53,7 +52,6 @@ function initGUI() {
   const container = document.getElementById('gui-container');
   container.appendChild(gui.domElement);
   
-  elementDisplay("info-card", controls.info);
   
 }
 
@@ -78,10 +76,6 @@ function checkPosition(str) {
   }
 }
 
-function elementDisplay(elementId, isShow) {
-  let e = document.getElementById(elementId);
-  e.style.display = isShow ? "block" : "none";
-}
 
 export {
   gui,
