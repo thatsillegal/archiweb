@@ -24,7 +24,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
       if (event.value === true) {
         clonedObject = [];
         setCloneObject(control.object);
-        console.log(control.object);
+        // console.log(control.object);
       }
       
       if (copy && event.value === false) {
@@ -218,7 +218,6 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
         break;
       
       case 83: // S
-        console.log(scope.snap)
         if (scope.snap === true) {
           scope.snap = false;
           control.setTranslationSnap(null);

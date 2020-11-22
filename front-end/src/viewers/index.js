@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 "use strict";
+import Vue from 'vue';
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
@@ -31,7 +32,6 @@ import {DragControls} from "three/examples/jsm/controls/DragControls";
  *
  * Date: 2020-11-12
  */
-
 import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
 import {Transformer} from "@/viewers/Transformer";
@@ -46,6 +46,7 @@ let sceneBasic, transformer, loader;
 let multiCamera;
 
 let camera, drag;
+let InfoCard;
 
 let objects = [];
 let D3 = false;
@@ -307,6 +308,11 @@ function initDrag() {
     drag = new DragControls(objects, camera, renderer.domElement);
     drag.addEventListener( 'hoveron', function (event) {
       // console.log(event.object);
+      let o = event.object;
+      let info = []
+      info.push({title:"uuid", content: o.uuid});
+      info.push({title:"position", content: o.position});
+      InfoCard.info = info;
       orbit.enabled = false; } );
     drag.addEventListener( 'hoveroff', function () { orbit.enabled = true; } );
     drag.addEventListener('drag', function() {
@@ -467,15 +473,15 @@ function scene2D() {
 }
 
 
-function main() {
+function main(params) {
   initRender();
-  if(D3) {
+  if (D3) {
     scene3D();
   } else {
     scene2D();
   }
   animate();
-
+  InfoCard = params;
 }
 
 export {

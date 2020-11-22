@@ -81,11 +81,12 @@
 
 <script>
 import Viewer from "@/components/Viewer";
+import {D3} from '@/viewers'
 
 export default {
   name: "ViewSelectCard",
   data: () => ({
-      value: 0,
+      value: D3,
       dialog: false,
       
       manual: ["W:Translate", "E:Rotate", "R:Scale", "+/-:Size"

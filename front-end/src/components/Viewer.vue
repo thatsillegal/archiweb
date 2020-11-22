@@ -8,7 +8,7 @@
     
     <InfoCard
       id="info-card"
-      style="position:absolute;bottom:64px;left:10px;z-index:1"
+      style="position:absolute;top:64px;left:20px;z-index:1"
     ></InfoCard>
     <div
       id="info"
@@ -40,7 +40,8 @@ export default {
   components: {ViewSelectCard, InfoCard},
   data: () => ({}),
   mounted() {
-    main();
+    console.log(window.InfoCard)
+    main(window.InfoCard);
   },
   methods: {
     init2D: function () {
