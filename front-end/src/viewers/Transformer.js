@@ -15,8 +15,42 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   
   //API
   
+  function addToInfoCard(o) {
+    if(o !== undefined) {
+      
+      o.position.x = Math.round(o.position.x);
+      o.position.y = Math.round(o.position.y);
+      o.position.z = Math.round(o.position.z);
+      
+      o.scale.x = Math.round(o.scale.x);
+      o.scale.y = Math.round(o.scale.y);
+      o.scale.z = Math.round(o.scale.z);
+      
+      window.InfoCard.info.uuid = o.uuid;
+      console.log(o.position);
+      window.InfoCard.info.position = o.position;
+      
+      let m;
+      try {
+        m = {type: o.material.type, uuid: o.material.uuid, color: o.material.color, opacity:o.material.opacity};
+        window.InfoCard.info.model = o.modelParam(o);
+        window.InfoCard.info.properties = {type: o.type, material:
+            JSON.stringify(m)
+          , matrix:o.matrix.elements};
+      } catch (e) {
+        //
+      }
+    }
+  
+  }
+  
   function init() {
     control = new TransformControls(_camera, _renderer.domElement);
+    control.addEventListener('object-changed', function(event) {
+      
+      addToInfoCard(event.value);
+      // console.log(o);
+    });
     
     control.addEventListener('dragging-changed', function (event) {
       dragged = !event.value;
@@ -27,9 +61,14 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
         // console.log(control.object);
       }
       
-      if (copy && event.value === false) {
-        addClonedObject(clonedObject);
-        copy = false;
+      
+      if (event.value === false) {
+        control.object.updateMatrix();
+        addToInfoCard(control.object);
+        if(copy) {
+          addClonedObject(clonedObject);
+          copy = false;
+        }
       }
     });
     
@@ -81,8 +120,8 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, control.camera);
-    
-    const intersections = raycaster.intersectObjects(_objects, true);
+  
+    const intersections = raycaster.intersectObjects(_objects, false);
     
     applyTransformGroup();
     
@@ -190,6 +229,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   
   
   function onDocumentKeyDown(event) {
+    let obj;
     switch (event.keyCode) {
       
       case 81: // Q
@@ -251,8 +291,10 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
         break;
       
       case 46: // delete
+        obj = control.object;
         deleteObject(control.object);
         control.detach();
+        _objects.splice(_objects.findIndex(item=>item.uuid === obj.uuid), 1);
         break;
     }
     

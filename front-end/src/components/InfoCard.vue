@@ -1,10 +1,11 @@
 <template>
   <v-card
-    class="mx-auto"
+    class="mx-auto overflow-y-auto"
     max-width="344"
+    max-height="900"
     color="rgba(250, 250, 250, 0.5)"
   >
-    <v-list-item three-line>
+    <v-list-item>
       <v-list-item-content
       >
         <div class="overline mb-1" id="object-title">
@@ -20,61 +21,71 @@
         >
         </v-text-field>
         
-        <div>
+        <div
+          v-if="Object.keys(info.position).length > 0"
+          class="overline">
           Position
         </div>
         <v-row>
-          <v-col cols="4">
+          <v-col
+            v-for="(ti, t) in Object.keys(info.position)"
+            :key="t"
+            :cols="12/Object.keys(info.position).length"
+          >
             <v-text-field
               outlined
               dense
-              ref="x"
-              label="x"
+              :ref="ti"
+              :label="ti"
               @change="updateScene"
               :rules="[rules.number]"
-              :value="info.position[0]"></v-text-field>
+              :value="info.position[ti]"></v-text-field>
           </v-col>
-          <v-col cols="4">
+
+        </v-row>
+  
+        <div
+          v-if="Object.keys(info.model).length > 0"
+        >
+          Model
+        </div>
+        <v-row>
+          <v-col
+            v-for="(ti, t) in Object.keys(info.model)"
+            :key="t"
+            :cols="12/Object.keys(info.model).length"
+          >
             <v-text-field
               outlined
               dense
-              ref="y"
-              label="y"
+              :ref="ti"
+              :label="ti"
               @change="updateScene"
               :rules="[rules.number]"
-              :value="info.position[1]"></v-text-field>
-          </v-col>
-          <v-col cols="4">
-            <v-text-field
-              outlined
-              dense
-              ref="z"
-              label="z"
-              @change="updateScene"
-              :rules="[rules.number]"
-              :value="info.position[2]"></v-text-field>
+              :value="info.model[ti]"></v-text-field>
           </v-col>
         </v-row>
   
         <div
           v-if="Object.keys(info.properties).length > 0"
+          class="mb-2"
         >
           Properties
         </div>
         <v-list-item-title
           v-for="(ti,t) in Object.keys(info.properties)"
           :key="t"
-          class="my-2">
-          <v-row>
-            <v-col cols="12">
+          class="pt-2"
+         >
+
               <v-textarea
                 outlined
-                name="input-7-4"
+                rows="0"
+                auto-grow
                 :label="ti"
                 :value="info.properties[ti]"
               ></v-textarea>
-            </v-col>
-          </v-row>
+
         </v-list-item-title>
       </v-list-item-content>
       
@@ -99,7 +110,6 @@
         Close
       </v-btn>
     </v-card-actions>
-    
   </v-card>
 </template>
 
@@ -113,7 +123,8 @@ export default {
       show:false,
       info:{
         uuid: 'uuid',
-        position:[0, 0, 0],
+        position:{},
+        model:{},
         properties:{}
       },
       rules:{
@@ -122,7 +133,7 @@ export default {
           const num = Number(value);
           return !isNaN(num) && isFinite(num) || 'Not a number';
         }
-      }
+      },
     }
   },
   mounted() {
@@ -136,16 +147,24 @@ export default {
       e.style.display = isShow ? "block" : "none";
     },
     updateScene() {
-      let x = Number(this.$refs.x.lazyValue)
-      let y = Number(this.$refs.y.lazyValue)
-      let z = Number(this.$refs.z.lazyValue)
-      this.info.position = [x, y, z];
-      updateObjectPosition(this.info.uuid, this.info.position);
-    }
+      console.log(this.$refs)
+      for(let k of Object.keys(this.info.position)) {
+        this.info.position[k] = Number(this.$refs[k][0].lazyValue);
+      }
+      console.log(this.info.position)
+  
+      for(let k of Object.keys(this.info.model)) {
+        this.info.model[k] = Number(this.$refs[k][0].lazyValue);
+      }
+      updateObjectPosition(this.info.uuid, this.info.position, this.info.model);
+    },
+
   }
 }
 </script>
 
 <style scoped>
-
+.scroll {
+  overflow-y: scroll
+}
 </style>

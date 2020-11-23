@@ -1,14 +1,8 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 "use strict";
-import Vue from 'vue';
 import * as THREE from 'three'
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
-
-import {LineMaterial} from 'three/examples/jsm/lines/LineMaterial';
-import {Wireframe} from "three/examples/jsm/lines/Wireframe";
-import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {DragControls} from "three/examples/jsm/controls/DragControls";
-// import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.114/examples/jsm/controls/OrbitControls.js";
 
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
@@ -36,12 +30,14 @@ import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
 import {Transformer} from "@/viewers/Transformer";
 import {MultiCamera} from "@/viewers/MultiCamera";
+import {GeometryBasic} from "@/viewers/GeometryBasic";
 import {Loader} from "@/viewers/Loader";
 
 const gui = require('@/viewers/gui')
 
 let renderer, scene;
 let orbit;
+let gb;
 let sceneBasic, transformer, loader;
 let multiCamera;
 
@@ -51,7 +47,7 @@ let InfoCard;
 let objects = [];
 let D3 = false;
 
-let pos=[[-10, 30], [0, 10], [30, -10], [40, -30]];
+let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
 let curveObject, leftCurve, rightCurve;
 
 function initRender() {
@@ -62,19 +58,6 @@ function initRender() {
   
   addToDOM();
 }
-
-
-
-function meshLine(geometry, color, linewidth) {
-  const matLine = new LineMaterial({color: color, linewidth: linewidth});
-  const geoLine = new WireframeGeometry2(geometry);
-  const wireframe = new Wireframe(geoLine, matLine);
-  wireframe.computeLineDistances();
-  wireframe.scale.set(1, 1, 1);
-  return wireframe;
-}
-
-
 
 function initScene2D() {
   scene = new THREE.Scene();
@@ -174,94 +157,52 @@ function initScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xfafafa);
   
-  const box = new THREE.BoxBufferGeometry(300, 300, 300);
-  const edges = new THREE.EdgesGeometry(box);
-  const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0x000000}));
-  // box.scale(0.001, 0.001, 0.001);
+  gb = new GeometryBasic(scene, objects);
   
+
+  const b1 = gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  const b1 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
-  b1.position.set(150, 150, 150);
-  sceneAddMesh(b1, line.clone());
+  gb.Box([-300, -300, 0], [300, 300, 100], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  const b2 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
-  b2.scale.set(1, 1, 1.0 / 3);
-  b2.position.set(-300, -300, 50);
+  gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  sceneAddMesh(b2, line.clone());
-  
-  const b3 = new THREE.Mesh(box, new THREE.MeshLambertMaterial({color: 0xdddddd}));
-  b3.scale.set(1, 1, 1.0 / 2);
-  b3.position.set(300, -500, 75);
-  // console.log(b3.material);
-  
-  sceneAddMesh(b3, line.clone());
-  
+  console.log(gb.modelParam(b1));
   
   loader = new Loader(scene, objects);
 
   loader.loadModel('/models/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
-    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
+    gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
     mesh.toCamera = true;
     // toCamera.push(mesh);
 
-    console.log(mesh);
+    // console.log(mesh);
   });
 
   loader.loadModel('/models/autumn-tree.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
     mesh.scale.set(2, 2, 2);
-    setMaterialOpacity(mesh, 0.6);
+    gb.setMaterialOpacity(mesh, 0.6);
     mesh.toCamera = true;
-    console.log(mesh);
+    // console.log(mesh);
   });
-
-
-}
-
-
-function setMaterialOpacity(mesh, opacity) {
-  if(mesh.material.length > 0) {
-    mesh.material.forEach((item)=>{
-      item.transparent = true;
-      item.opacity = opacity;
-    });
-  } else {
-    mesh.material.transparent = true;
-    mesh.material.opacity = opacity;
-  }
-}
-
-function setMeshMaterial(mesh, material) {
-  console.log(mesh.material);
-  if(mesh.material.length > 0) {
-    let materials = []
-    mesh.material.forEach(()=>materials.push(material));
-    mesh.material = materials;
-  } else {
-    mesh.material=material;
-  }
-}
-
-function sceneAddMesh(mesh, line) {
-  mesh.add(meshLine(mesh.geometry, 0xffff00, 0.005));
-  mesh.add(line);
-  mesh.children[0].visible = false;
   
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  
-  objects.push(mesh);
-  scene.add(mesh);
+  for(let o of objects) {
+    console.log(o)
+  }
+
 }
+
+
+
+
 
 function initDrag() {
   if(D3) {
     drag = new DragFrames(objects, camera, scene, renderer);
     drag.enabled = true;
   
-    drag.addEventListener('selectdown', function (event) {
+    drag.addEventListener('selectdown', function () {
       transformer.clear();
     });
   
@@ -307,14 +248,17 @@ function initDrag() {
     drag = new DragControls(objects, camera, renderer.domElement);
     drag.addEventListener( 'hoveron', function (event) {
       // console.log(event.object);
-      console.log(InfoCard)
+      // console.log(InfoCard)
       let o = event.object;
       InfoCard.info.uuid = o.uuid;
-      InfoCard.info.position = [o.position.x, o.position.y, o.position.z];
+      InfoCard.info.position = o.position.clone();
+      InfoCard.info.model = {};
       InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
-
-      orbit.enabled = false; } );
-    drag.addEventListener( 'hoveroff', function () { orbit.enabled = true; } );
+      orbit.enabled = false;
+    } );
+    drag.addEventListener( 'hoveroff', function () {
+      orbit.enabled = true;
+    } );
     drag.addEventListener('dragend', function(event) {
       
       let o = event.object;
@@ -323,7 +267,7 @@ function initDrag() {
       o.position.y = Math.round(o.position.y);
       o.position.z = Math.round(o.position.z);
       InfoCard.info.uuid = o.uuid;
-      InfoCard.info.position = [o.position.x, o.position.y, o.position.z];
+      InfoCard.info.position = o.position;
 
       InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
       drawSplineLine();
@@ -336,7 +280,7 @@ function initDrag() {
 
 
 function initControls() {
-  
+  if(orbit !== undefined) orbit.dispose();
   orbit = new OrbitControls(camera, renderer.domElement);
   initDrag();
   
@@ -347,11 +291,8 @@ function initControls() {
     }
     orbit.enablePan = false;
     multiCamera.addControllers(orbit);
-  
-  
     transformer = new Transformer(scene, renderer, camera, objects, drag);
     transformer.addGUI(gui.gui);
-  
     multiCamera.addControllers(transformer);
   } else {
 
@@ -419,6 +360,9 @@ function onDocumentKeyDown(event) {
         orbit.enabled = false;
       }
       break;
+    case 73:
+      window.InfoCard.hideInfoCard(!window.InfoCard.show);
+  
   }
 }
 
@@ -433,7 +377,6 @@ function onDocumentKeyUp(event) {
       }
 
       break;
-    
   }
   
 }
@@ -454,12 +397,14 @@ function addToDOM() {
 }
 
 
-function updateObjectPosition(uuid, position) {
+function updateObjectPosition(uuid, position, model) {
   const o = scene.getObjectByProperty('uuid', uuid);
-  o.position.x = position[0];
-  o.position.y = position[1];
-  o.position.z = position[2];
-  drawSplineLine();
+  // o.position.copy(position);
+  if(D3) {
+    gb.updateModel(o, model);
+  } else {
+    drawSplineLine();
+  }
 }
 
 function scene3D() {
@@ -477,7 +422,6 @@ function scene3D() {
   
   sceneBasic = new SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui.gui);
-  
 }
 
 function scene2D() {
@@ -487,7 +431,6 @@ function scene2D() {
   
   let aspect = window.innerWidth / window.innerHeight;
   camera = new THREE.OrthographicCamera(-50 * aspect, 50 * aspect, 50, -50, 0.01, 30000);
-  
   camera.position.set(0, 0, 1000);
   
   initScene2D();
@@ -495,7 +438,7 @@ function scene2D() {
 }
 
 
-function main(params) {
+function main() {
   initRender();
   if (D3) {
     scene3D();
@@ -503,7 +446,7 @@ function main(params) {
     scene2D();
   }
   animate();
-  InfoCard = params;
+  InfoCard = window.InfoCard;
 }
 
 export {
