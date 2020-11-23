@@ -3,6 +3,23 @@ ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en
 
 ## Usage
 ArchiWeb provides a template to create a web application from scratch, you can easily use [Vuetify UI components](https://vuetifyjs.com/en/components/buttons/) to generate a material design web, also with 3d rendering.
+### As Template
+Press `Use this template`
+``` bash
+# clone
+git clone git@github.com:Your/new-repo.git
+
+# add as remote 
+git remote add upstream git@github.com:Inst-AAA/archiweb.git
+git fetch upstream
+
+# merge
+git merge upstream/main --allow-unrelated-histories
+
+# resolve conflicts
+git push origin main
+
+```
 ### Install
 ``` bash
 git clone https://github.com/Inst-AAA/archiweb.git
