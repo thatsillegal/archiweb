@@ -47,18 +47,15 @@ app.use(router.routes());
 
 io.on('connection', socket => {
     console.info(`Client connected [id=${socket.id}]`);
-    socket_id = 0;
     socket.on('disconnect', async function () {
         console.info(`Client [id=${socket.id}] disconnect :)`);
     });
 
     socket.on('bts:sendGeometry', async function (data) {
         console.log('bts:sendGeometry: ' + data);
+        data.id = socket.id;
         io.emit('bts:receiveGeometry', data);
-        socket_id = socket.id;
 
-        console.log(socket_id);
-        return socket_id;
     });
 
 });

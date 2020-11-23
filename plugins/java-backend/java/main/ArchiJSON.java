@@ -9,6 +9,7 @@ import java.util.List;
  * @date: 2020/11/23
  */
 public class ArchiJSON {
+    String id;
     List<Geometry> archijson;
 
     @Override

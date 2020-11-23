@@ -2,8 +2,6 @@ package main;
 
 import com.google.gson.Gson;
 import io.socket.client.Socket;
-import processing.core.PApplet;
-import sun.rmi.runtime.Log;
 
 /**
  * @classname: archiweb
@@ -24,6 +22,7 @@ public class Show {
             Gson gson = new Gson();
             // receive
             archijson = gson.fromJson(args[0].toString(), ArchiJSON.class);
+            System.out.println(archijson.id);
 
             System.out.println(archijson);
             // processing
