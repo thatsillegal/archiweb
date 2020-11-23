@@ -20,7 +20,6 @@ public class Main {
                 Show.socket = IO.socket("http://127.0.0.1:27781");
                 System.out.println("Socket connected to http://127.0.0.1:27781");
             }
-//         PApplet.main("main.Show");
             Show show = new Show();
             show.setup();
         } catch (URISyntaxException e) {
