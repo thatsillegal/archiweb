@@ -1,9 +1,8 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 "use strict";
 import * as THREE from 'three'
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {DragControls} from "three/examples/jsm/controls/DragControls";
-// import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.114/examples/jsm/controls/OrbitControls.js";
 
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
@@ -252,12 +251,14 @@ function initDrag() {
       // console.log(InfoCard)
       let o = event.object;
       InfoCard.info.uuid = o.uuid;
-      InfoCard.info.position = o.position;
+      InfoCard.info.position = o.position.clone();
+      InfoCard.info.model = {};
       InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
-  
       orbit.enabled = false;
     } );
-    drag.addEventListener( 'hoveroff', function () { orbit.enabled = true; } );
+    drag.addEventListener( 'hoveroff', function () {
+      orbit.enabled = true;
+    } );
     drag.addEventListener('dragend', function(event) {
       
       let o = event.object;
@@ -279,7 +280,7 @@ function initDrag() {
 
 
 function initControls() {
-  
+  if(orbit !== undefined) orbit.dispose();
   orbit = new OrbitControls(camera, renderer.domElement);
   initDrag();
   
@@ -290,11 +291,8 @@ function initControls() {
     }
     orbit.enablePan = false;
     multiCamera.addControllers(orbit);
-  
-  
     transformer = new Transformer(scene, renderer, camera, objects, drag);
     transformer.addGUI(gui.gui);
-  
     multiCamera.addControllers(transformer);
   } else {
 
