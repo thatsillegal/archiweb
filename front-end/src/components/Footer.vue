@@ -1,7 +1,7 @@
 <template>
   <v-footer
-    fixed
     dark
+    fixed
     padless
   >
     <v-card

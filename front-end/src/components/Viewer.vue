@@ -14,13 +14,13 @@
       id="info"
       style="position:fixed;top:64px;left:20px;z-index:1"
     >
-
+    
     </div>
-  
+    
     <ViewSelectCard
       style="position:fixed;bottom:64px;left:0px;right:0px;margin-left: auto;"
     ></ViewSelectCard>
-
+    
     <template style="background:#ffffff;">
       <div id="container" class="d-flex justify-sm-center">
       </div>
@@ -53,7 +53,7 @@ export default {
     },
     init3D: function () {
       console.log(ViewSelectCard.data().value);
-  
+      
       const container = document.getElementById('gui-container');
       const dg = document.getElementsByClassName('dg main');
       container.removeChild(dg[0]);

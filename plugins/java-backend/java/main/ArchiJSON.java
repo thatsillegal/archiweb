@@ -16,8 +16,8 @@ public class ArchiJSON {
     public String toString() {
         String str = "";
         str += "Geometry len: " + archijson.size() + '\n';
-        for(int i = 0; i < archijson.size(); ++ i) {
-            str += archijson.get(i);
+        for (Geometry geom : archijson) {
+            str += geom;
         }
         return str;
     }

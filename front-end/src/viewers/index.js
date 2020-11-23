@@ -50,14 +50,7 @@ let D3 = true;
 
 let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
 
-function initRender() {
-  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
-  renderer.autoClear = false;
-  
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  
-  addToDOM();
-}
+
 
 function initScene2D() {
   scene = new THREE.Scene();
@@ -67,6 +60,7 @@ function initScene2D() {
     color: 0xfafafa
   };
   scene.background = new THREE.Color(controls.color);
+  
   gui.gui.addColor(controls, 'color').onChange(function() {
     scene.background = new THREE.Color(controls.color);
   });
@@ -77,15 +71,8 @@ function initScene2D() {
   light.position.set(0,0,1000);
   scene.add(light);
   
-  const circle = new THREE.CircleGeometry(1, 100);
-  
   for(let p of pos) {
-    const mesh = new THREE.Mesh(circle, new THREE.MeshLambertMaterial({color:0xff0000}))
-    console.log(p);
-    mesh.position.set(p[0], p[1], 0);
-    
-    objects.push(mesh);
-    scene.add(mesh);
+    gb.Cylinder(p, [1, 1], new THREE.MeshLambertMaterial({color:0xff0000}));
   }
   
   gb.Curve(objects);
@@ -106,15 +93,14 @@ function initScene() {
   
   gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
+  gb.Cylinder([-300, 0, 0], [50, 300, 4], new THREE.MeshLambertMaterial( { color : 0xaaaaaa } ), true);
+  
   loader = new Loader(scene, objects);
 
   loader.loadModel('/models/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
     gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
     mesh.toCamera = true;
-    // toCamera.push(mesh);
-
-    // console.log(mesh);
   });
 
   loader.loadModel('/models/autumn-tree.dae', (mesh) => {
@@ -122,7 +108,6 @@ function initScene() {
     mesh.scale.set(2, 2, 2);
     gb.setMaterialOpacity(mesh, 0.6);
     mesh.toCamera = true;
-    // console.log(mesh);
   });
   
   for(let o of objects) {
@@ -140,58 +125,18 @@ function initDrag() {
     drag = new DragFrames(objects, camera, scene, renderer);
     drag.enabled = true;
   
-    drag.addEventListener('selectdown', function () {
-      transformer.clear();
-    });
-  
-    drag.addEventListener('select', function (event) {
-      for (let i = 0; i < event.object.length; ++i) {
-        let materials = event.object[i].material;
-        if (materials.length) {
-          for (let j = 0; j < materials.length; ++j) {
-            materials[j].emissive.set(0x666600);
-          }
-        } else {
-          materials.emissive.set(0x666600);
-        }
-        if (event.object[i].children.length > 0) {
-          event.object[i].children[0].visible = true;
-        }
-        if (event.object[i].children.length > 1) {
-          event.object[i].children[1].visible = false;
-        }
-      }
-    });
-  
-    drag.addEventListener('selectup', function (event) {
-      for (let i = 0; i < event.object.length; ++i) {
-        let materials = event.object[i].material;
-        if (materials.length) {
-          for (let j = 0; j < materials.length; ++j) {
-            materials[j].emissive.set(0x000000);
-          }
-        } else {
-          materials.emissive.set(0x000000);
-        }
-        if (event.object[i].children.length > 0) {
-          event.object[i].children[0].visible = false;
-        }
-        if (event.object[i].children.length > 1) {
-          event.object[i].children[1].visible = true;
-        }
-      }
-      transformer.setSelected(event.object);
-    });
+    drag.addEventListener('selectdown',()=>{transformer.clear()});
+    drag.addEventListener('select', onSelectDown);
+    drag.addEventListener('selectup', onSelectUp);
+    
   } else {
     drag = new DragControls(objects, camera, renderer.domElement);
     drag.addEventListener( 'hoveron', function (event) {
-      // console.log(event.object);
-      // console.log(InfoCard)
+      
+      
+      
       let o = event.object;
-      InfoCard.info.uuid = o.uuid;
-      InfoCard.info.position = o.position.clone();
-      InfoCard.info.model = {};
-      InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
+      o.toInfoCard();
       orbit.enabled = false;
     } );
     drag.addEventListener( 'hoveroff', function () {
@@ -200,15 +145,7 @@ function initDrag() {
     drag.addEventListener('dragend', function(event) {
       
       let o = event.object;
-      
-      o.position.x = Math.round(o.position.x);
-      o.position.y = Math.round(o.position.y);
-      o.position.z = Math.round(o.position.z);
-      InfoCard.info.uuid = o.uuid;
-      InfoCard.info.position = o.position;
-
-      InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
-      // drawSplineLine(objects);
+      o.toInfoCard();
       gb.Curve(objects);
     });
     drag.addEventListener('drag', function() {
@@ -256,8 +193,6 @@ function windowResize(w, h) {
   render();
 }
 
-
-
 function render() {
   
   scene.traverse((obj) => {
@@ -265,12 +200,12 @@ function render() {
       let dx = camera.position.x - obj.position.x;
       let dy = camera.position.y - obj.position.y;
       let theta = -Math.atan2(dx, dy);
-  
+      
       obj.quaternion.set(0, 0, 0, 1);
       obj.rotateZ(theta);
     }
   });
-
+  
   if(D3) {
     renderer.clear();
     renderer.render(scene, camera);
@@ -286,35 +221,11 @@ function animate() {
   render();
 }
 
-
-function onDocumentKeyDown(event) {
-  switch (event.keyCode) {
-    case 16: // Shift
-      if(D3) {
-        orbit.enablePan = true;
-      } else {
-        orbit.enabled = false;
-      }
-      break;
-    case 73:
-      window.InfoCard.hideInfoCard(!window.InfoCard.show);
+function initRender() {
+  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
   
-  }
-}
-
-function onDocumentKeyUp(event) {
-  switch (event.keyCode) {
-    
-    case 16: // Shift
-      if(D3) {
-        orbit.enablePan = false;
-      } else {
-        orbit.enabled = true;
-      }
-
-      break;
-  }
-  
+  addToDOM();
 }
 
 function addToDOM() {
@@ -332,6 +243,78 @@ function addToDOM() {
   renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
 }
 
+
+// EventListeners
+
+function onDocumentKeyDown(event) {
+  switch (event.keyCode) {
+    case 16: // Shift
+      if(D3) {
+        orbit.enablePan = true;
+      } else {
+        orbit.enabled = false;
+      }
+      break;
+    case 73:
+      window.InfoCard.hideInfoCard(!window.InfoCard.show);
+    
+  }
+}
+
+function onDocumentKeyUp(event) {
+  switch (event.keyCode) {
+    
+    case 16: // Shift
+      if(D3) {
+        orbit.enablePan = false;
+      } else {
+        orbit.enabled = true;
+      }
+      
+      break;
+  }
+  
+}
+
+function onSelectDown(event) {
+  for (let i = 0; i < event.object.length; ++i) {
+    let materials = event.object[i].material;
+    if (materials.length) {
+      for (let j = 0; j < materials.length; ++j) {
+        materials[j].emissive.set(0x666600);
+      }
+    } else {
+      materials.emissive.set(0x666600);
+    }
+    if (event.object[i].children.length > 0) {
+      event.object[i].children[0].visible = true;
+    }
+    if (event.object[i].children.length > 1) {
+      event.object[i].children[1].visible = false;
+    }
+  }
+}
+
+function onSelectUp(event) {
+  for (let i = 0; i < event.object.length; ++i) {
+    let materials = event.object[i].material;
+    if (materials.length) {
+      for (let j = 0; j < materials.length; ++j) {
+        materials[j].emissive.set(0x000000);
+      }
+    } else {
+      materials.emissive.set(0x000000);
+    }
+    if (event.object[i].children.length > 0) {
+      event.object[i].children[0].visible = false;
+    }
+    if (event.object[i].children.length > 1) {
+      event.object[i].children[1].visible = true;
+    }
+  }
+  transformer.setSelected(event.object);
+}
+// APIs
 
 function updateObjectPosition(uuid, position, model) {
   const o = scene.getObjectByProperty('uuid', uuid);
@@ -351,6 +334,7 @@ function scene3D() {
   initRender();
   initScene();
   
+  renderer.autoClear = false;
   multiCamera = new MultiCamera(scene, renderer);
   multiCamera.addGUI(gui.gui);
   camera = multiCamera.camera;
@@ -372,29 +356,31 @@ function scene2D() {
   camera = new THREE.OrthographicCamera(-50 * aspect, 50 * aspect, 50, -50, 0.01, 30000);
   camera.position.set(0, 0, 1000);
   
+  initRender();
+  renderer.autoClear = true;
   initScene2D();
   initControls();
 }
 
 
 function main() {
-  
-  initRender();
+  InfoCard = window.InfoCard;
   if (D3) {
     scene3D();
   } else {
     scene2D();
   }
   animate();
-  InfoCard = window.InfoCard;
 }
 
 export {
   main,
   scene2D,
   scene3D,
+  
+  updateObjectPosition,
+  
   loader,
   archijson,
   D3,
-  updateObjectPosition,
 }

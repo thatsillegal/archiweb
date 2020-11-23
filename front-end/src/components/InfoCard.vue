@@ -1,23 +1,23 @@
 <template>
   <v-card
     class="mx-auto overflow-y-auto"
-    max-width="344"
-    max-height="900"
     color="rgba(250, 250, 250, 0.5)"
+    max-height="600"
+    max-width="344"
   >
     <v-list-item>
       <v-list-item-content
       >
-        <div class="overline mb-1" id="object-title">
+        <div id="object-title" class="overline mb-1">
           Object Info
         </div>
         
         <v-text-field
-          readonly
-          dense
-          outlined
-          label="uuid"
           :value="info.uuid"
+          dense
+          label="uuid"
+          outlined
+          readonly
         >
         </v-text-field>
         
@@ -33,19 +33,20 @@
             :cols="12/Object.keys(info.position).length"
           >
             <v-text-field
-              outlined
-              dense
               :ref="ti"
               :label="ti"
-              @change="updateScene"
               :rules="[rules.number]"
-              :value="info.position[ti]"></v-text-field>
+              :value="info.position[ti]"
+              dense
+              outlined
+              @change="updateScene"></v-text-field>
           </v-col>
-
+        
         </v-row>
-  
+        
         <div
           v-if="Object.keys(info.model).length > 0"
+          class="overline"
         >
           Model
         </div>
@@ -56,19 +57,19 @@
             :cols="12/Object.keys(info.model).length"
           >
             <v-text-field
-              outlined
-              dense
               :ref="ti"
               :label="ti"
-              @change="updateScene"
               :rules="[rules.number]"
-              :value="info.model[ti]"></v-text-field>
+              :value="info.model[ti]"
+              dense
+              outlined
+              @change="updateScene"></v-text-field>
           </v-col>
         </v-row>
-  
+        
         <div
           v-if="Object.keys(info.properties).length > 0"
-          class="mb-2"
+          class="overline"
         >
           Properties
         </div>
@@ -76,35 +77,35 @@
           v-for="(ti,t) in Object.keys(info.properties)"
           :key="t"
           class="pt-2"
-         >
-
-              <v-textarea
-                outlined
-                rows="0"
-                auto-grow
-                :label="ti"
-                :value="info.properties[ti]"
-              ></v-textarea>
-
+        >
+          <v-textarea
+            :label="ti"
+            :value="info.properties[ti]"
+            auto-grow
+            outlined
+            readonly
+            rows="0"
+          ></v-textarea>
+        
         </v-list-item-title>
       </v-list-item-content>
-      
-
+    
+    
     </v-list-item>
-
+    
     <v-card-actions
-    class="ma-2"
+      class="ma-2"
     >
-    <v-btn
-      color="rgba(250,250,250,0.8)"
-      @click="updateScene()"
-    >
-      Submit Change
-    </v-btn>
+      <v-btn
+        color="rgba(250,250,250,0.8)"
+        @click="updateScene()"
+      >
+        Submit Change
+      </v-btn>
       <v-spacer></v-spacer>
       <v-btn
-        dark
         color="rgba(0,0,0,0.6)"
+        dark
         @click="hideInfoCard(false)"
       >
         Close
@@ -118,16 +119,16 @@ import {updateObjectPosition} from "@/viewers";
 
 export default {
   name: "InfoCard",
-  data(){
+  data() {
     return {
-      show:false,
-      info:{
+      show: false,
+      info: {
         uuid: 'uuid',
-        position:{},
-        model:{},
-        properties:{}
+        position: {},
+        model: {},
+        properties: {}
       },
-      rules:{
+      rules: {
         required: value => !!value || 'Required.',
         number: value => {
           const num = Number(value);
@@ -140,7 +141,7 @@ export default {
     window.InfoCard = this;
     this.hideInfoCard(this.show);
   },
-  methods:{
+  methods: {
     hideInfoCard(isShow) {
       this.show = isShow;
       let e = document.getElementById('info-card');
@@ -148,17 +149,17 @@ export default {
     },
     updateScene() {
       console.log(this.$refs)
-      for(let k of Object.keys(this.info.position)) {
+      for (let k of Object.keys(this.info.position)) {
         this.info.position[k] = Number(this.$refs[k][0].lazyValue);
       }
       console.log(this.info.position)
-  
-      for(let k of Object.keys(this.info.model)) {
+      
+      for (let k of Object.keys(this.info.model)) {
         this.info.model[k] = Number(this.$refs[k][0].lazyValue);
       }
       updateObjectPosition(this.info.uuid, this.info.position, this.info.model);
     },
-
+    
   }
 }
 </script>

@@ -8,30 +8,49 @@ import {Wireframe} from "three/examples/jsm/lines/Wireframe";
 const GeometryBasic = function (_scene, _objects) {
   
   const lineMaterial =  new THREE.LineBasicMaterial({color: 0x000000});
+  
+  // Box Basic
   const boxGeometry = new THREE.BoxBufferGeometry(1, 1, 1);
   boxGeometry.translate(0, 0, 0.5);
+  
   const boxEdges = new THREE.EdgesGeometry(boxGeometry);
   const boxLine = new THREE.LineSegments(boxEdges, lineMaterial);
-  const scope = this;
   
+  
+  // Cylinder Basic
+  const cylinderGeometry = new THREE.CylinderBufferGeometry(1, 1, 1, 32)
+  cylinderGeometry.rotateX(Math.PI/2);
+  cylinderGeometry.translate(0, 0, 0.5);
+  
+  const cylinderEdges = new THREE.EdgesGeometry(cylinderGeometry);
+  const cylinderLine = new THREE.LineSegments(cylinderEdges, lineMaterial);
+  
+  
+  const scope = this;
   // API
   this.Box = function ([x, y, z], [w, h, d], material) {
     
     let mesh = new THREE.Mesh(boxGeometry, material);
+    scope.sceneAddMesh(mesh, boxLine.clone())
     
     mesh.type = 'Box';
     mesh.scale.set(w, h, d);
     mesh.position.set(x, y, z);
     
-    scope.sceneAddMesh(mesh, boxLine.clone())
-    mesh.updateModel = scope.updateModel;
-    mesh.modelParam = scope.modelParam;
+    scope.publicProperties(mesh);
     
-    mesh.exchange = true;
-    mesh.toArchiJSON = function() {
-      return {type: mesh.type, matrix: mesh.matrix.elements};
-    }
+    return mesh;
+  }
   
+  this.Cylinder = function([x, y, z], [r, h], material, showEdge=false) {
+    let mesh = new THREE.Mesh(cylinderGeometry, material);
+    scope.sceneAddMesh(mesh, cylinderLine.clone(), showEdge);
+    
+    mesh.type = 'Cylinder';
+    mesh.scale.set(r, r, h);
+    mesh.position.set(x, y, z);
+   
+    scope.publicProperties(mesh);
     return mesh;
   }
   
@@ -47,9 +66,7 @@ const GeometryBasic = function (_scene, _objects) {
     const curve = new THREE.CatmullRomCurve3(positions);
     const points = curve.getPoints( 50 );
     const geometry = new THREE.BufferGeometry().setFromPoints( points );
-    // const material = new THREE.LineBasicMaterial( { color : 0x000000 } );
-
-// Create the final object to add to the scene
+    
     curveObject = new THREE.Line( geometry, lineMaterial );
     _scene.add(curveObject);
     drawOffsetSplineLine(curve)
@@ -62,6 +79,11 @@ const GeometryBasic = function (_scene, _objects) {
         mesh.scale.y = modelParam['h'];
         mesh.scale.z = modelParam['d'];
         break;
+      case 'Cylinder' :
+        mesh.scale.x = modelParam['r'];
+        mesh.scale.y = modelParam['r'];
+        mesh.scale.z = modelParam['h'];
+        break;
       default:
         break;
     }
@@ -71,6 +93,8 @@ const GeometryBasic = function (_scene, _objects) {
     switch (mesh.type) {
       case 'Box':
         return {w:mesh.scale.x, h:mesh.scale.y, d:mesh.scale.z};
+      case 'Cylinder':
+        return {r:mesh.scale.x, h:mesh.scale.z};
       default:
         return {};
     }
@@ -128,17 +152,40 @@ const GeometryBasic = function (_scene, _objects) {
     return wireframe;
   }
   
+  this.publicProperties = function(mesh){
   
-   this.sceneAddMesh = function(mesh, line) {
-    mesh.add(meshLine(mesh.geometry, 0xffff00, 0.005));
-    mesh.add(line);
-    mesh.children[0].visible = false;
+    mesh.updateModel = scope.updateModel;
+    mesh.modelParam = scope.modelParam;
+  
+    mesh.exchange = true;
+    mesh.toArchiJSON = function() {
+      return {type: mesh.type, matrix: mesh.matrix.elements};
+    }
+  
+    mesh.toInfoCard = function() {
+      let o = mesh;
+      window.InfoCard.info.uuid = o.uuid;
+      window.InfoCard.info.position = o.position;
+      window.InfoCard.info.model = o.modelParam(o);
+      window.InfoCard.info.model = o.modelParam(o);
+      window.InfoCard.info.properties = {type: o.type, material:
+          JSON.stringify({type: o.material.type, uuid: o.material.uuid, color: o.material.color, opacity:o.material.opacity})
+        , matrix:o.matrix.elements};
+    }
+  }
+  
+   this.sceneAddMesh = function(mesh, line, showEdge=true) {
+     if(showEdge) {
+       mesh.add(meshLine(mesh.geometry, 0xffff00, 0.005));
+       mesh.add(line);
+       mesh.children[0].visible = false;
+     }
+  
+     mesh.castShadow = true;
+     mesh.receiveShadow = true;
     
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    
-    _objects.push(mesh);
-    _scene.add(mesh);
+     _objects.push(mesh);
+     _scene.add(mesh);
   }
   
    this.setMeshMaterial = function (mesh, material) {
