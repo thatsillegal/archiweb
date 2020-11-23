@@ -52,22 +52,17 @@ io.on('connection', socket => {
         console.info(`Client [id=${socket.id}] disconnect :)`);
     });
 
-    socket.on('parametersExchange', async function (data) {
-        console.log('parametersExchange: ' + data);
-        io.emit('receiveParameters', data);
+    socket.on('bts:sendGeometry', async function (data) {
+        console.log('bts:sendGeometry: ' + data);
+        io.emit('bts:receiveGeometry', data);
         socket_id = socket.id;
 
         console.log(socket_id);
         return socket_id;
     });
 
-    socket.on('geometryExchange', async function (message) {
-        console.log('geometryExchange: ' + message);
-        io.to(socket_id).emit('receiveGeometry', message);
-        console.log(socket_id);
-    });
 });
 
-http.listen(2601, () => {
-    console.log("listening on *:2601")
+http.listen(27781, () => {
+    console.log("listening on *:27781")
 });
