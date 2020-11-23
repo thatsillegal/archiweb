@@ -112,8 +112,8 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, control.camera);
-    
-    const intersections = raycaster.intersectObjects(_objects, true);
+  
+    const intersections = raycaster.intersectObjects(_objects, false);
     
     applyTransformGroup();
     
@@ -221,6 +221,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   
   
   function onDocumentKeyDown(event) {
+    let obj;
     switch (event.keyCode) {
       
       case 81: // Q
@@ -282,8 +283,10 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
         break;
       
       case 46: // delete
+        obj = control.object;
         deleteObject(control.object);
         control.detach();
+        _objects.splice(_objects.findIndex(item=>item.uuid === obj.uuid), 1);
         break;
     }
     

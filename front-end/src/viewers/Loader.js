@@ -106,7 +106,7 @@ const Loader = function (_scene, _objects) {
     const wireframe = new Wireframe(geoLine, matLine);
     wireframe.computeLineDistances();
     wireframe.scale.set(1, 1, 1);
-    console.log(wireframe)
+    // console.log(wireframe)
     return wireframe;
   }
   
@@ -137,7 +137,7 @@ const Loader = function (_scene, _objects) {
     if (matrix === undefined) matrix = new THREE.Matrix4();
     
     if (object.isLineSegments || object.isLine) {
-      console.log(object);
+      // console.log(object);
       // console.log('----------------')
       // console.log(object.matrix);
       // console.log(object.scale)

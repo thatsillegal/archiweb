@@ -1,12 +1,7 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 "use strict";
-import Vue from 'vue';
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
-
-import {LineMaterial} from 'three/examples/jsm/lines/LineMaterial';
-import {Wireframe} from "three/examples/jsm/lines/Wireframe";
-import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 import {DragControls} from "three/examples/jsm/controls/DragControls";
 // import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.114/examples/jsm/controls/OrbitControls.js";
 
@@ -36,12 +31,14 @@ import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
 import {Transformer} from "@/viewers/Transformer";
 import {MultiCamera} from "@/viewers/MultiCamera";
+import {GeometryBasic} from "@/viewers/GeometryBasic";
 import {Loader} from "@/viewers/Loader";
 
 const gui = require('@/viewers/gui')
 
 let renderer, scene;
 let orbit;
+let gb;
 let sceneBasic, transformer, loader;
 let multiCamera;
 
@@ -62,19 +59,6 @@ function initRender() {
   
   addToDOM();
 }
-
-
-
-function meshLine(geometry, color, linewidth) {
-  const matLine = new LineMaterial({color: color, linewidth: linewidth});
-  const geoLine = new WireframeGeometry2(geometry);
-  const wireframe = new Wireframe(geoLine, matLine);
-  wireframe.computeLineDistances();
-  wireframe.scale.set(1, 1, 1);
-  return wireframe;
-}
-
-
 
 function initScene2D() {
   scene = new THREE.Scene();
@@ -174,95 +158,52 @@ function initScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xfafafa);
   
-  const box = new THREE.BoxBufferGeometry(300, 300, 300);
-  const edges = new THREE.EdgesGeometry(box);
-  const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0x000000}));
-  // box.scale(0.001, 0.001, 0.001);
+  gb = new GeometryBasic(scene, objects);
   
-  const material = new THREE.MeshLambertMaterial({color: 0xdddddd});
+
+  // const b1 = new THREE.Mesh(box,new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
+  gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  const b1 = new THREE.Mesh(box,material);
-  b1.position.set(150, 150, 150);
-  sceneAddMesh(b1, line.clone());
+  gb.Box([-300, -300, 0], [300, 300, 100], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  const b2 = new THREE.Mesh(box, material);
-  b2.scale.set(1, 1, 1.0 / 3);
-  b2.position.set(-300, -300, 50);
-  
-  sceneAddMesh(b2, line.clone());
-  
-  const b3 = new THREE.Mesh(box, material);
-  b3.scale.set(1, 1, 1.0 / 2);
-  b3.position.set(300, -500, 75);
-  // console.log(b3.material);
-  
-  sceneAddMesh(b3, line.clone());
+  gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
   
   loader = new Loader(scene, objects);
 
   loader.loadModel('/models/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
-    setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
+    gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
     mesh.toCamera = true;
     // toCamera.push(mesh);
 
-    console.log(mesh);
+    // console.log(mesh);
   });
 
   loader.loadModel('/models/autumn-tree.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
     mesh.scale.set(2, 2, 2);
-    setMaterialOpacity(mesh, 0.6);
+    gb.setMaterialOpacity(mesh, 0.6);
     mesh.toCamera = true;
-    console.log(mesh);
+    // console.log(mesh);
   });
-
-
-}
-
-
-function setMaterialOpacity(mesh, opacity) {
-  if(mesh.material.length > 0) {
-    mesh.material.forEach((item)=>{
-      item.transparent = true;
-      item.opacity = opacity;
-    });
-  } else {
-    mesh.material.transparent = true;
-    mesh.material.opacity = opacity;
-  }
-}
-
-function setMeshMaterial(mesh, material) {
-  console.log(mesh.material);
-  if(mesh.material.length > 0) {
-    let materials = []
-    mesh.material.forEach(()=>materials.push(material));
-    mesh.material = materials;
-  } else {
-    mesh.material=material;
-  }
-}
-
-function sceneAddMesh(mesh, line) {
-  mesh.add(meshLine(mesh.geometry, 0xffff00, 0.005));
-  mesh.add(line);
-  mesh.children[0].visible = false;
   
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  
-  objects.push(mesh);
-  scene.add(mesh);
+  for(let o of objects) {
+    console.log(o)
+  }
+
 }
+
+
+
+
 
 function initDrag() {
   if(D3) {
     drag = new DragFrames(objects, camera, scene, renderer);
     drag.enabled = true;
   
-    drag.addEventListener('selectdown', function (event) {
+    drag.addEventListener('selectdown', function () {
       transformer.clear();
     });
   
