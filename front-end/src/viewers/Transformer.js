@@ -17,21 +17,29 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   
   function addToInfoCard(o) {
     if(o !== undefined) {
-      window.InfoCard.info.uuid = o.uuid;
-      window.InfoCard.info.position = [o.position.x, o.position.y, o.position.z];
       
-      console.log(o.matrix.elements)
-      // let m = o.material;
-      // console.log(o)
+      o.position.x = Math.round(o.position.x);
+      o.position.y = Math.round(o.position.y);
+      o.position.z = Math.round(o.position.z);
+      
+      o.scale.x = Math.round(o.scale.x);
+      o.scale.y = Math.round(o.scale.y);
+      o.scale.z = Math.round(o.scale.z);
+      
+      window.InfoCard.info.uuid = o.uuid;
+      console.log(o.position);
+      window.InfoCard.info.position = o.position;
+      
       let m;
       try {
         m = {type: o.material.type, uuid: o.material.uuid, color: o.material.color, opacity:o.material.opacity};
+        window.InfoCard.info.model = o.modelParam(o);
+        window.InfoCard.info.properties = {type: o.type, material:
+            JSON.stringify(m)
+          , matrix:o.matrix.elements};
       } catch (e) {
         //
       }
-      window.InfoCard.info.properties = {type: o.type, material:
-          JSON.stringify(m)
-          , matrix:o.matrix.elements};
     }
   
   }

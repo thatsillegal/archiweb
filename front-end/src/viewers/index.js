@@ -46,9 +46,9 @@ let camera, drag;
 let InfoCard;
 
 let objects = [];
-let D3 = true;
+let D3 = false;
 
-let pos=[[-10, 30], [0, 10], [30, -10], [40, -30]];
+let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
 let curveObject, leftCurve, rightCurve;
 
 function initRender() {
@@ -161,13 +161,13 @@ function initScene() {
   gb = new GeometryBasic(scene, objects);
   
 
-  // const b1 = new THREE.Mesh(box,new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
-  gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
+  const b1 = gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
   gb.Box([-300, -300, 0], [300, 300, 100], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
   gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
+  console.log(gb.modelParam(b1));
   
   loader = new Loader(scene, objects);
 
@@ -252,10 +252,11 @@ function initDrag() {
       // console.log(InfoCard)
       let o = event.object;
       InfoCard.info.uuid = o.uuid;
-      InfoCard.info.position = [o.position.x, o.position.y, o.position.z];
+      InfoCard.info.position = o.position;
       InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
-
-      orbit.enabled = false; } );
+  
+      orbit.enabled = false;
+    } );
     drag.addEventListener( 'hoveroff', function () { orbit.enabled = true; } );
     drag.addEventListener('dragend', function(event) {
       
@@ -265,7 +266,7 @@ function initDrag() {
       o.position.y = Math.round(o.position.y);
       o.position.z = Math.round(o.position.z);
       InfoCard.info.uuid = o.uuid;
-      InfoCard.info.position = [o.position.x, o.position.y, o.position.z];
+      InfoCard.info.position = o.position;
 
       InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
       drawSplineLine();
@@ -398,12 +399,14 @@ function addToDOM() {
 }
 
 
-function updateObjectPosition(uuid, position) {
+function updateObjectPosition(uuid, position, model) {
   const o = scene.getObjectByProperty('uuid', uuid);
-  o.position.x = position[0];
-  o.position.y = position[1];
-  o.position.z = position[2];
-  // drawSplineLine();
+  // o.position.copy(position);
+  if(D3) {
+    gb.updateModel(o, model);
+  } else {
+    drawSplineLine();
+  }
 }
 
 function scene3D() {

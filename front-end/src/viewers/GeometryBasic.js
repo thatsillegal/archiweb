@@ -31,16 +31,41 @@ const GeometryBasic = function (_scene, _objects) {
   // API
   this.Box = function ([x, y, z], [w, h, d], material) {
     
-    this.type = "box";
     let mesh = new THREE.Mesh(boxGeometry, material);
     
+    mesh.type = 'Box';
     mesh.scale.set(w, h, d);
     mesh.position.set(x, y, z);
     
     scope.sceneAddMesh(mesh, boxLine.clone())
-    
+    mesh.updateModel = scope.updateModel;
+    mesh.modelParam = scope.modelParam;
+  
     return mesh;
   }
+  
+  this.updateModel = function(mesh, modelParam) {
+    switch (mesh.type) {
+      case 'Box' :
+        mesh.scale.x = modelParam['w'];
+        mesh.scale.y = modelParam['h'];
+        mesh.scale.z = modelParam['d'];
+        break;
+      default:
+        break;
+    }
+  }
+  
+  this.modelParam = function(mesh) {
+    switch (mesh.type) {
+      case 'Box':
+        return {w:mesh.scale.x, h:mesh.scale.y, d:mesh.scale.z};
+      default:
+        return {};
+    }
+  }
+  
+  
   
   function meshLine(geometry, color, linewidth) {
     const matLine = new LineMaterial({color: color, linewidth: linewidth});

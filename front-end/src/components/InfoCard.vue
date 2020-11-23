@@ -2,7 +2,7 @@
   <v-card
     class="mx-auto overflow-y-auto"
     max-width="344"
-    max-height="800"
+    max-height="900"
     color="rgba(250, 250, 250, 0.5)"
   >
     <v-list-item>
@@ -21,39 +21,48 @@
         >
         </v-text-field>
         
-        <div>
+        <div
+          v-if="Object.keys(info.position).length > 0"
+          class="overline">
           Position
         </div>
         <v-row>
-          <v-col cols="4">
+          <v-col
+            v-for="(ti, t) in Object.keys(info.position)"
+            :key="t"
+            :cols="12/Object.keys(info.position).length"
+          >
             <v-text-field
               outlined
               dense
-              ref="x"
-              label="x"
+              :ref="ti"
+              :label="ti"
               @change="updateScene"
               :rules="[rules.number]"
-              :value="info.position[0]"></v-text-field>
+              :value="info.position[ti]"></v-text-field>
           </v-col>
-          <v-col cols="4">
+
+        </v-row>
+  
+        <div
+          v-if="Object.keys(info.model).length > 0"
+        >
+          Model
+        </div>
+        <v-row>
+          <v-col
+            v-for="(ti, t) in Object.keys(info.model)"
+            :key="t"
+            :cols="12/Object.keys(info.model).length"
+          >
             <v-text-field
               outlined
               dense
-              ref="y"
-              label="y"
+              :ref="ti"
+              :label="ti"
               @change="updateScene"
               :rules="[rules.number]"
-              :value="info.position[1]"></v-text-field>
-          </v-col>
-          <v-col cols="4">
-            <v-text-field
-              outlined
-              dense
-              ref="z"
-              label="z"
-              @change="updateScene"
-              :rules="[rules.number]"
-              :value="info.position[2]"></v-text-field>
+              :value="info.model[ti]"></v-text-field>
           </v-col>
         </v-row>
   
@@ -114,7 +123,8 @@ export default {
       show:false,
       info:{
         uuid: 'uuid',
-        position:[0, 0, 0],
+        position:{},
+        model:{},
         properties:{}
       },
       rules:{
@@ -137,11 +147,16 @@ export default {
       e.style.display = isShow ? "block" : "none";
     },
     updateScene() {
-      let x = Number(this.$refs.x.lazyValue)
-      let y = Number(this.$refs.y.lazyValue)
-      let z = Number(this.$refs.z.lazyValue)
-      this.info.position = [x, y, z];
-      updateObjectPosition(this.info.uuid, this.info.position);
+      console.log(this.$refs)
+      for(let k of Object.keys(this.info.position)) {
+        this.info.position[k] = Number(this.$refs[k][0].lazyValue);
+      }
+      console.log(this.info.position)
+  
+      for(let k of Object.keys(this.info.model)) {
+        this.info.model[k] = Number(this.$refs[k][0].lazyValue);
+      }
+      updateObjectPosition(this.info.uuid, this.info.position, this.info.model);
     },
 
   }
