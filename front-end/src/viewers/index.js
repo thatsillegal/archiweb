@@ -32,6 +32,7 @@ import {Transformer} from "@/viewers/Transformer";
 import {MultiCamera} from "@/viewers/MultiCamera";
 import {GeometryBasic} from "@/viewers/GeometryBasic";
 import {Loader} from "@/viewers/Loader";
+import {ArchiJSON} from "@/viewers/ArchiJSON";
 
 const gui = require('@/viewers/gui')
 
@@ -40,15 +41,14 @@ let orbit;
 let gb;
 let sceneBasic, transformer, loader;
 let multiCamera;
-
+let archijson;
 let camera, drag;
 let InfoCard;
 
 let objects = [];
-let D3 = false;
+let D3 = true;
 
 let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
-let curveObject, leftCurve, rightCurve;
 
 function initRender() {
   renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -62,6 +62,7 @@ function initRender() {
 function initScene2D() {
   scene = new THREE.Scene();
   
+  gb = new GeometryBasic(scene, objects);
   let controls = {
     color: 0xfafafa
   };
@@ -87,86 +88,23 @@ function initScene2D() {
     scene.add(mesh);
   }
   
-  drawSplineLine();
+  gb.Curve(objects);
+  
 }
 
-function drawSplineLine() {
-  scene.remove(curveObject);
-  let positions = [];
-  for(let obj of objects) {
-    let p = obj.position.clone();
-    p.z = -1;
-    positions.push(p);
-  }
-  const curve = new THREE.CatmullRomCurve3(positions);
-  const points = curve.getPoints( 50 );
-  const geometry = new THREE.BufferGeometry().setFromPoints( points );
-  const material = new THREE.LineBasicMaterial( { color : 0x000000 } );
-
-// Create the final object to add to the scene
-  curveObject = new THREE.Line( geometry, material );
-  scene.add(curveObject);
-  drawOffsetSplineLine(curve)
-}
-
-function drawOffsetSplineLine(curve) {
-  scene.remove(leftCurve);
-  scene.remove(rightCurve);
-  let left = [];
-  let right = [];
-  for(let t = 0.0; t <= 1.0; t += 0.02) {
-    let point = curve.getPointAt(t);
-    
-    let tangent = curve.getTangentAt(t);
-    let extension1 = new THREE.Vector3(tangent.x*2, tangent.y*2, 0);
-    let extension2 = new THREE.Vector3(-tangent.x*2, -tangent.y*2, 0);
-
-    let tangentGeometry = new THREE.BufferGeometry().setFromPoints( [extension2, tangent, extension1] );
-    let tangentLine = new THREE.Line(tangentGeometry, new THREE.LineBasicMaterial({color:0xff000}))
-    tangentLine.position.copy(point);
-    tangentLine.rotateZ(Math.PI/2);
-    // scene.add(tangentLine);
-  
-    tangentLine.updateMatrixWorld(true);
-    let normal = tangentLine.geometry.clone();
-    normal.applyMatrix4(tangentLine.matrix);
-    
-    let position = normal.attributes.position;
-    left.push(new THREE.Vector3(position.getX(0), position.getY(0), 0));
-    right.push(new THREE.Vector3(position.getX(2), position.getY(2), 0));
-    
-  }
-  
-  const material = new THREE.LineBasicMaterial( { color : 0x000000 } );
-  let cv = new THREE.CatmullRomCurve3(left);
-  let points = cv.getPoints( 50 );
-  let geometry = new THREE.BufferGeometry().setFromPoints( points );
-  
-  leftCurve = new THREE.Line( geometry, material );
-  
-  cv = new THREE.CatmullRomCurve3(right);
-  points = cv.getPoints( 50 );
-  geometry = new THREE.BufferGeometry().setFromPoints( points );
-  rightCurve = new THREE.Line(geometry, material);
-  
-  scene.add(leftCurve);
-  scene.add(rightCurve);
-}
 
 function initScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xfafafa);
   
-  gb = new GeometryBasic(scene, objects);
   
+  gb = new GeometryBasic(scene, objects);
 
-  const b1 = gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
+  gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
   gb.Box([-300, -300, 0], [300, 300, 100], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
   gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
-  
-  console.log(gb.modelParam(b1));
   
   loader = new Loader(scene, objects);
 
@@ -270,10 +208,11 @@ function initDrag() {
       InfoCard.info.position = o.position;
 
       InfoCard.info.properties = {title:"some point", position: JSON.stringify(o.position)};
-      drawSplineLine();
+      // drawSplineLine(objects);
+      gb.Curve(objects);
     });
     drag.addEventListener('drag', function() {
-      drawSplineLine();
+      gb.Curve(objects);
     })
   }
 }
@@ -321,17 +260,14 @@ function windowResize(w, h) {
 
 function render() {
   
-  // console.log(multiCamera.camera);
   scene.traverse((obj) => {
     if(obj.toCamera) {
-      // console.log(obj)
       let dx = camera.position.x - obj.position.x;
       let dy = camera.position.y - obj.position.y;
       let theta = -Math.atan2(dx, dy);
   
       obj.quaternion.set(0, 0, 0, 1);
       obj.rotateZ(theta);
-      // console.log(dx, dy)
     }
   });
 
@@ -403,7 +339,7 @@ function updateObjectPosition(uuid, position, model) {
   if(D3) {
     gb.updateModel(o, model);
   } else {
-    drawSplineLine();
+    gb.Curve(objects);
   }
 }
 
@@ -422,6 +358,9 @@ function scene3D() {
   
   sceneBasic = new SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui.gui);
+  
+  archijson = new ArchiJSON(scene, objects);
+  archijson.addGUI(gui.gui);
 }
 
 function scene2D() {
@@ -439,6 +378,7 @@ function scene2D() {
 
 
 function main() {
+  
   initRender();
   if (D3) {
     scene3D();
@@ -454,6 +394,7 @@ export {
   scene2D,
   scene3D,
   loader,
+  archijson,
   D3,
   updateObjectPosition,
 }
