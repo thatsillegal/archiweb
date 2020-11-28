@@ -1,6 +1,7 @@
 # ArchiWeb
 ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en/) and [three.js](https://threejs.org/). It's recommanded to start from the documentations of both.
 
+{:toc}
 ## Usage
 ArchiWeb provides a template to create a web application from scratch, you can easily use [Vuetify UI components](https://vuetifyjs.com/en/components/buttons/) to generate a material design web, also with 3d rendering.
 ### As Template
@@ -41,6 +42,10 @@ or you can just mannually organize and use those plugins.
 ### Tools
 #### GUI
 ArchiWeb use `dat.gui` create simple interacts
+
+<details>
+  <summary> Here gives the minimal instructions of gui.dat, you can select to take a try.</summary>
+
 ``` javascript
 const gui = require('@/viewers/3D/gui')
 gui.initGUI();
@@ -79,13 +84,24 @@ gui.gui.add(controls, 'change').listen().onChange(function() {
 });
 ```
 
+</details>
+
 #### Transformer
-Transform tool derive from THREE.TransformControl, Like Rhino Gumball
+Transform tool derive from THREE.TransformControl, just like your familiar Rhino Gumball
 - init a transformer and add gui
+``` javascript
+transformer = new Transformer(scene, renderer, camera, objects, drag);
+transformer.addGUI(gui.gui);
+```
+this is all the required codes, if your want to work with [dragFrames](#dragframes), see later instructions.
+#### SceneBasic
+SceneBasic creates a basic architectural design environment, with ground, sky and fog.
+- init and add gui
 ``` javascript
 sceneBasic = new SceneBasic(scene, renderer, transformer);
 sceneBasic.addGUI(gui.gui);
 ```
+
 #### DragFrames
 Multiselect tools
 - draw rectangle over current renderer
@@ -142,12 +158,15 @@ dragFrames.addEventListener('selectup', function (event) {
 
 #### MultiCamera
 
+#### Loader
 #### similar works
 - [THREE Editor](https://threejs.org/editor/)
-## Branchs
+## Extensions
 ### java-backend
 Data exchange format is [ArchiJson](https://github.com/Inst-AAA/archijson).
+Current java-backend is using node.js as server, the examples in plugins folder give the minimal implementation of a java server.
 
+To avoid changing and merging conflicts of using this template, there are plans to design a universal interface.
 ### webxr
 It's plan to support VR, which is a better display to architectural design.
 #### similar works
