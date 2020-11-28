@@ -1,7 +1,25 @@
-# ArchiWeb
 ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en/) and [three.js](https://threejs.org/). It's recommanded to start from the documentations of both.
 
-{:toc}
+- [Usage](#usage)
+  - [As Template](#as-template)
+  - [Install](#install)
+  - [Tools](#tools)
+    - [GUI](#gui)
+    - [Transformer](#transformer)
+    - [SceneBasic](#scenebasic)
+    - [DragFrames](#dragframes)
+    - [MultiCamera](#multicamera)
+    - [GeometryBasic](#geometrybasic)
+    - [Loader](#loader)
+    - [similar works](#similar-works)
+- [Extensions](#extensions)
+  - [java-backend](#java-backend)
+  - [webxr](#webxr)
+    - [similar works](#similar-works-1)
+  - [database](#database)
+  - [ddg](#ddg)
+- [Issues](#issues)
+
 ## Usage
 ArchiWeb provides a template to create a web application from scratch, you can easily use [Vuetify UI components](https://vuetifyjs.com/en/components/buttons/) to generate a material design web, also with 3d rendering.
 ### As Template
@@ -157,8 +175,49 @@ dragFrames.addEventListener('selectup', function (event) {
 ```
 
 #### MultiCamera
+Similar to SketchUp, you can use perspective camera and orthographic camera in the scene, and switch between them use hotkeys
+- init and add gui
+``` javascript
+multiCamera = new MultiCamera(scene, renderer);
+multiCamera.addGUI(gui.gui);
+```
 
+
+#### GeometryBasic
+This function provides basic [BufferGeometry](https://threejs.org/docs/index.html#api/en/core/BufferGeometry) prefered by architectural usage.
+
+Create mesh with buffer geometry defined reducing the cost of passing all this data to the GPU.
+
+
+Ruled by:
+- **Contructor**
+- **ModelParams** returns model parameters for InfoCard or Print
+- **UpdateModel** updates geometry with input parameters
+- **publicProperties** returns the ArchiJSON format of the geometry.
+
+Current Supported:
+- Box
+- Cylinder
 #### Loader
+The Loader works with page loading and gui buttons, with callback function link to the loaded assets.
+
+Currently support:  
+`dae`, `obj`, `gltf`, `glb`, `3mf`, `fbx`
+
+- init and add gui
+``` javascript
+loader = new Loader(scene, objects);
+loader.addGUI(gui.gui);
+```
+- load models when loading 
+``` javascript
+loader.loadModel('/models/autumn-tree.dae', (mesh) => {
+  mesh.position.set(500, 0, 0);
+  mesh.scale.set(2, 2, 2);
+  setMaterialOpacity(mesh, 0.6);
+  mesh.toCamera = true;
+});
+```
 #### similar works
 - [THREE Editor](https://threejs.org/editor/)
 ## Extensions
