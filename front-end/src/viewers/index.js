@@ -96,7 +96,8 @@ function initScene() {
   gb.Cylinder([-300, 0, 0], [50, 300, 4], new THREE.MeshLambertMaterial( { color : 0xaaaaaa } ), true);
   
   loader = new Loader(scene, objects);
-
+  loader.addGUI(gui.util);
+  
   loader.loadModel('/models/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
     gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
@@ -168,6 +169,7 @@ function initControls() {
     orbit.enablePan = false;
     multiCamera.addControllers(orbit);
     transformer = new Transformer(scene, renderer, camera, objects, drag);
+    
     transformer.addGUI(gui.gui);
     multiCamera.addControllers(transformer);
   } else {
@@ -345,6 +347,7 @@ function scene3D() {
   
   archijson = new ArchiJSON(scene, objects);
   archijson.addGUI(gui.gui);
+  
 }
 
 function scene2D() {
@@ -380,7 +383,5 @@ export {
   
   updateObjectPosition,
   
-  loader,
   archijson,
-  D3,
 }

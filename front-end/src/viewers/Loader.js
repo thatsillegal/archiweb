@@ -17,6 +17,8 @@ const Loader = function (_scene, _objects) {
   const manager = new THREE.LoadingManager();
   let buffer;
   
+  let scope = this;
+  
   function loadModel(object) {
     
     
@@ -33,7 +35,7 @@ const Loader = function (_scene, _objects) {
       meshes.push(new THREE.Mesh(meshGeometry, material));
     });
     // console.log(meshes)
-  
+    
     let lineGeometry = new THREE.BufferGeometry();
     buffer = new Float32Array();
     searchLines(object);
@@ -46,8 +48,8 @@ const Loader = function (_scene, _objects) {
     
     if(checkMaterial(result)) {
       result.material = new THREE.MeshLambertMaterial({color: 0x787774, side:THREE.DoubleSide});
-      }
-  
+    }
+    
     return result;
   }
   
@@ -423,6 +425,28 @@ const Loader = function (_scene, _objects) {
   }
   
 
+  this.addGUI = function (gui) {
+    this.import = function () {
+        fileInput.click();
+    }
+    
+    gui.add(this, 'import');
+  
+    let form = document.createElement( 'form' );
+    form.style.display = 'none';
+    document.body.appendChild( form );
+  
+    let fileInput = document.createElement( 'input' );
+    fileInput.multiple = true;
+    fileInput.type = 'file';
+    fileInput.addEventListener( 'change', function () {
+      scope.loadFile(fileInput.files[0]);
+      console.log(fileInput.files[0]);
+      form.reset();
+    
+    } );
+    form.appendChild( fileInput );
+  }
 }
 
 
