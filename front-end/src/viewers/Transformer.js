@@ -12,6 +12,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   let copy = false;
   //
   let clonedObject = [];
+  let shiftDown;
   
   //API
   
@@ -63,6 +64,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     
     _scene.add(control);
     _renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
+    _renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
     _renderer.domElement.addEventListener('click', onClick, false);
   }
   
@@ -111,7 +113,14 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     
     applyTransformGroup();
     
-    if (selected.length > 0) {
+    if(shiftDown && intersections.length > 0) {
+      if(control.object.isGroup) {
+        control.object.add(intersections[0].object);
+      } else {
+        attachObject([control.object, intersections[0].object]);
+      }
+      console.log(control.object)
+    } else if (selected.length > 0) {
       attachObject(selected);
       selected = [];
     } else if (intersections.length > 0) {
@@ -282,10 +291,19 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
         control.detach();
         _objects.splice(_objects.findIndex(item=>item.uuid === obj.uuid), 1);
         break;
+        
+      case 16: // shift
+        shiftDown = true;
     }
     
   }
   
+  function onDocumentKeyUp(event) {
+    switch (event.keyCode) {
+      case 16: // shift
+        shiftDown = false;
+    }
+  }
   
   function addGUI(gui) {
     let transformer = gui.addFolder('Transformer');
