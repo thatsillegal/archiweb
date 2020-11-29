@@ -5,7 +5,7 @@ import {Wireframe} from "three/examples/jsm/lines/Wireframe";
 // import {Float32BufferAttribute} from 'three'
 
 
-const GeometryBasic = function (_scene, _objects) {
+const GeometryBasic = function (_scene) {
   
   const lineMaterial =  new THREE.LineBasicMaterial({color: 0x000000});
   
@@ -183,8 +183,8 @@ const GeometryBasic = function (_scene, _objects) {
   
      mesh.castShadow = true;
      mesh.receiveShadow = true;
-    
-     _objects.push(mesh);
+  
+     window.objects.push(mesh);
      _scene.add(mesh);
   }
   

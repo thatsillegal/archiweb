@@ -12,7 +12,7 @@ import {Rhino3dmLoader} from "three/examples/jsm/loaders/3DMLoader";
 import {ThreeMFLoader} from "three/examples/jsm/loaders/3MFLoader";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 
-const Loader = function (_scene, _objects) {
+const Loader = function (_scene) {
   
   const manager = new THREE.LoadingManager();
   let buffer;
@@ -108,7 +108,6 @@ const Loader = function (_scene, _objects) {
     const wireframe = new Wireframe(geoLine, matLine);
     wireframe.computeLineDistances();
     wireframe.scale.set(1, 1, 1);
-    // console.log(wireframe)
     return wireframe;
   }
   
@@ -119,8 +118,8 @@ const Loader = function (_scene, _objects) {
     
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    
-    _objects.push(mesh);
+  
+    window.objects.push(mesh);
     _scene.add(mesh);
   }
   

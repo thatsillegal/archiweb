@@ -1,11 +1,11 @@
 import socket from "@/socket";
 import * as THREE from 'three';
 
-const ArchiJSON = function (_scene, _objects) {
+const ArchiJSON = function (_scene) {
   let scope = this;
   
   this.sendToJava = function() {
-    scope.sendArchiJSON('bts:sendGeometry', _objects);
+    scope.sendArchiJSON('bts:sendGeometry', window.objects);
   }
   
   this.addGUI = function(gui) {

@@ -1,7 +1,6 @@
 "use strict";
 import * as dat from 'dat.gui';
 
-
 let gui, util;
 
 const controls = new function () {

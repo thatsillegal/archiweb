@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-const DragFrames = function (_objects, _camera, _scene, _renderer) {
+const DragFrames = function (_camera, _scene, _renderer) {
   
   let _domElement = _renderer.domElement;
   let _dragInitX, _dragInitY;
@@ -157,7 +157,7 @@ const DragFrames = function (_objects, _camera, _scene, _renderer) {
     _selected = [];
     
     updateFrustum(_startPoint, _endPoint);
-    searchChildInFrustum(_frustum, _objects);
+    searchChildInFrustum(_frustum, window.objects);
     
     return _selected;
   }
@@ -275,6 +275,8 @@ const DragFrames = function (_objects, _camera, _scene, _renderer) {
   }
   
   activate();
+  
+  this.selected = _selected;
   
   this.enabled = true;
   

@@ -32,20 +32,22 @@ import {Transformer} from "@/viewers/Transformer";
 import {MultiCamera} from "@/viewers/MultiCamera";
 import {GeometryBasic} from "@/viewers/GeometryBasic";
 import {Loader} from "@/viewers/Loader";
-import {ArchiJSON} from "@/viewers/ArchiJSON";
+import {AssetManager} from "@/viewers/AssetManager";
+import {ArchiJSON} from "./ArchiJSON";
 
 const gui = require('@/viewers/gui')
 
 let renderer, scene;
 let orbit;
 let gb;
-let sceneBasic, transformer, loader;
+let sceneBasic, transformer, loader, assetManager;
 let multiCamera;
 let archijson;
 let camera, drag;
 let InfoCard;
 
-let objects = [];
+window.objects = [];
+// let objects = window.objects;
 let D3 = true;
 
 let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
@@ -55,7 +57,7 @@ let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
 function initScene2D() {
   scene = new THREE.Scene();
   
-  gb = new GeometryBasic(scene, objects);
+  gb = new GeometryBasic(scene);
   let controls = {
     color: 0xfafafa
   };
@@ -75,7 +77,7 @@ function initScene2D() {
     gb.Cylinder(p, [1, 1], new THREE.MeshLambertMaterial({color:0xff0000}));
   }
   
-  gb.Curve(objects);
+  gb.Curve(window.objects);
   
 }
 
@@ -84,18 +86,20 @@ function initScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xfafafa);
   
+  assetManager = new AssetManager(scene);
+  assetManager.addGUI(gui.util);
   
-  gb = new GeometryBasic(scene, objects);
+  gb = new GeometryBasic(scene);
 
-  gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
+  const b1 = gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  gb.Box([-300, -300, 0], [300, 300, 100], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
+  const b2 = gb.Box([-300, -300, 0], [300, 300, 100], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
+  const b3 = gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  gb.Cylinder([-300, 0, 0], [50, 300, 4], new THREE.MeshLambertMaterial( { color : 0xaaaaaa } ), true);
+  const b4 = gb.Cylinder([-300, 0, 0], [50, 300, 4], new THREE.MeshLambertMaterial( { color : 0xaaaaaa } ), true);
   
-  loader = new Loader(scene, objects);
+  loader = new Loader(scene);
   loader.addGUI(gui.util);
   
   loader.loadModel('/models/spruce-tree.dae', (mesh) => {
@@ -111,10 +115,9 @@ function initScene() {
     mesh.toCamera = true;
   });
   
-  for(let o of objects) {
-    console.log(o)
-  }
 
+  assetManager.addSelection(window.objects);
+  assetManager.addSelection([b1, b2, b3, b4]);
 }
 
 
@@ -123,7 +126,7 @@ function initScene() {
 
 function initDrag() {
   if(D3) {
-    drag = new DragFrames(objects, camera, scene, renderer);
+    drag = new DragFrames(camera, scene, renderer);
     drag.enabled = true;
   
     drag.addEventListener('selectdown',()=>{transformer.clear()});
@@ -131,7 +134,7 @@ function initDrag() {
     drag.addEventListener('selectup', onSelectUp);
     
   } else {
-    drag = new DragControls(objects, camera, renderer.domElement);
+    drag = new DragControls(window.objects, camera, renderer.domElement);
     drag.addEventListener( 'hoveron', function (event) {
       
       
@@ -147,10 +150,10 @@ function initDrag() {
       
       let o = event.object;
       o.toInfoCard();
-      gb.Curve(objects);
+      gb.Curve(window.objects);
     });
     drag.addEventListener('drag', function() {
-      gb.Curve(objects);
+      gb.Curve(window.objects);
     })
   }
 }
@@ -168,10 +171,12 @@ function initControls() {
     }
     orbit.enablePan = false;
     multiCamera.addControllers(orbit);
-    transformer = new Transformer(scene, renderer, camera, objects, drag);
+    transformer = new Transformer(scene, renderer, camera, drag);
     
     transformer.addGUI(gui.gui);
+    
     multiCamera.addControllers(transformer);
+    assetManager.setTransformerObject(transformer.object);
   } else {
 
     orbit.enableRotate = false;
@@ -324,13 +329,13 @@ function updateObjectPosition(uuid, position, model) {
   if(D3) {
     gb.updateModel(o, model);
   } else {
-    gb.Curve(objects);
+    gb.Curve(window.objects);
   }
 }
 
 function scene3D() {
   D3 = true;
-  objects = [];
+  window.objects = [];
   gui.initGUI();
   
   initRender();
@@ -345,14 +350,15 @@ function scene3D() {
   sceneBasic = new SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui.gui);
   
-  archijson = new ArchiJSON(scene, objects);
+  archijson = new ArchiJSON(scene);
   archijson.addGUI(gui.gui);
+  
   
 }
 
 function scene2D() {
   D3 = false;
-  objects = [];
+  window.objects = [];
   gui.initGUI();
   
   let aspect = window.innerWidth / window.innerHeight;
@@ -382,6 +388,5 @@ export {
   scene3D,
   
   updateObjectPosition,
-  
   archijson,
 }

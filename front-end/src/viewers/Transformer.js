@@ -2,7 +2,7 @@
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import * as THREE from "three";
 
-const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames) {
+const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
   
   let control = null;
   let scope = this;
@@ -93,7 +93,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   function addClonedObject(object) {
     for (let i = 0; i < object.length; ++i) {
       _scene.add(object[i]);
-      _objects.push(object[i]);
+      window.objects.push(object[i]);
     }
   }
   
@@ -109,15 +109,20 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, control.camera);
   
-    const intersections = raycaster.intersectObjects(_objects, false);
+
+    const intersections = raycaster.intersectObjects(window.objects, false);
     
     applyTransformGroup();
     
     if(shiftDown && intersections.length > 0) {
-      if(control.object.isGroup) {
-        control.object.add(intersections[0].object);
+      if(control.object === undefined) {
+        attachObject([intersections[0].object]);
       } else {
-        attachObject([control.object, intersections[0].object]);
+        if (control.object.isGroup) {
+          control.object.add(intersections[0].object);
+        } else {
+          attachObject([control.object, intersections[0].object]);
+        }
       }
       console.log(control.object)
     } else if (selected.length > 0) {
@@ -289,7 +294,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
         obj = control.object;
         deleteObject(control.object);
         control.detach();
-        _objects.splice(_objects.findIndex(item=>item.uuid === obj.uuid), 1);
+        window.objects.splice(window.objects.findIndex(item=>item.uuid === obj.uuid), 1);
         break;
         
       case 16: // shift
@@ -342,11 +347,11 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
       }
     });
   }
-  
+
   function setSelected(objects) {
     selected = objects;
   }
-  
+
   function setDragFrames(dragFrames) {
     _dragFrames = dragFrames;
   }
@@ -366,6 +371,7 @@ const Transformer = function (_scene, _renderer, _camera, _objects, _dragFrames)
   this.world = false; //true-word, false-local
   this.snap = false;
   
+  this.object = control.object;
   this.control = control;
   this.addGUI = addGUI;
   
