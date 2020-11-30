@@ -45,11 +45,11 @@ const Loader = function (_scene) {
     
     const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
     sceneAddMesh(result, line);
-    
+
     if(checkMaterial(result)) {
       result.material = new THREE.MeshLambertMaterial({color: 0x787774, side:THREE.DoubleSide});
     }
-    
+
     return result;
   }
   

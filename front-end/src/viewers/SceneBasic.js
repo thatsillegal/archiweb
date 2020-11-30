@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import * as THREE from 'three'
-import * as CSM from 'three-csm';
-THREE.CSM = CSM;
+// import * as CSM from 'three-csm';
+// THREE.CSM = CSM;
 
 const SceneBasic = function (_scene, _renderer) {
   let scope = this;

@@ -100,6 +100,14 @@ const GeometryBasic = function (_scene) {
     }
   }
   
+  function meshLine(geometry, color, linewidth) {
+    const matLine = new LineMaterial({color: color, linewidth: linewidth});
+    const geoLine = new WireframeGeometry2(geometry);
+    const wireframe = new Wireframe(geoLine, matLine);
+    wireframe.computeLineDistances();
+    wireframe.scale.set(1, 1, 1);
+    return wireframe;
+  }
   function drawOffsetSplineLine(curve) {
     _scene.remove(leftCurve);
     _scene.remove(rightCurve);
@@ -143,14 +151,7 @@ const GeometryBasic = function (_scene) {
     _scene.add(rightCurve);
   }
   
-  function meshLine(geometry, color, linewidth) {
-    const matLine = new LineMaterial({color: color, linewidth: linewidth});
-    const geoLine = new WireframeGeometry2(geometry);
-    const wireframe = new Wireframe(geoLine, matLine);
-    wireframe.computeLineDistances();
-    wireframe.scale.set(1, 1, 1);
-    return wireframe;
-  }
+
   
   this.publicProperties = function(mesh){
   
@@ -214,5 +215,5 @@ const GeometryBasic = function (_scene) {
 
 
 export {
-  GeometryBasic
+  GeometryBasic,
 }

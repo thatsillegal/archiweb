@@ -1,5 +1,8 @@
 import socket from "@/socket";
 import * as THREE from 'three';
+import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
+import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
+import {Wireframe} from "three/examples/jsm/lines/Wireframe";
 
 const ArchiJSON = function (_scene) {
   let scope = this;
@@ -29,10 +32,18 @@ const ArchiJSON = function (_scene) {
   socket.on('stb:receiveGeometry', async function(message){
     
     // get geometry
-    parseGeometry(JSON.parse(message));
+    parseGeometry(message);
     
   });
-  
+  function meshLine(geometry, color, linewidth) {
+    const matLine = new LineMaterial({color: color, linewidth: linewidth});
+    const geoLine = new WireframeGeometry2(geometry);
+    const wireframe = new Wireframe(geoLine, matLine);
+    wireframe.computeLineDistances();
+    wireframe.scale.set(1, 1, 1);
+    wireframe.renderOrder = 2;
+    return wireframe;
+  }
   function parseGeometry(archiJSON) {
     const geo = new THREE.Geometry();
     let flag = true;
@@ -47,14 +58,41 @@ const ArchiJSON = function (_scene) {
       geo.faces.push(new THREE.Face3(fs[0], fs[1], fs[2]));
       flag &= true;
     }
-    const material = new THREE.MeshBasicMaterial({color: 0xdddddd, side: THREE.DoubleSide});
-  
+    
+    geo.computeBoundingBox();
+    
+    geo.computeFaceNormals();
+    geo.normalsNeedUpdate = true;
+    const material = new THREE.MeshLambertMaterial({color: 0xdddddd});
+    material.polygonOffset = true;
+    material.polygonOffsetUnits = -1;
+    material.polygonOffsetFactor = -1;
+    material.transparent = true;
+    
     if(flag) {
       const mesh = new THREE.Mesh(geo, material);
+      mesh.receiveShadow = true;
+      mesh.castShadow = true;
+      mesh.geometry.translate(0, -1200, 0);
+      
+      mesh.add(meshLine(mesh.geometry, 0xffff00, 0.005));
+  
+      const lineMaterial =  new THREE.LineBasicMaterial({color: 0x000000});
+      const edges = new THREE.EdgesGeometry(mesh.geometry);
+      const line = new THREE.LineSegments(edges, lineMaterial);
+      line.renderOrder = 1;
+ 
+      mesh.add(line);
+  
+      mesh.children[0].visible = false;
+  
+      window.objects.push(mesh);
       _scene.add( mesh )
     }
 
   }
+  
+  
 }
 
 export {

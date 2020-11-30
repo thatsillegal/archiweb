@@ -21,12 +21,12 @@ const MultiCamera = function (_scene, _renderer) {
   
   function initOrthographicCamera(width, height) {
     let aspect = width / height;
-    cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 0.01, 30000);
+    cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 10, 30000);
     cameraOrtho.position.set(1000, -1500, 1000);
   }
   
   function initPerspectiveCamera(width, height) {
-    cameraPersp = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+    cameraPersp = new THREE.PerspectiveCamera(45, width / height, 10, 10000);
     cameraPersp.position.set(1000, -1500, 1000);
     cameraPersp.up = new THREE.Vector3(0, 0, 1);
   }

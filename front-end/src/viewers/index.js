@@ -229,7 +229,7 @@ function animate() {
 }
 
 function initRender() {
-  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, logarithmicDepthBuffer: true});
   renderer.setSize(window.innerWidth, window.innerHeight);
   
   addToDOM();
