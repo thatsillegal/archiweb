@@ -67,6 +67,7 @@ const ArchiJSON = function (_scene) {
     
     geo.computeFaceNormals();
     geo.normalsNeedUpdate = true;
+    
     const material = new THREE.MeshLambertMaterial({color: 0xdddddd, flatShading:true});
     material.polygonOffset = true;
     material.polygonOffsetFactor = 1.0;
@@ -76,7 +77,6 @@ const ArchiJSON = function (_scene) {
       const mesh = new THREE.Mesh(geo, material);
       mesh.receiveShadow = true;
       mesh.castShadow = true;
-      mesh.geometry.translate(0, -1200, 0);
       
       mesh.add(meshLine(mesh.geometry, 0xffff00, 0.005));
   
@@ -86,8 +86,6 @@ const ArchiJSON = function (_scene) {
       const edges = new THREE.EdgesGeometry(mesh.geometry);
       const line = new THREE.LineSegments(edges, lineMaterial);
       
-      line.renderOrder = 10;
-
       mesh.add(line);
   
       mesh.children[0].visible = false;
