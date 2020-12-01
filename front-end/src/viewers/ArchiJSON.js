@@ -35,6 +35,8 @@ const ArchiJSON = function (_scene) {
     parseGeometry(message);
     
   });
+  
+  
   function meshLine(geometry, color, linewidth) {
     const matLine = new LineMaterial({color: color, linewidth: linewidth});
     const geoLine = new WireframeGeometry2(geometry);
@@ -44,6 +46,8 @@ const ArchiJSON = function (_scene) {
     wireframe.renderOrder = 2;
     return wireframe;
   }
+  
+  
   function parseGeometry(archiJSON) {
     const geo = new THREE.Geometry();
     let flag = true;
@@ -63,12 +67,11 @@ const ArchiJSON = function (_scene) {
     
     geo.computeFaceNormals();
     geo.normalsNeedUpdate = true;
-    const material = new THREE.MeshLambertMaterial({color: 0xdddddd});
+    const material = new THREE.MeshLambertMaterial({color: 0xdddddd, flatShading:true});
     material.polygonOffset = true;
-    material.polygonOffsetUnits = -1;
-    material.polygonOffsetFactor = -1;
-    material.transparent = true;
-    
+    material.polygonOffsetFactor = 1.0;
+    material.polygonOffsetUnits = 1.0;
+
     if(flag) {
       const mesh = new THREE.Mesh(geo, material);
       mesh.receiveShadow = true;
@@ -77,11 +80,14 @@ const ArchiJSON = function (_scene) {
       
       mesh.add(meshLine(mesh.geometry, 0xffff00, 0.005));
   
-      const lineMaterial =  new THREE.LineBasicMaterial({color: 0x000000});
+      const lineMaterial =  new THREE.LineBasicMaterial( { color: 0x000000, transparent: false, depthWrite: true } );
+      lineMaterial.polygonOffset = true;
+
       const edges = new THREE.EdgesGeometry(mesh.geometry);
       const line = new THREE.LineSegments(edges, lineMaterial);
-      line.renderOrder = 1;
- 
+      
+      line.renderOrder = 10;
+
       mesh.add(line);
   
       mesh.children[0].visible = false;

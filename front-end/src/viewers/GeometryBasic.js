@@ -29,7 +29,10 @@ const GeometryBasic = function (_scene) {
   const scope = this;
   // API
   this.Box = function ([x, y, z], [w, h, d], material) {
-    
+    material.polygonOffset = true;
+    material.polygonOffsetFactor = 1.0;
+    material.polygonOffsetUnits = 1.0;
+  
     let mesh = new THREE.Mesh(boxGeometry, material);
     scope.sceneAddMesh(mesh, boxLine.clone())
     
@@ -45,7 +48,10 @@ const GeometryBasic = function (_scene) {
   this.Cylinder = function([x, y, z], [r, h], material, showEdge=false) {
     let mesh = new THREE.Mesh(cylinderGeometry, material);
     scope.sceneAddMesh(mesh, cylinderLine.clone(), showEdge);
-    
+    material.polygonOffset = true;
+    material.polygonOffsetFactor = 1.0;
+    material.polygonOffsetUnits = 1.0;
+  
     mesh.type = 'Cylinder';
     mesh.scale.set(r, r, h);
     mesh.position.set(x, y, z);
@@ -190,7 +196,10 @@ const GeometryBasic = function (_scene) {
   }
   
    this.setMeshMaterial = function (mesh, material) {
-    // console.log(mesh.material);
+     material.polygonOffset = true;
+     material.polygonOffsetFactor = 1.0;
+     material.polygonOffsetUnits = 1.0;
+  
     if(mesh.material.length > 0) {
       let materials = []
       mesh.material.forEach(()=>materials.push(material));

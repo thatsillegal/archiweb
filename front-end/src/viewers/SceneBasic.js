@@ -5,8 +5,8 @@ import * as THREE from 'three'
 
 const SceneBasic = function (_scene, _renderer) {
   let scope = this;
-  this.floorColor = '#898970';
-  this.skyColor = '#bddbdb';
+  this.skyColor = '#c4ced6';
+  this.floorColor = '#80807a';
   this.x = 1500;
   this.y = -2400;
   this.z = 2500;
@@ -24,6 +24,10 @@ const SceneBasic = function (_scene, _renderer) {
   
   
   function init() {
+    matFloor.polygonOffset = true;
+    matFloor.polygonOffsetFactor = 1.0;
+    matFloor.polygonOffsetUnits = 1.0;
+    
     mshFloor.receiveShadow = true;
     mshFloor.position.set(0, 0, -0.5);
     _scene.add(mshFloor);

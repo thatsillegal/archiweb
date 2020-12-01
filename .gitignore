@@ -7,7 +7,6 @@
 *.sln
 *.sw?
 
-test
 *bak*
 
 .DS_Store

@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {DragControls} from "three/examples/jsm/controls/DragControls";
 
+
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
  *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
@@ -97,14 +98,14 @@ function initScene() {
   
   const b3 = gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  const b4 = gb.Cylinder([-300, 0, 0], [50, 300, 4], new THREE.MeshLambertMaterial( { color : 0xaaaaaa } ), true);
+  const b4 = gb.Cylinder([-300, 0, 0], [50, 300, 4], new THREE.MeshLambertMaterial( { color : 0xdddddd } ), true);
   
   loader = new Loader(scene);
   loader.addGUI(gui.util);
   
   loader.loadModel('/models/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
-    gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x5a824e, transparent:true, opacity:0.6}) )
+    gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x99A083, transparent:true, opacity:0.8}) )
     mesh.toCamera = true;
   });
 
@@ -229,7 +230,8 @@ function animate() {
 }
 
 function initRender() {
-  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, logarithmicDepthBuffer: true});
+  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+  renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize(window.innerWidth, window.innerHeight);
   
   addToDOM();
