@@ -12,7 +12,7 @@ const SceneBasic = function (_scene, _renderer) {
   this.z = 2500;
   
   const matFloor = new THREE.MeshPhongMaterial({color: scope.floorColor, depthWrite: false});
-  const geoFloor = new THREE.PlaneBufferGeometry(10000, 10000);
+  const geoFloor = new THREE.PlaneBufferGeometry(50000, 50000);
   const mshFloor = new THREE.Mesh(geoFloor, matFloor);
   const dirLight = new THREE.DirectionalLight(0xffffff);
   
@@ -80,7 +80,7 @@ const SceneBasic = function (_scene, _renderer) {
   
   function skyColorUpdate() {
     _scene.background = new THREE.Color(scope.skyColor);
-    _scene.fog = new THREE.FogExp2(scope.skyColor, 0.0002);
+    _scene.fog = new THREE.FogExp2(scope.skyColor, 0.00018);
   }
   
   

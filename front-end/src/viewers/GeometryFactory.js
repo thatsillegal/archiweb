@@ -5,7 +5,7 @@ import {Wireframe} from "three/examples/jsm/lines/Wireframe";
 // import {Float32BufferAttribute} from 'three'
 
 
-const GeometryBasic = function (_scene) {
+const GeometryFactory = function (_scene) {
   
   const lineMaterial =  new THREE.LineBasicMaterial({color: 0x000000});
   
@@ -224,5 +224,5 @@ const GeometryBasic = function (_scene) {
 
 
 export {
-  GeometryBasic,
+  GeometryFactory,
 }

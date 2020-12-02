@@ -28,7 +28,7 @@ ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en
     - [SceneBasic](#scenebasic)
     - [DragFrames](#dragframes)
     - [MultiCamera](#multicamera)
-    - [GeometryBasic](#geometrybasic)
+    - [GeometryFactory](#geometrybasic)
     - [Loader](#loader)
     - [similar works](#similar-works)
 - [Extensions](#extensions)
@@ -202,7 +202,7 @@ multiCamera.addGUI(gui.gui);
 ```
 
 
-#### GeometryBasic
+#### GeometryFactory
 This function provides basic [BufferGeometry](https://threejs.org/docs/index.html#api/en/core/BufferGeometry) prefered by architectural usage.
 
 Create mesh with buffer geometry defined reducing the cost of passing all this data to the GPU.

@@ -49,6 +49,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
         clonedObject = [];
         setCloneObject(control.object);
       } else {
+        
         control.object.updateMatrix();
         addToInfoCard(control.object);
         
@@ -98,6 +99,8 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
   }
   
   function onClick(event) {
+  
+    applyTransformGroup();
     
     if (dragged) {
       dragged = !dragged;
@@ -112,7 +115,6 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
 
     const intersections = raycaster.intersectObjects(window.objects, false);
     
-    applyTransformGroup();
     
     if(shiftDown && intersections.length > 0) {
       if(control.object === undefined) {
@@ -145,10 +147,31 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
       if (_dragFrames !== undefined)
         _dragFrames.enabled = false;
     } else if (objs.length > 1) {
+      let temp = new THREE.Group();
       
       for (let i = 0; i < objs.length; ++i) {
+        temp.add(objs[i]);
+      }
+      
+      let bbox = new THREE.Box3().setFromObject(temp);
+      let bh = new THREE.Box3Helper(bbox);
+  
+      console.log(grouped.position);
+      let c = new THREE.Vector3();
+      bbox.getCenter(c);
+      
+      grouped.translateX(c.x);
+      grouped.translateY(c.y);
+  
+      for (let i = 0; i < objs.length; ++i) {
+        objs[i].position.x -= c.x;
+        objs[i].position.y -= c.y;
         grouped.add(objs[i]);
       }
+      
+  
+      console.log(grouped.position)
+      _scene.add(bh);
       control.attach(grouped);
       
       if (_dragFrames !== undefined)

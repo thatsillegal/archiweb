@@ -31,7 +31,7 @@ import {DragFrames} from "@/viewers/DragFrames";
 import {SceneBasic} from "@/viewers/SceneBasic";
 import {Transformer} from "@/viewers/Transformer";
 import {MultiCamera} from "@/viewers/MultiCamera";
-import {GeometryBasic} from "@/viewers/GeometryBasic";
+import {GeometryFactory} from "@/viewers/GeometryFactory";
 import {Loader} from "@/viewers/Loader";
 import {AssetManager} from "@/viewers/AssetManager";
 import {ArchiJSON} from "./ArchiJSON";
@@ -58,7 +58,7 @@ let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
 function initScene2D() {
   scene = new THREE.Scene();
   
-  gb = new GeometryBasic(scene);
+  gb = new GeometryFactory(scene);
   let controls = {
     color: 0xfafafa
   };
@@ -90,7 +90,7 @@ function initScene() {
   assetManager = new AssetManager(scene);
   assetManager.addGUI(gui.util);
   
-  gb = new GeometryBasic(scene);
+  gb = new GeometryFactory(scene);
 
   const b1 = gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
