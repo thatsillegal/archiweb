@@ -287,40 +287,16 @@ function onDocumentKeyUp(event) {
 }
 
 function onSelectDown(event) {
+  window.highlighted = true;
   for (let i = 0; i < event.object.length; ++i) {
-    let materials = event.object[i].material;
-    if (materials.length) {
-      for (let j = 0; j < materials.length; ++j) {
-        materials[j].emissive.set(0x666600);
-      }
-    } else {
-      materials.emissive.set(0x666600);
-    }
-    if (event.object[i].children.length > 0) {
-      event.object[i].children[0].visible = true;
-    }
-    if (event.object[i].children.length > 1) {
-      event.object[i].children[1].visible = false;
-    }
+    assetManager.highlightItem(event.object[i]);
   }
 }
 
 function onSelectUp(event) {
+  window.highlighted = false;
   for (let i = 0; i < event.object.length; ++i) {
-    let materials = event.object[i].material;
-    if (materials.length) {
-      for (let j = 0; j < materials.length; ++j) {
-        materials[j].emissive.set(0x000000);
-      }
-    } else {
-      materials.emissive.set(0x000000);
-    }
-    if (event.object[i].children.length > 0) {
-      event.object[i].children[0].visible = false;
-    }
-    if (event.object[i].children.length > 1) {
-      event.object[i].children[1].visible = true;
-    }
+    assetManager.unHighlightItem(event.object[i]);
   }
   transformer.setSelected(event.object);
 }

@@ -36,11 +36,23 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
     }
   
   }
+  function toList(group) {
+    if(group.isGroup) {
+      return group.children;
+    } else {
+      return [group];
+    }
+  }
   
   function init() {
     control = new TransformControls(_camera, _renderer.domElement);
     control.addEventListener('object-changed', function(event) {
+      if(control.object !== undefined) {
+        window.highlightObject = toList(control.object);
         addToInfoCard(event.value);
+      } else {
+        window.highlightObject = window.objects;
+      }
     });
     
     control.addEventListener('dragging-changed', function (event) {
@@ -168,6 +180,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
       clear();
       if(refresh) {
         refreshSelection();
+        
         refresh = false;
       }
   
@@ -203,6 +216,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
       }
     })
     console.log('current length', window.objects.length);
+    window.highlightObject = window.objects;
   }
   
   function deleteObject(object) {
@@ -423,7 +437,6 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
         _scene.attach(item);
       });
     }
-    
   }
   
   init();
