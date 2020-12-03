@@ -108,14 +108,14 @@ function initScene() {
   loader = new Loader(scene);
   loader.addGUI(gui.util);
   
-  loader.loadModel('/models/spruce-tree.dae', (mesh) => {
+  loader.loadModel('http://model.amomorning.com/tree/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
     gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x99A083, transparent:true, opacity:0.8}) )
     mesh.toCamera = true;
     assetManager.refreshSelection();
   });
 
-  loader.loadModel('/models/autumn-tree.dae', (mesh) => {
+  loader.loadModel('http://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
     mesh.scale.set(2, 2, 2);
     gb.setMaterialOpacity(mesh, 0.6);
