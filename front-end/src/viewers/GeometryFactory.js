@@ -191,7 +191,7 @@ const GeometryFactory = function (_scene) {
      mesh.castShadow = true;
      mesh.receiveShadow = true;
   
-     window.objects.push(mesh);
+     mesh.layer = [0];
      _scene.add(mesh);
   }
   

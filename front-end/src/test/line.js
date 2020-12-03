@@ -7,6 +7,18 @@ import {LineMaterial} from "https://unpkg.com/three@0.121.1/examples/jsm/lines/L
 import {WireframeGeometry2} from "https://unpkg.com/three@0.121.1/examples/jsm/lines/WireframeGeometry2";
 import {Wireframe} from "https://unpkg.com/three@0.121.1/examples/jsm/lines/Wireframe";
 
+const info = document.getElementById( 'meta-info' );
+info.style.position = 'absolute';
+info.style.top = '60px';
+info.style.width = '100%';
+info.style.textAlign = 'center';
+info.style.color = '#bbaaaa';
+info.style.fontWeight = 'bold';
+info.style.backgroundColor = 'transparent';
+info.style.zIndex = '1';
+info.style.fontFamily = 'Monospace';
+info.innerHTML = 'Line<br/>drag mouse to rotate camera';
+document.body.appendChild( info );
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -143,7 +155,7 @@ function parseGeometry(archiJSON) {
     mesh.receiveShadow = true;
     mesh.castShadow = true;
     
-    // mesh.scale.set(0.003, 0.003, 0.003);
+    mesh.scale.set(0.003, 0.003, 0.003);
   
     const lineMaterial =  new THREE.LineBasicMaterial( { color: 0x000000
     } );

@@ -8,25 +8,35 @@ const AssetManager = function (_scene) {
 
   
   this.id = 0;
-  this.selection = [];
-  this.currentSelect = [];
   this.group = new THREE.Group();
   _scene.add(scope.group);
   
+  window.layer = scope.id;
   
-  this.addSelection = function(lists) {
+  
+  this.addSelection = function(lists, id = 0) {
+    id = Number.parseInt(id);
     if(lists.length === undefined) {
-      scope.selection.push([lists]);
+      if(lists.layer === undefined) {
+        lists.layer = [id];
+      } else
+        lists.layer.push(id);
     } else {
-      scope.selection.push(lists);
+      lists.forEach((item)=>{
+        if(item.layer === undefined) {
+          item.layer = [id];
+        } else {
+          item.layer.push(id);
+        }
+      });
     }
     
-    max ++;
+    max = Math.max(max, id);
   
     if(_gui) {
       _gui.__controllers.forEach((item) => {
         if (item.property === 'id') {
-          item.__max = max - 1;
+          item.__max = max;
           item.updateDisplay();
         }
       });
@@ -34,9 +44,15 @@ const AssetManager = function (_scene) {
     
   }
   
-  this.getSelection = function(id) {
-    return scope.selection[id];
-  };
+  this.refreshSelection = function (){
+    window.objects = [];
+    _scene.children.forEach((obj) => {
+      if(obj.layer !== undefined && ~obj.layer.indexOf(window.layer)) {
+        window.objects.push(obj);
+      }
+    })
+    console.log('current length', window.objects.length);
+  }
   
   this.setGroup = function() {
     transformerObject.traverse((item) => {
@@ -51,9 +67,9 @@ const AssetManager = function (_scene) {
   this.addGUI = function (gui) {
     _gui = gui;
     gui.add(scope, 'setGroup').name('group');
-    gui.add(scope, 'id', 0, max, 1).listen().onChange(function () {
-      window.objects = scope.selection[scope.id];
-      console.log(window.objects.length);
+    gui.add(scope, 'id', 0, max, 1).name('layer').listen().onChange(function () {
+      window.layer = scope.id;
+      scope.refreshSelection();
     });
   }
 }

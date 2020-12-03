@@ -10,8 +10,9 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
   let selected = [];
   let dragged = false;
   let copy = false;
+  let refresh = false;
   //
-  let clonedObject = [];
+  let clonedObject;
   let shiftDown;
   
   //API
@@ -19,14 +20,14 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
   function addToInfoCard(o) {
     if(o !== undefined) {
       
+      o.position.x = Math.round(o.position.x);
+      o.position.y = Math.round(o.position.y);
+      o.position.z = Math.round(o.position.z);
+  
       if(o.toInfoCard !== undefined) {
         o.toInfoCard();
         return;
       }
-      o.position.x = Math.round(o.position.x);
-      o.position.y = Math.round(o.position.y);
-      o.position.z = Math.round(o.position.z);
-
       window.InfoCard.info.uuid = o.uuid;
       window.InfoCard.info.position = o.position;
       window.InfoCard.info.model = {};
@@ -46,7 +47,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
       dragged = !event.value;
       
       if (event.value === true) {
-        clonedObject = [];
+        clonedObject = new THREE.Group();
         setCloneObject(control.object);
       } else {
         
@@ -54,8 +55,14 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
         addToInfoCard(control.object);
         
         if(copy) {
-          addClonedObject(clonedObject);
+          applyTransformGroup(clonedObject);
+          while(clonedObject.children.length > 0) {
+            clonedObject.children.forEach((item)=>{
+              _scene.attach(item)
+            })
+          }
           copy = false;
+          refresh = true;
         }
       }
     });
@@ -73,6 +80,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
     if (!object.isGroup) {
       const cloned = object.clone();
       if(object.toCamera) cloned.toCamera = true;
+      if(object.layer !== undefined) cloned.layer = Array.from(object.layer);
       
       if(cloned.material.length > 0) {
         let materials = []
@@ -83,25 +91,32 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
       } else {
         cloned.material = cloned.material.clone();
       }
-      clonedObject.push(cloned);
+      clonedObject.add(cloned);
     } else {
+      clonedObject.position.copy(object.position);
       for (let i = 0; i < object.children.length; ++i) {
         setCloneObject(object.children[i]);
       }
     }
   }
   
-  function addClonedObject(object) {
-    for (let i = 0; i < object.length; ++i) {
-      _scene.add(object[i]);
-      window.objects.push(object[i]);
-    }
+  function applyGroupCenter(group) {
+    let box = new THREE.Box3().setFromObject(group);
+    let c = new THREE.Vector3();
+    box.getCenter(c);
+    c = c.sub(group.position);
+    group.translateX(c.x);
+    group.translateY(c.y);
+    
+    group.children.forEach((item)=>{
+      item.position.x -= c.x;
+      item.position.y -= c.y;
+    });
   }
   
-  function onClick(event) {
+
   
-    applyTransformGroup();
-    
+  function onClick(event) {
     if (dragged) {
       dragged = !dragged;
       return;
@@ -111,30 +126,51 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, control.camera);
-  
 
     const intersections = raycaster.intersectObjects(window.objects, false);
     
     
     if(shiftDown && intersections.length > 0) {
+      
       if(control.object === undefined) {
         attachObject([intersections[0].object]);
       } else {
+        
         if (control.object.isGroup) {
-          control.object.add(intersections[0].object);
+          
+          const o = intersections[0].object;
+          
+          if(o.parent !== control.object) {
+            o.position.x -= control.object.position.x;
+            o.position.y -= control.object.position.y;
+  
+            control.object.add(o);
+            applyGroupCenter(control.object);
+          }
+
         } else {
           attachObject([control.object, intersections[0].object]);
         }
+        
       }
       console.log(control.object)
+      
+      
     } else if (selected.length > 0) {
+  
       attachObject(selected);
       selected = [];
-    } else if (intersections.length > 0) {
+    } else if (intersections.length > 0 && control.object === undefined) {
       attachObject([intersections[0].object]);
     } else {
       
-      control.detach();
+
+      clear();
+      if(refresh) {
+        refreshSelection();
+        refresh = false;
+      }
+  
       if (_dragFrames !== undefined)
         _dragFrames.enabled = true;
     }
@@ -147,31 +183,11 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
       if (_dragFrames !== undefined)
         _dragFrames.enabled = false;
     } else if (objs.length > 1) {
-      let temp = new THREE.Group();
       
       for (let i = 0; i < objs.length; ++i) {
-        temp.add(objs[i]);
-      }
-      
-      let bbox = new THREE.Box3().setFromObject(temp);
-      let bh = new THREE.Box3Helper(bbox);
-  
-      console.log(grouped.position);
-      let c = new THREE.Vector3();
-      bbox.getCenter(c);
-      
-      grouped.translateX(c.x);
-      grouped.translateY(c.y);
-  
-      for (let i = 0; i < objs.length; ++i) {
-        objs[i].position.x -= c.x;
-        objs[i].position.y -= c.y;
         grouped.add(objs[i]);
       }
-      
-  
-      console.log(grouped.position)
-      _scene.add(bh);
+      applyGroupCenter(grouped);
       control.attach(grouped);
       
       if (_dragFrames !== undefined)
@@ -179,35 +195,46 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
     }
   }
   
+  function refreshSelection() {
+    window.objects = [];
+    _scene.children.forEach((obj) => {
+      if(obj.layer !== undefined && ~obj.layer.indexOf(window.layer)) {
+        window.objects.push(obj);
+      }
+    })
+    console.log('current length', window.objects.length);
+  }
+  
   function deleteObject(object) {
     if (object === undefined) return;
     if (!object.isGroup) {
       console.log(object)
-      _scene.remove(object);
+      object.parent.remove(object);
     } else {
       for (let i = 0; i < object.children.length; ++i) {
         deleteObject(object.children[i]);
       }
     }
+  
   }
   
-  function applyTransformGroup() {
-    let object = control.object;
+  function applyTransformGroup(object) {
     if (object !== undefined && object.isGroup) {
-      
-      
+  
       object.matrixAutoUpdate = false;
       
       setChildQuaternion(object, object.quaternion);
       setChildPosition(object, object.position);
       setChildScale(object, object.scale);
-      
+  
       object.position.set(0, 0, 0);
       object.quaternion.set(0, 0, 0, 1);
       object.scale.set(1, 1, 1);
-      
+  
       object.updateMatrixWorld(true);
       object.matrixAutoUpdate = true;
+      
+      console.log('after', object.position.x, object.position.y);
     }
   }
   
@@ -309,14 +336,17 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
         break;
       
       case 32: // space bar
-        applyTransformGroup();
-        control.detach();
+        clear();
+        
         break;
       
       case 46: // delete
         obj = control.object;
         deleteObject(control.object);
-        control.detach();
+        
+        clear();
+        refreshSelection();
+        
         window.objects.splice(window.objects.findIndex(item=>item.uuid === obj.uuid), 1);
         break;
         
@@ -384,9 +414,16 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
   }
   
   function clear() {
-    for (let i = 0; i < grouped.children.length; ++i) {
-      _scene.attach(grouped.children[i]);
+    applyTransformGroup(control.object);
+
+    control.detach();
+  
+    while(grouped.children.length > 0) {
+      grouped.children.forEach((item) => {
+        _scene.attach(item);
+      });
     }
+    
   }
   
   init();

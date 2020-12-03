@@ -107,6 +107,7 @@ function initScene() {
     mesh.position.set(0, -300, 0);
     gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x99A083, transparent:true, opacity:0.8}) )
     mesh.toCamera = true;
+    assetManager.refreshSelection();
   });
 
   loader.loadModel('/models/autumn-tree.dae', (mesh) => {
@@ -114,11 +115,12 @@ function initScene() {
     mesh.scale.set(2, 2, 2);
     gb.setMaterialOpacity(mesh, 0.6);
     mesh.toCamera = true;
+    assetManager.refreshSelection();
   });
   
 
-  assetManager.addSelection(window.objects);
-  assetManager.addSelection([b1, b2, b3, b4]);
+  assetManager.refreshSelection();
+  assetManager.addSelection([b1, b2, b3, b4], 1);
 }
 
 
@@ -130,7 +132,7 @@ function initDrag() {
     drag = new DragFrames(camera, scene, renderer);
     drag.enabled = true;
   
-    drag.addEventListener('selectdown',()=>{transformer.clear()});
+    drag.addEventListener('selectdown',()=>{ transformer.clear() });
     drag.addEventListener('select', onSelectDown);
     drag.addEventListener('selectup', onSelectUp);
     
@@ -205,9 +207,8 @@ function render() {
   
   scene.traverse((obj) => {
     if(obj.toCamera) {
-      let dx = camera.position.x - obj.position.x;
-      let dy = camera.position.y - obj.position.y;
-      let theta = -Math.atan2(dx, dy);
+      let v = new THREE.Vector3().subVectors(camera.position, obj.position);
+      let theta = -Math.atan2(v.x, v.y);
       
       obj.quaternion.set(0, 0, 0, 1);
       obj.rotateZ(theta);
