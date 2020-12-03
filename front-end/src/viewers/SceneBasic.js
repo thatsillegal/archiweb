@@ -20,22 +20,25 @@ const SceneBasic = function (_scene, _renderer) {
   let axesHelper = new THREE.AxesHelper(5000);
   
   let _control;
-  let csm;
+  let _basic = new THREE.Group();
+  // TODO: fix csm
+  // let csm;
   
   
   function init() {
+    _scene.add(_basic);
     matFloor.polygonOffset = true;
     matFloor.polygonOffsetFactor = 1.0;
     matFloor.polygonOffsetUnits = 1.0;
     
     mshFloor.receiveShadow = true;
     mshFloor.position.set(0, 0, -0.5);
-    _scene.add(mshFloor);
+    _basic.add(mshFloor);
     
     
     skyColorUpdate();
-    
-    _scene.add(new THREE.AmbientLight(0x444445));
+  
+    _basic.add(new THREE.AmbientLight(0x444445));
     
     
     dirLight.position.set(scope.x, scope.y, scope.z);
@@ -47,7 +50,7 @@ const SceneBasic = function (_scene, _renderer) {
     dirLight.shadow.camera.near = 10;
     dirLight.shadow.camera.far = 10000;
     dirLight.shadow.mapSize.set(4096, 4096);
-    _scene.add(dirLight);
+    _basic.add(dirLight);
   
     
 
@@ -64,17 +67,17 @@ const SceneBasic = function (_scene, _renderer) {
   
   function axesUpdate(toggle) {
     if (toggle === false)
-      _scene.remove(axesHelper);
+      _basic.remove(axesHelper);
     else
-      _scene.add(axesHelper);
+      _basic.add(axesHelper);
   }
   
   function gridUpdate(size) {
-    _scene.remove(gridHelper);
+    _basic.remove(gridHelper);
     if (size > 0) {
       gridHelper = new THREE.GridHelper(20 * size, 20, 0x222222, 0x444444);
       gridHelper.rotateX(Math.PI / 2.0);
-      _scene.add(gridHelper);
+      _basic.add(gridHelper);
     }
   }
   

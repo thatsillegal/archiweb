@@ -13,21 +13,21 @@ const AssetManager = function (_scene) {
   
   window.layer = scope.id;
   
+  this.addSelectedItem = function(item, id) {
+    if(item.layer === undefined) {
+      item.layer = [id];
+    } else if(!~item.layer.indexOf(id)){
+      item.layer.push(id);
+    }
+  }
   
   this.addSelection = function(lists, id = 0) {
     id = Number.parseInt(id);
     if(lists.length === undefined) {
-      if(lists.layer === undefined) {
-        lists.layer = [id];
-      } else
-        lists.layer.push(id);
+      scope.addSelectedItem(lists, id);
     } else {
       lists.forEach((item)=>{
-        if(item.layer === undefined) {
-          item.layer = [id];
-        } else {
-          item.layer.push(id);
-        }
+        scope.addSelectedItem(item, id);
       });
     }
     
@@ -41,7 +41,6 @@ const AssetManager = function (_scene) {
         }
       });
     }
-    
   }
   
   this.refreshSelection = function (){
@@ -51,13 +50,14 @@ const AssetManager = function (_scene) {
         window.objects.push(obj);
       }
     })
-    console.log('current length', window.objects.length);
+    // console.log('current length', window.objects.length);
   
     window.highlightObject = window.objects;
   }
   
   this.setGroup = function() {
-    transformerObject.traverse((item) => {
+    console.log('trans', transformerObject)
+    transformerObject.children.forEach((item) => {
       scope.group.add(item);
     });
   }

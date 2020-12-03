@@ -49,7 +49,7 @@ let InfoCard;
 
 window.objects = [];
 // let objects = window.objects;
-let D3 = true;
+let D3 = false;
 
 let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
 
@@ -57,6 +57,8 @@ let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
 
 function initScene2D() {
   scene = new THREE.Scene();
+  assetManager = new AssetManager(scene);
+  assetManager.addGUI(gui.util);
   
   gb = new GeometryFactory(scene);
   let controls = {
@@ -73,12 +75,15 @@ function initScene2D() {
   const light = new THREE.SpotLight( 0xffffff, 1.5 );
   light.position.set(0,0,1000);
   scene.add(light);
-  
+  let cl = [];
   for(let p of pos) {
-    gb.Cylinder(p, [1, 1], new THREE.MeshLambertMaterial({color:0xff0000}));
+    cl.push(gb.Cylinder(p, [1, 1],
+      new THREE.MeshLambertMaterial({color:0xff0000})));
   }
+  console.log(cl.length);
   
-  gb.Curve(window.objects);
+  assetManager.refreshSelection();
+  gb.Curve(cl);
   
 }
 
@@ -179,7 +184,8 @@ function initControls() {
     transformer.addGUI(gui.gui);
     
     multiCamera.addControllers(transformer);
-    assetManager.setTransformerObject(transformer.object);
+    transformer.setAssetManager(assetManager);
+    transformer.setDragFrames(drag);
   } else {
 
     orbit.enableRotate = false;

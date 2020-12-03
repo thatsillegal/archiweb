@@ -2,7 +2,7 @@
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import * as THREE from "three";
 
-const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
+const Transformer = function (_scene, _renderer, _camera) {
   
   let control = null;
   let scope = this;
@@ -15,6 +15,8 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
   let clonedObject;
   let shiftDown;
   
+  // up
+  let _dragFrames, _assetManager;
   //API
   
   function addToInfoCard(o) {
@@ -48,6 +50,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
     control = new TransformControls(_camera, _renderer.domElement);
     control.addEventListener('object-changed', function(event) {
       if(control.object !== undefined) {
+        _assetManager.setTransformerObject(control.object);
         window.highlightObject = toList(control.object);
         addToInfoCard(event.value);
       } else {
@@ -179,7 +182,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
 
       clear();
       if(refresh) {
-        refreshSelection();
+        _assetManager.refreshSelection();
         
         refresh = false;
       }
@@ -215,7 +218,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
         window.objects.push(obj);
       }
     })
-    console.log('current length', window.objects.length);
+    // console.log('current length', window.objects.length);
     window.highlightObject = window.objects;
   }
   
@@ -248,7 +251,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
       object.updateMatrixWorld(true);
       object.matrixAutoUpdate = true;
       
-      console.log('after', object.position.x, object.position.y);
+      // console.log('after', object.position.x, object.position.y);
     }
   }
   
@@ -423,6 +426,10 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
     _dragFrames = dragFrames;
   }
   
+  function setAssetManager(assetManager) {
+    _assetManager = assetManager;
+  }
+  
   function setCamera(camera) {
     control.camera = camera;
   }
@@ -450,6 +457,7 @@ const Transformer = function (_scene, _renderer, _camera, _dragFrames) {
   
   this.setSelected = setSelected;
   this.setDragFrames = setDragFrames;
+  this.setAssetManager = setAssetManager;
   this.setCamera = setCamera;
   
   this.clear = clear;
