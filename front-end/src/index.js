@@ -4,7 +4,6 @@ import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {DragControls} from "three/examples/jsm/controls/DragControls";
 
-
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
  *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
@@ -26,17 +25,21 @@ import {DragControls} from "three/examples/jsm/controls/DragControls";
  * LICENSE file in the root directory of this source tree.
  *
  * Date: 2020-11-12
+ * Author: Yichen Mo
  */
-import {DragFrames} from "@/viewers/DragFrames";
-import {SceneBasic} from "@/viewers/SceneBasic";
-import {Transformer} from "@/viewers/Transformer";
-import {MultiCamera} from "@/viewers/MultiCamera";
-import {GeometryFactory} from "@/viewers/GeometryFactory";
-import {Loader} from "@/viewers/Loader";
-import {AssetManager} from "@/viewers/AssetManager";
-import {ArchiJSON} from "./ArchiJSON";
 
-const gui = require('@/viewers/gui')
+import {DragFrames} from "@/editor/DragFrames";
+import {Transformer} from "@/editor/Transformer";
+
+import {SceneBasic} from "@/viewers/SceneBasic";
+import {MultiCamera} from "@/viewers/MultiCamera";
+
+import {GeometryFactory} from "@/creator/GeometryFactory";
+import {Loader} from "@/creator/Loader";
+import {AssetManager} from "@/creator/AssetManager";
+import {ArchiJSON} from "@/creator/ArchiJSON";
+
+const gui = require('@/gui')
 
 let renderer, scene;
 let orbit;
@@ -48,10 +51,7 @@ let camera, drag;
 let InfoCard;
 
 window.objects = [];
-// let objects = window.objects;
-let D3 = false;
-
-let pos=[[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
+let D3 = true;
 
 
 
@@ -66,19 +66,21 @@ function initScene2D() {
   };
   scene.background = new THREE.Color(controls.color);
   
-  gui.gui.addColor(controls, 'color').onChange(function() {
+  gui.gui.addColor(controls, 'color').onChange(function () {
     scene.background = new THREE.Color(controls.color);
   });
   
   renderer.autoClear = true;
   
-  const light = new THREE.SpotLight( 0xffffff, 1.5 );
-  light.position.set(0,0,1000);
+  const light = new THREE.SpotLight(0xffffff, 1.5);
+  light.position.set(0, 0, 1000);
   scene.add(light);
+  
+  let pos = [[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
   let cl = [];
-  for(let p of pos) {
+  for (let p of pos) {
     cl.push(gb.Cylinder(p, [1, 1],
-      new THREE.MeshLambertMaterial({color:0xff0000})));
+      new THREE.MeshLambertMaterial({color: 0xff0000})));
   }
   console.log(cl.length);
   
@@ -96,25 +98,25 @@ function initScene() {
   assetManager.addGUI(gui.util);
   
   gb = new GeometryFactory(scene);
-
-  const b1 = gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
   
-  const b2 = gb.Box([-300, -300, 0], [300, 300, 100], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
+  const b1 = gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial({color: 0xdddddd}));
   
-  const b3 = gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial( { color : 0xdddddd } ));
+  const b2 = gb.Box([-300, -300, 0], [300, 300, 100], new THREE.MeshLambertMaterial({color: 0xdddddd}));
   
-  const b4 = gb.Cylinder([-300, 0, 0], [50, 300, 4], new THREE.MeshLambertMaterial( { color : 0xdddddd } ), true);
+  const b3 = gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  
+  const b4 = gb.Cylinder([-300, 0, 0], [50, 300, 4], new THREE.MeshLambertMaterial({color: 0xdddddd}), true);
   
   loader = new Loader(scene);
   loader.addGUI(gui.util);
   
   loader.loadModel('http://model.amomorning.com/tree/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
-    gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x99A083, transparent:true, opacity:0.8}) )
+    gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x99A083, transparent: true, opacity: 0.8}))
     mesh.toCamera = true;
     assetManager.refreshSelection();
   });
-
+  
   loader.loadModel('http://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
     mesh.scale.set(2, 2, 2);
@@ -123,44 +125,42 @@ function initScene() {
     assetManager.refreshSelection();
   });
   
-
+  
   assetManager.refreshSelection();
   assetManager.addSelection([b1, b2, b3, b4], 1);
 }
 
 
-
-
-
 function initDrag() {
-  if(D3) {
+  if (D3) {
     drag = new DragFrames(camera, scene, renderer);
     drag.enabled = true;
-  
-    drag.addEventListener('selectdown',()=>{ transformer.clear() });
+    
+    drag.addEventListener('selectdown', () => {
+      transformer.clear()
+    });
     drag.addEventListener('select', onSelectDown);
     drag.addEventListener('selectup', onSelectUp);
     
   } else {
     drag = new DragControls(window.objects, camera, renderer.domElement);
-    drag.addEventListener( 'hoveron', function (event) {
-      
+    drag.addEventListener('hoveron', function (event) {
       
       
       let o = event.object;
       o.toInfoCard();
       orbit.enabled = false;
-    } );
-    drag.addEventListener( 'hoveroff', function () {
+    });
+    drag.addEventListener('hoveroff', function () {
       orbit.enabled = true;
-    } );
-    drag.addEventListener('dragend', function(event) {
+    });
+    drag.addEventListener('dragend', function (event) {
       
       let o = event.object;
       o.toInfoCard();
       gb.Curve(window.objects);
     });
-    drag.addEventListener('drag', function() {
+    drag.addEventListener('drag', function () {
       gb.Curve(window.objects);
     })
   }
@@ -168,11 +168,11 @@ function initDrag() {
 
 
 function initControls() {
-  if(orbit !== undefined) orbit.dispose();
+  if (orbit !== undefined) orbit.dispose();
   orbit = new OrbitControls(camera, renderer.domElement);
   initDrag();
   
-  if(D3) {
+  if (D3) {
     orbit.mouseButtons = {
       LEFT: THREE.MOUSE.PAN,
       RIGHT: THREE.MOUSE.ROTATE
@@ -187,21 +187,21 @@ function initControls() {
     transformer.setAssetManager(assetManager);
     transformer.setDragFrames(drag);
   } else {
-
+    
     orbit.enableRotate = false;
-
+    
   }
   
 }
 
 function windowResize(w, h) {
   
-  if(D3) {
+  if (D3) {
     multiCamera.onWindowResize(w, h);
     drag.onWindowResize(w, h);
   } else {
-    camera.left = camera.bottom * w/h;
-    camera.right = camera.top * w/h;
+    camera.left = camera.bottom * w / h;
+    camera.right = camera.top * w / h;
     camera.updateProjectionMatrix();
   }
   renderer.setSize(w, h);
@@ -212,7 +212,7 @@ function windowResize(w, h) {
 function render() {
   
   scene.traverse((obj) => {
-    if(obj.toCamera) {
+    if (obj.toCamera) {
       let v = new THREE.Vector3().subVectors(camera.position, obj.position);
       let theta = -Math.atan2(v.x, v.y);
       
@@ -221,7 +221,7 @@ function render() {
     }
   });
   
-  if(D3) {
+  if (D3) {
     renderer.clear();
     renderer.render(scene, camera);
     drag.render();
@@ -238,7 +238,7 @@ function animate() {
 
 function initRender() {
   renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
-  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   
   addToDOM();
@@ -265,7 +265,7 @@ function addToDOM() {
 function onDocumentKeyDown(event) {
   switch (event.keyCode) {
     case 16: // Shift
-      if(D3) {
+      if (D3) {
         orbit.enablePan = true;
       } else {
         orbit.enabled = false;
@@ -281,7 +281,7 @@ function onDocumentKeyUp(event) {
   switch (event.keyCode) {
     
     case 16: // Shift
-      if(D3) {
+      if (D3) {
         orbit.enablePan = false;
       } else {
         orbit.enabled = true;
@@ -306,12 +306,13 @@ function onSelectUp(event) {
   }
   transformer.setSelected(event.object);
 }
+
 // APIs
 
 function updateObjectPosition(uuid, position, model) {
   const o = scene.getObjectByProperty('uuid', uuid);
   // o.position.copy(position);
-  if(D3) {
+  if (D3) {
     gb.updateModel(o, model);
   } else {
     gb.Curve(window.objects);

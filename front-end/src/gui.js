@@ -7,8 +7,8 @@ const controls = new function () {
   this.info = function () {
     window.InfoCard.hideInfoCard(!window.InfoCard.show);
   };
-
-
+  
+  
 };
 
 function initGUI() {

@@ -1,6 +1,30 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 import * as THREE from 'three'
 
+/**
+ *      ___           ___           ___           ___                       ___           ___           ___
+ *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
+ *    /::\  \       /::\  \       /::\  \       /:/  /         /\  \      /:/ _/_       /::\  \       /::\  \
+ *   /:/\:\  \     /:/\:\  \     /:/\:\  \     /:/__/          \:\  \    /:/ /\__\     /:/\:\  \     /:/\:\  \
+ *  /::\~\:\  \   /::\~\:\  \   /:/  \:\  \   /::\  \ ___      /::\__\  /:/ /:/ _/_   /::\~\:\  \   /::\~\:\__\
+ * /:/\:\ \:\__\ /:/\:\ \:\__\ /:/__/ \:\__\ /:/\:\  /\__\  __/:/\/__/ /:/_/:/ /\__\ /:/\:\ \:\__\ /:/\:\ \:|__|
+ * \/__\:\/:/  / \/_|::\/:/  / \:\  \  \/__/ \/__\:\/:/  / /\/:/  /    \:\/:/ /:/  / \:\~\:\ \/__/ \:\~\:\/:/  /
+ *      \::/  /     |:|::/  /   \:\  \            \::/  /  \::/__/      \::/_/:/  /   \:\ \:\__\    \:\ \::/  /
+ *      /:/  /      |:|\/__/     \:\  \           /:/  /    \:\__\       \:\/:/  /     \:\ \/__/     \:\/:/  /
+ *     /:/  /       |:|  |        \:\__\         /:/  /      \/__/        \::/  /       \:\__\        \::/__/
+ *     \/__/         \|__|         \/__/         \/__/                     \/__/         \/__/         ~~
+ *
+ *
+ *
+ * Copyright (c) 2020-present, Inst.AAA.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * Date: 2020-11-12
+ * Author: Yichen Mo
+ */
+
 const MultiCamera = function (_scene, _renderer) {
   this.width = window.innerWidth;
   this.height = window.innerHeight;
@@ -273,7 +297,7 @@ const MultiCamera = function (_scene, _renderer) {
       cameraPersp.fov = scope.fov;
       
       cameraOrtho.top = scope.fov * 600 / 45;
-      cameraOrtho.bottom = - scope.fov * 600 / 45;
+      cameraOrtho.bottom = -scope.fov * 600 / 45;
       
       currentCamera.updateProjectionMatrix();
     });

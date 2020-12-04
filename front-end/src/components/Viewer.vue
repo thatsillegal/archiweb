@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import {main, scene2D, scene3D} from '@/viewers'
+import {main, scene2D, scene3D} from '@/index'
 import InfoCard from "@/components/InfoCard";
 import ViewSelectCard from "@/components/ViewSelectCard";
 

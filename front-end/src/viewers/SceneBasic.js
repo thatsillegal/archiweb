@@ -3,6 +3,30 @@ import * as THREE from 'three'
 // import * as CSM from 'three-csm';
 // THREE.CSM = CSM;
 
+/**
+ *      ___           ___           ___           ___                       ___           ___           ___
+ *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
+ *    /::\  \       /::\  \       /::\  \       /:/  /         /\  \      /:/ _/_       /::\  \       /::\  \
+ *   /:/\:\  \     /:/\:\  \     /:/\:\  \     /:/__/          \:\  \    /:/ /\__\     /:/\:\  \     /:/\:\  \
+ *  /::\~\:\  \   /::\~\:\  \   /:/  \:\  \   /::\  \ ___      /::\__\  /:/ /:/ _/_   /::\~\:\  \   /::\~\:\__\
+ * /:/\:\ \:\__\ /:/\:\ \:\__\ /:/__/ \:\__\ /:/\:\  /\__\  __/:/\/__/ /:/_/:/ /\__\ /:/\:\ \:\__\ /:/\:\ \:|__|
+ * \/__\:\/:/  / \/_|::\/:/  / \:\  \  \/__/ \/__\:\/:/  / /\/:/  /    \:\/:/ /:/  / \:\~\:\ \/__/ \:\~\:\/:/  /
+ *      \::/  /     |:|::/  /   \:\  \            \::/  /  \::/__/      \::/_/:/  /   \:\ \:\__\    \:\ \::/  /
+ *      /:/  /      |:|\/__/     \:\  \           /:/  /    \:\__\       \:\/:/  /     \:\ \/__/     \:\/:/  /
+ *     /:/  /       |:|  |        \:\__\         /:/  /      \/__/        \::/  /       \:\__\        \::/__/
+ *     \/__/         \|__|         \/__/         \/__/                     \/__/         \/__/         ~~
+ *
+ *
+ *
+ * Copyright (c) 2020-present, Inst.AAA.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * Date: 2020-11-12
+ * Author: Yichen Mo
+ */
+
 const SceneBasic = function (_scene, _renderer) {
   let scope = this;
   this.skyColor = '#c4ced6';
@@ -37,7 +61,7 @@ const SceneBasic = function (_scene, _renderer) {
     
     
     skyColorUpdate();
-  
+    
     _basic.add(new THREE.AmbientLight(0x444445));
     
     
@@ -51,9 +75,8 @@ const SceneBasic = function (_scene, _renderer) {
     dirLight.shadow.camera.far = 10000;
     dirLight.shadow.mapSize.set(4096, 4096);
     _basic.add(dirLight);
-  
     
-
+    
     // _scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
     // _scene.add( new THREE.DirectionalLightHelper(dirLight));
     
@@ -148,7 +171,7 @@ const SceneBasic = function (_scene, _renderer) {
   this.grid = 0;
   this.addGUI = addGUI;
   this.setControl = setControl;
-
+  
 };
 
 

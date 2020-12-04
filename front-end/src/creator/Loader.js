@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 // import { DXFLoader } from 'three-dxf-loader';
-
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
@@ -11,6 +10,30 @@ import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {Rhino3dmLoader} from "three/examples/jsm/loaders/3DMLoader";
 import {ThreeMFLoader} from "three/examples/jsm/loaders/3MFLoader";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
+
+/**
+ *      ___           ___           ___           ___                       ___           ___           ___
+ *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
+ *    /::\  \       /::\  \       /::\  \       /:/  /         /\  \      /:/ _/_       /::\  \       /::\  \
+ *   /:/\:\  \     /:/\:\  \     /:/\:\  \     /:/__/          \:\  \    /:/ /\__\     /:/\:\  \     /:/\:\  \
+ *  /::\~\:\  \   /::\~\:\  \   /:/  \:\  \   /::\  \ ___      /::\__\  /:/ /:/ _/_   /::\~\:\  \   /::\~\:\__\
+ * /:/\:\ \:\__\ /:/\:\ \:\__\ /:/__/ \:\__\ /:/\:\  /\__\  __/:/\/__/ /:/_/:/ /\__\ /:/\:\ \:\__\ /:/\:\ \:|__|
+ * \/__\:\/:/  / \/_|::\/:/  / \:\  \  \/__/ \/__\:\/:/  / /\/:/  /    \:\/:/ /:/  / \:\~\:\ \/__/ \:\~\:\/:/  /
+ *      \::/  /     |:|::/  /   \:\  \            \::/  /  \::/__/      \::/_/:/  /   \:\ \:\__\    \:\ \::/  /
+ *      /:/  /      |:|\/__/     \:\  \           /:/  /    \:\__\       \:\/:/  /     \:\ \/__/     \:\/:/  /
+ *     /:/  /       |:|  |        \:\__\         /:/  /      \/__/        \::/  /       \:\__\        \::/__/
+ *     \/__/         \|__|         \/__/         \/__/                     \/__/         \/__/         ~~
+ *
+ *
+ *
+ * Copyright (c) 2020-present, Inst.AAA.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * Date: 2020-11-12
+ * Author: Yichen Mo
+ */
 
 const Loader = function (_scene) {
   
@@ -45,25 +68,25 @@ const Loader = function (_scene) {
     
     const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
     sceneAddMesh(result, line);
-
-    if(checkMaterial(result)) {
-      result.material = new THREE.MeshLambertMaterial({color: 0x787774, side:THREE.DoubleSide});
+    
+    if (checkMaterial(result)) {
+      result.material = new THREE.MeshLambertMaterial({color: 0x787774, side: THREE.DoubleSide});
     }
-
+    
     return result;
   }
   
   function searchMaterials(object, materials) {
     if (object.isMesh) {
-      if(object.material.length > 0) {
+      if (object.material.length > 0) {
         materials.add(object.material[0]);
       } else {
         materials.add(object.material);
       }
       return;
     }
-    if(object.isGroup) {
-      for(let i = 0; i < object.children.length; ++ i) {
+    if (object.isGroup) {
+      for (let i = 0; i < object.children.length; ++i) {
         searchMaterials(object.children[i], materials);
       }
     }
@@ -118,7 +141,7 @@ const Loader = function (_scene) {
     
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-  
+    
     mesh.layer = [0];
     _scene.add(mesh);
   }
@@ -138,7 +161,7 @@ const Loader = function (_scene) {
     if (matrix === undefined) matrix = new THREE.Matrix4();
     
     if (object.isLineSegments || object.isLine) {
-
+      
       object.geometry.applyMatrix4(matrix);
       
       const posArr = object.geometry.getAttribute('position').array;
@@ -148,7 +171,7 @@ const Loader = function (_scene) {
     
     if (object.isGroup) {
       for (let i = 0; i < object.children.length; ++i) {
-        searchLines(object.children[i],  object.matrix.premultiply(matrix));
+        searchLines(object.children[i], object.matrix.premultiply(matrix));
       }
     }
   }
@@ -176,44 +199,44 @@ const Loader = function (_scene) {
     }
   }
   
-  function isGLTF1( contents ) {
+  function isGLTF1(contents) {
     
     var resultContent;
     
-    if ( typeof contents === 'string' ) {
+    if (typeof contents === 'string') {
       
       // contents is a JSON string
       resultContent = contents;
       
     } else {
       
-      var magic = THREE.LoaderUtils.decodeText( new Uint8Array( contents, 0, 4 ) );
+      var magic = THREE.LoaderUtils.decodeText(new Uint8Array(contents, 0, 4));
       
-      if ( magic === 'glTF' ) {
+      if (magic === 'glTF') {
         
         // contents is a .glb file; extract the version
-        var version = new DataView( contents ).getUint32( 4, true );
+        var version = new DataView(contents).getUint32(4, true);
         
         return version < 2;
         
       } else {
         
         // contents is a .gltf file
-        resultContent = THREE.LoaderUtils.decodeText( new Uint8Array( contents ) );
+        resultContent = THREE.LoaderUtils.decodeText(new Uint8Array(contents));
         
       }
       
     }
     
-    var json = JSON.parse( resultContent );
+    var json = JSON.parse(resultContent);
     
-    return ( json.asset !== undefined && json.asset.version[ 0 ] < 2 );
+    return (json.asset !== undefined && json.asset.version[0] < 2);
     
   }
   
   function checkMaterial(mesh) {
-    if(mesh.material.length > 0) {
-      mesh.material.forEach((item)=>{
+    if (mesh.material.length > 0) {
+      mesh.material.forEach((item) => {
         item.side = THREE.DoubleSide;
       });
       return mesh.material[0].emissive === undefined;
@@ -237,20 +260,20 @@ const Loader = function (_scene) {
           
         });
         break;
-        
+      
       case 'gltf':
       case 'glb':
         loader = new GLTFLoader();
-        dracoLoader.setDecoderPath( 'three/examples/js/libs/draco/gltf/' );
-        loader.setDRACOLoader( dracoLoader );
+        dracoLoader.setDecoderPath('three/examples/js/libs/draco/gltf/');
+        loader.setDRACOLoader(dracoLoader);
         loader.load(filename, function (gltf) {
           mesh(loadModel(gltf.scene));
         });
         break;
       case 'obj':
         loader = new OBJLoader();
-        loader.load(filename, function(obj) {
-          obj.rotateX(Math.PI/2);
+        loader.load(filename, function (obj) {
+          obj.rotateX(Math.PI / 2);
           obj.scale.set(40, 40, 40);
           obj.updateMatrixWorld(true);
           mesh(loadModel(obj));
@@ -258,18 +281,18 @@ const Loader = function (_scene) {
         break;
       case '3mf':
         loader = new ThreeMFLoader();
-        loader.load(filename, function(obj) {
+        loader.load(filename, function (obj) {
           mesh(loadModel(obj));
         });
         break;
       case 'fbx':
         loader = new FBXLoader();
-        loader.load(filename, function(obj) {
+        loader.load(filename, function (obj) {
           mesh(loadModel(obj));
         })
         break;
-        
-        // FIXME: not support 3d ?
+      
+      // FIXME: not support 3d ?
       // case 'dxf':
       //   loader = new DXFLoader();
       //   loader.load(filename, function(obj) {
@@ -303,7 +326,7 @@ const Loader = function (_scene) {
       console.log('Loading', filename, size, progress);
       
     });
-  
+    
     const dracoLoader = new DRACOLoader();
     switch (extension) {
       case 'dae':
@@ -313,45 +336,45 @@ const Loader = function (_scene) {
           
           let loader = new ColladaLoader(manager);
           let collada = loader.parse(contents);
-  
+          
           mesh(loadModel(collada.scene));
           
         }, false);
         reader.readAsText(file);
         break;
-        
+      
       case 'glb':
         // FIXME: SyntaxError: Unexpected token g in JSON at position 0
         reader.addEventListener('load', function (event) {
           
           let contents = event.target.result;
           let loader = new GLTFLoader();
-          dracoLoader.setDecoderPath( 'three/examples/js/libs/draco/gltf/' );
-          loader.setDRACOLoader( dracoLoader );
+          dracoLoader.setDecoderPath('three/examples/js/libs/draco/gltf/');
+          loader.setDRACOLoader(dracoLoader);
           let gltf = loader.parse(contents);
-  
+          
           mesh(loadModel(gltf.scene));
         }, false);
         reader.readAsText(file);
         break;
-        
+      
       case 'gltf':
         reader.addEventListener('load', function (event) {
-    
+          
           let contents = event.target.result;
           let loader = new GLTFLoader();
-          if ( isGLTF1( contents ) ) {
-    
-            alert( 'Import of glTF asset not possible. Only versions >= 2.0 are supported. Please try to upgrade the file to glTF 2.0 using glTF-Pipeline.' );
-    
+          if (isGLTF1(contents)) {
+            
+            alert('Import of glTF asset not possible. Only versions >= 2.0 are supported. Please try to upgrade the file to glTF 2.0 using glTF-Pipeline.');
+            
           } else {
             dracoLoader.setDecoderPath('three/examples/js/libs/draco/gltf/');
             loader.setDRACOLoader(dracoLoader);
             loader.parse(contents, '', function (gltf) {
-  
+              
               mesh(loadModel(gltf.scene));
             });
-  
+            
           }
         }, false);
         reader.readAsText(file);
@@ -359,88 +382,88 @@ const Loader = function (_scene) {
       case 'obj':
         reader.addEventListener('load', function (event) {
           let contents = event.target.result;
-          let obj = new OBJLoader().parse( contents );
+          let obj = new OBJLoader().parse(contents);
           obj.rotateX(Math.PI / 2);
           // obj.scale.set(40, 40, 40);
           obj.updateMatrixWorld(true);
-
+          
           mesh(loadModel(obj));
-  
+          
         }, false);
         reader.readAsText(file);
         break;
       case '3dm':
-  
-        reader.addEventListener( 'load', function ( event ) {
-    
+        
+        reader.addEventListener('load', function (event) {
+          
           let contents = event.target.result;
-    
+          
           let loader = new Rhino3dmLoader();
-          loader.setLibraryPath( 'three/examples/jsm/libs/rhino3dm/' );
-          loader.parse( contents, function ( object ) {
-  
+          loader.setLibraryPath('three/examples/jsm/libs/rhino3dm/');
+          loader.parse(contents, function (object) {
+            
             mesh(loadModel(object));
-          } );
-    
-        }, false );
-        reader.readAsText( file );
-  
+          });
+          
+        }, false);
+        reader.readAsText(file);
+        
         break;
       case '3mf':
-        reader.addEventListener( 'load', function ( event ) {
-    
+        reader.addEventListener('load', function (event) {
+          
           let loader = new ThreeMFLoader();
-          let object = loader.parse( event.target.result );
-  
+          let object = loader.parse(event.target.result);
+          
           mesh(loadModel(object));
-    
-        }, false );
-        reader.readAsArrayBuffer( file );
-  
+          
+        }, false);
+        reader.readAsArrayBuffer(file);
+        
         break;
       case 'fbx':
-        reader.addEventListener( 'load', function ( event ) {
-    
+        reader.addEventListener('load', function (event) {
+          
           let contents = event.target.result;
-    
-          let loader = new FBXLoader( manager );
-          let object = loader.parse( contents );
-
+          
+          let loader = new FBXLoader(manager);
+          let object = loader.parse(contents);
+          
           mesh(loadModel(object));
-        }, false );
-        reader.readAsArrayBuffer( file );
-  
+        }, false);
+        reader.readAsArrayBuffer(file);
+        
         break;
-  
+      
       default:
         alert('file format not support');
-  
-  
+      
+      
     }
   }
   
-
+  
   this.addGUI = function (gui) {
     this.import = function () {
-        fileInput.click();
+      fileInput.click();
     }
     
     gui.add(this, 'import');
-  
-    let form = document.createElement( 'form' );
+    
+    let form = document.createElement('form');
     form.style.display = 'none';
-    document.body.appendChild( form );
-  
-    let fileInput = document.createElement( 'input' );
+    document.body.appendChild(form);
+    
+    let fileInput = document.createElement('input');
     fileInput.multiple = true;
     fileInput.type = 'file';
-    fileInput.addEventListener( 'change', function () {
+    fileInput.addEventListener('change', function () {
       scope.loadFile(fileInput.files[0]);
       console.log(fileInput.files[0]);
       form.reset();
-    
-    } );
-    form.appendChild( fileInput );
+      
+    });
+    form.appendChild(fileInput);
   }
 }
 

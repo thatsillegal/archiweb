@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import {updateObjectPosition} from "@/viewers";
+import {updateObjectPosition} from "@/index";
 
 export default {
   name: "InfoCard",

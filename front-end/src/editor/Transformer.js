@@ -1,6 +1,29 @@
-// import * as THREE from 'three'
-import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import * as THREE from "three";
+import {TransformControls} from "three/examples/jsm/controls/TransformControls";
+
+/**
+ *      ___           ___           ___           ___                       ___           ___           ___
+ *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
+ *    /::\  \       /::\  \       /::\  \       /:/  /         /\  \      /:/ _/_       /::\  \       /::\  \
+ *   /:/\:\  \     /:/\:\  \     /:/\:\  \     /:/__/          \:\  \    /:/ /\__\     /:/\:\  \     /:/\:\  \
+ *  /::\~\:\  \   /::\~\:\  \   /:/  \:\  \   /::\  \ ___      /::\__\  /:/ /:/ _/_   /::\~\:\  \   /::\~\:\__\
+ * /:/\:\ \:\__\ /:/\:\ \:\__\ /:/__/ \:\__\ /:/\:\  /\__\  __/:/\/__/ /:/_/:/ /\__\ /:/\:\ \:\__\ /:/\:\ \:|__|
+ * \/__\:\/:/  / \/_|::\/:/  / \:\  \  \/__/ \/__\:\/:/  / /\/:/  /    \:\/:/ /:/  / \:\~\:\ \/__/ \:\~\:\/:/  /
+ *      \::/  /     |:|::/  /   \:\  \            \::/  /  \::/__/      \::/_/:/  /   \:\ \:\__\    \:\ \::/  /
+ *      /:/  /      |:|\/__/     \:\  \           /:/  /    \:\__\       \:\/:/  /     \:\ \/__/     \:\/:/  /
+ *     /:/  /       |:|  |        \:\__\         /:/  /      \/__/        \::/  /       \:\__\        \::/__/
+ *     \/__/         \|__|         \/__/         \/__/                     \/__/         \/__/         ~~
+ *
+ *
+ *
+ * Copyright (c) 2020-present, Inst.AAA.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * Date: 2020-11-12
+ * Author: Yichen Mo
+ */
 
 const Transformer = function (_scene, _renderer, _camera) {
   
@@ -17,29 +40,31 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   // up
   let _dragFrames, _assetManager;
+  
   //API
   
   function addToInfoCard(o) {
-    if(o !== undefined) {
+    if (o !== undefined) {
       
       o.position.x = Math.round(o.position.x);
       o.position.y = Math.round(o.position.y);
       o.position.z = Math.round(o.position.z);
-  
-      if(o.toInfoCard !== undefined) {
+      
+      if (o.toInfoCard !== undefined) {
         o.toInfoCard();
         return;
       }
       window.InfoCard.info.uuid = o.uuid;
       window.InfoCard.info.position = o.position;
       window.InfoCard.info.model = {};
-      window.InfoCard.info.properties = {type:o.type, matrix:o.matrix.elements};
-  
+      window.InfoCard.info.properties = {type: o.type, matrix: o.matrix.elements};
+      
     }
-  
+    
   }
+  
   function toList(group) {
-    if(group.isGroup) {
+    if (group.isGroup) {
       return group.children;
     } else {
       return [group];
@@ -48,8 +73,8 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   function init() {
     control = new TransformControls(_camera, _renderer.domElement);
-    control.addEventListener('object-changed', function(event) {
-      if(control.object !== undefined) {
+    control.addEventListener('object-changed', function (event) {
+      if (control.object !== undefined) {
         _assetManager.setTransformerObject(control.object);
         window.highlightObject = toList(control.object);
         addToInfoCard(event.value);
@@ -69,10 +94,10 @@ const Transformer = function (_scene, _renderer, _camera) {
         control.object.updateMatrix();
         addToInfoCard(control.object);
         
-        if(copy) {
+        if (copy) {
           applyTransformGroup(clonedObject);
-          while(clonedObject.children.length > 0) {
-            clonedObject.children.forEach((item)=>{
+          while (clonedObject.children.length > 0) {
+            clonedObject.children.forEach((item) => {
               _scene.attach(item)
             })
           }
@@ -94,12 +119,12 @@ const Transformer = function (_scene, _renderer, _camera) {
   function setCloneObject(object) {
     if (!object.isGroup) {
       const cloned = object.clone();
-      if(object.toCamera) cloned.toCamera = true;
-      if(object.layer !== undefined) cloned.layer = Array.from(object.layer);
+      if (object.toCamera) cloned.toCamera = true;
+      if (object.layer !== undefined) cloned.layer = Array.from(object.layer);
       
-      if(cloned.material.length > 0) {
+      if (cloned.material.length > 0) {
         let materials = []
-        for (let i = 0; i < cloned.material.length; ++ i) {
+        for (let i = 0; i < cloned.material.length; ++i) {
           materials.push(cloned.material[i].clone());
         }
         cloned.material = materials;
@@ -123,13 +148,12 @@ const Transformer = function (_scene, _renderer, _camera) {
     group.translateX(c.x);
     group.translateY(c.y);
     
-    group.children.forEach((item)=>{
+    group.children.forEach((item) => {
       item.position.x -= c.x;
       item.position.y -= c.y;
     });
   }
   
-
   
   function onClick(event) {
     if (dragged) {
@@ -141,13 +165,13 @@ const Transformer = function (_scene, _renderer, _camera) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, control.camera);
-
+    
     const intersections = raycaster.intersectObjects(window.objects, false);
     
     
-    if(shiftDown && intersections.length > 0) {
+    if (shiftDown && intersections.length > 0) {
       
-      if(control.object === undefined) {
+      if (control.object === undefined) {
         attachObject([intersections[0].object]);
       } else {
         
@@ -155,14 +179,14 @@ const Transformer = function (_scene, _renderer, _camera) {
           
           const o = intersections[0].object;
           
-          if(o.parent !== control.object) {
+          if (o.parent !== control.object) {
             o.position.x -= control.object.position.x;
             o.position.y -= control.object.position.y;
-  
+            
             control.object.add(o);
             applyGroupCenter(control.object);
           }
-
+          
         } else {
           attachObject([control.object, intersections[0].object]);
         }
@@ -172,21 +196,21 @@ const Transformer = function (_scene, _renderer, _camera) {
       
       
     } else if (selected.length > 0) {
-  
+      
       attachObject(selected);
       selected = [];
     } else if (intersections.length > 0 && control.object === undefined) {
       attachObject([intersections[0].object]);
     } else {
       
-
+      
       clear();
-      if(refresh) {
+      if (refresh) {
         _assetManager.refreshSelection();
         
         refresh = false;
       }
-  
+      
       if (_dragFrames !== undefined)
         _dragFrames.enabled = true;
     }
@@ -214,7 +238,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   function refreshSelection() {
     window.objects = [];
     _scene.children.forEach((obj) => {
-      if(obj.layer !== undefined && ~obj.layer.indexOf(window.layer)) {
+      if (obj.layer !== undefined && ~obj.layer.indexOf(window.layer)) {
         window.objects.push(obj);
       }
     })
@@ -232,22 +256,22 @@ const Transformer = function (_scene, _renderer, _camera) {
         deleteObject(object.children[i]);
       }
     }
-  
+    
   }
   
   function applyTransformGroup(object) {
     if (object !== undefined && object.isGroup) {
-  
+      
       object.matrixAutoUpdate = false;
       
       setChildQuaternion(object, object.quaternion);
       setChildPosition(object, object.position);
       setChildScale(object, object.scale);
-  
+      
       object.position.set(0, 0, 0);
       object.quaternion.set(0, 0, 0, 1);
       object.scale.set(1, 1, 1);
-  
+      
       object.updateMatrixWorld(true);
       object.matrixAutoUpdate = true;
       
@@ -364,9 +388,9 @@ const Transformer = function (_scene, _renderer, _camera) {
         clear();
         refreshSelection();
         
-        window.objects.splice(window.objects.findIndex(item=>item.uuid === obj.uuid), 1);
+        window.objects.splice(window.objects.findIndex(item => item.uuid === obj.uuid), 1);
         break;
-        
+      
       case 16: // shift
         shiftDown = true;
     }
@@ -417,11 +441,11 @@ const Transformer = function (_scene, _renderer, _camera) {
       }
     });
   }
-
+  
   function setSelected(objects) {
     selected = objects;
   }
-
+  
   function setDragFrames(dragFrames) {
     _dragFrames = dragFrames;
   }
@@ -436,10 +460,10 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   function clear() {
     applyTransformGroup(control.object);
-
+    
     control.detach();
-  
-    while(grouped.children.length > 0) {
+    
+    while (grouped.children.length > 0) {
       grouped.children.forEach((item) => {
         _scene.attach(item);
       });
