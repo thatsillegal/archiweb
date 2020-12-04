@@ -75,7 +75,7 @@ const Transformer = function (_scene, _renderer, _camera) {
     control = new TransformControls(_camera, _renderer.domElement);
     control.addEventListener('object-changed', function (event) {
       if (control.object !== undefined) {
-        _assetManager.setTransformerObject(control.object);
+        scope.object = control.object;
         window.highlightObject = toList(control.object);
         addToInfoCard(event.value);
       } else {
@@ -108,6 +108,7 @@ const Transformer = function (_scene, _renderer, _camera) {
     });
     
     grouped = new THREE.Group();
+    grouped.isTransformerGroup = true;
     _scene.add(grouped);
     
     _scene.add(control);
@@ -154,6 +155,25 @@ const Transformer = function (_scene, _renderer, _camera) {
     });
   }
   
+  function setFromIntersections(intersections) {
+    let mesh = undefined;
+    for(let i = 0; i < intersections.length; ++ i) {
+      let item = intersections[i].object;
+      if(item.isMesh) {
+        mesh = item;
+        break;
+      }
+    }
+    if(mesh !== undefined && mesh.parent.isGroup) {
+      let group = mesh.parent;
+      while(group.parent.isGroup)
+        group = group.parent;
+      
+      applyGroupCenter(group);
+      return group;
+    }
+    return mesh;
+  }
   
   function onClick(event) {
     if (dragged) {
@@ -166,18 +186,21 @@ const Transformer = function (_scene, _renderer, _camera) {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, control.camera);
     
-    const intersections = raycaster.intersectObjects(window.objects, false);
+    const intersections = raycaster.intersectObjects(window.objects, true);
+    const intersected = setFromIntersections(intersections);
+    
+    console.log(intersected);
     
     
-    if (shiftDown && intersections.length > 0) {
+    if (shiftDown && intersected !== undefined) {
       
       if (control.object === undefined) {
-        attachObject([intersections[0].object]);
+        attachObject([intersected]);
       } else {
         
-        if (control.object.isGroup) {
+        if (control.object.isTransformerGroup) {
           
-          const o = intersections[0].object;
+          const o = intersected;
           
           if (o.parent !== control.object) {
             o.position.x -= control.object.position.x;
@@ -188,7 +211,7 @@ const Transformer = function (_scene, _renderer, _camera) {
           }
           
         } else {
-          attachObject([control.object, intersections[0].object]);
+          attachObject([control.object, intersected]);
         }
         
       }
@@ -196,13 +219,17 @@ const Transformer = function (_scene, _renderer, _camera) {
       
       
     } else if (selected.length > 0) {
+      selected.forEach((obj) => {
+        if(obj.isGroup) {
+          applyGroupCenter(obj);
+        }
+      })
       
       attachObject(selected);
       selected = [];
-    } else if (intersections.length > 0 && control.object === undefined) {
-      attachObject([intersections[0].object]);
+    } else if (intersected !== undefined && control.object === undefined) {
+      attachObject([intersected]);
     } else {
-      
       
       clear();
       if (refresh) {
@@ -288,20 +315,24 @@ const Transformer = function (_scene, _renderer, _camera) {
       return;
     }
     for (let i = 0; i < object.children.length; ++i) {
-      setChildScale(object.children[i], scale);
+      const child = object.children[i];
+      child.scale.multiply(scale);
+      child.position.multiply(scale);
+      child.updateMatrixWorld(true);
     }
   }
   
   
   function setChildPosition(object, position) {
     if (!object.isGroup) {
-      // object.position.copy(position);
       object.position.add(position);
       object.updateMatrixWorld(true);
       return;
     }
     for (let i = 0; i < object.children.length; ++i) {
-      setChildPosition(object.children[i], position);
+      const child = object.children[i];
+      child.position.add(position);
+      child.updateMatrixWorld(true);
     }
   }
   
@@ -309,12 +340,16 @@ const Transformer = function (_scene, _renderer, _camera) {
     if (!object.isGroup) {
       object.quaternion.premultiply(quaternion);
       object.position.applyQuaternion(quaternion);
-      
+  
       object.updateMatrixWorld(true);
       return;
     }
     for (let i = 0; i < object.children.length; ++i) {
-      setChildQuaternion(object.children[i], quaternion);
+      const child = object.children[i];
+      child.quaternion.premultiply(quaternion);
+      child.position.applyQuaternion(quaternion);
+  
+      child.updateMatrixWorld(true);
     }
   }
   
@@ -452,6 +487,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   function setAssetManager(assetManager) {
     _assetManager = assetManager;
+    _assetManager.setTransformer(scope)
   }
   
   function setCamera(camera) {
@@ -484,6 +520,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   this.setAssetManager = setAssetManager;
   this.setCamera = setCamera;
   
+  this.applyTransform = applyTransformGroup;
   this.clear = clear;
   
   this.translateionSnap = 100;

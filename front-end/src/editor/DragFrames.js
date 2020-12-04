@@ -263,7 +263,7 @@ const DragFrames = function (_camera, _scene, _renderer) {
   }
   
   function searchChildInFrustum(frustum, object) {
-    if (object.isMesh || object.isLine || object.isPoints) {
+    if (object.isMesh || object.isLine || object.isPoints ) {
       
       if (object.material !== undefined) {
         
@@ -282,12 +282,24 @@ const DragFrames = function (_camera, _scene, _renderer) {
       
     }
     
-    if (object.isGroup) {
-      for (let x = 0; x < object.children.length; x++) {
-        searchChildInFrustum(frustum, object.children[x]);
+    if(object.isGroup) {
+      const box3 = new THREE.Box3().setFromObject(object);
+      const center = new THREE.Vector3();
+      
+      box3.getCenter(center);
+      center.applyMatrix4(object.matrixWorld);
+      
+      if(frustum.containsPoint(center)) {
+        _selected.push(object);
       }
     }
     
+    // if (object.isGroup) {
+    //   for (let x = 0; x < object.children.length; x++) {
+    //     searchChildInFrustum(frustum, object.children[x]);
+    //   }
+    // }
+    //
     for (let x = 0; x < object.length; x++) {
       searchChildInFrustum(frustum, object[x]);
     }

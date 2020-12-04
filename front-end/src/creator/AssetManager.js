@@ -28,13 +28,13 @@ const AssetManager = function (_scene) {
   
   let scope = this;
   let max = 0;
-  let transformerObject;
+  let transformer;
   let _gui = null;
   
   
   this.id = 0;
-  this.group = new THREE.Group();
-  _scene.add(scope.group);
+  // this.group = new THREE.Group();
+  // _scene.add(scope.group);
   
   window.layer = scope.id;
   
@@ -75,19 +75,62 @@ const AssetManager = function (_scene) {
         window.objects.push(obj);
       }
     })
-    // console.log('current length', window.objects.length);
-    
     window.highlightObject = window.objects;
   }
   
+  
   this.setGroup = function () {
-    console.log('trans', transformerObject)
-    transformerObject.children.forEach((item) => {
-      scope.group.add(item);
-    });
+    const obj = transformer.object;
+    if(obj === undefined) {
+      alert("⚠️ no object selected");
+      return;
+    }
+    
+    const group = new THREE.Group();
+    _scene.add(group);
+    transformer.applyTransform(obj);
+    
+    let layers = new Set();
+    while(obj.children.length > 0) {
+      obj.children.forEach((item) => {
+        group.add(item);
+        item.layer.forEach(layers.add, layers);
+      });
+    }
+    transformer.control.detach();
+  
+    /*
+     group layer set from union of layers
+    */
+    group.layer=Array.from(layers);
+    scope.refreshSelection();
+  }
+  
+  this.unGroup = function () {
+    let obj = transformer.object;
+    if(obj === undefined || !obj.isGroup) {
+      alert("⚠️ no group selected");
+      return;
+    }
+    
+    const parent = obj.parent;
+    transformer.applyTransform(obj);
+  
+    while(obj.children.length > 0) {
+      obj.children.forEach((item) => {
+        parent.add(item);
+      });
+    }
+  
+    transformer.control.detach();
+    obj.layer = undefined;
+    scope.refreshSelection();
+  
   }
   
   this.highlightItem = function (item) {
+    if(item.material === undefined)
+      return;
     let materials = item.material;
     if (materials.length) {
       for (let j = 0; j < materials.length; ++j) {
@@ -106,6 +149,8 @@ const AssetManager = function (_scene) {
   }
   
   this.unHighlightItem = function (item) {
+    if(item.material === undefined)
+      return;
     let materials = item.material;
     if (materials.length) {
       for (let j = 0; j < materials.length; ++j) {
@@ -123,28 +168,58 @@ const AssetManager = function (_scene) {
     }
   }
   
+  this.highlightGroup = function (group) {
+    
+    group.children.forEach((item) => {
+      if(item.isGroup) scope.highlightGroup(item);
+      else scope.highlightItem(item);
+    })
+    
+  }
+  
+  this.unHighlightGroup = function (group) {
+    group.children.forEach((item) => {
+      if(item.isGroup) scope.unHighlightGroup(item);
+      else scope.unHighlightItem(item);
+    })
+  
+  }
+  
+  this.highlightList = function (list) {
+    list.forEach((item) => {
+      if(item.isGroup) scope.highlightGroup(item);
+      else scope.highlightItem(item);
+    });
+  }
+  
+  this.unHighlightList = function (list) {
+    list.forEach((item) => {
+      if(item.isGroup) scope.unHighlightGroup(item);
+      else scope.unHighlightItem(item);
+    });
+  }
+  
+  
   this.highlightCurrent = function () {
     
     if (window.highlighted) {
       window.highlighted = false;
-      window.highlightObject.forEach((item) => {
-        scope.unHighlightItem(item);
-      });
+      scope.unHighlightList(window.highlightObject);
+
     } else {
       window.highlighted = true;
-      window.highlightObject.forEach((item) => {
-        scope.highlightItem(item);
-      });
+      scope.highlightList(window.highlightObject);
     }
   }
   
-  this.setTransformerObject = function (obj) {
-    transformerObject = obj;
+  this.setTransformer = function (controls) {
+    transformer = controls;
   }
   
   this.addGUI = function (gui) {
     _gui = gui;
     gui.add(scope, 'setGroup').name('group');
+    gui.add(scope, 'unGroup').name('unGroup');
     gui.add(scope, 'highlightCurrent').name('highlight');
     gui.add(scope, 'id', 0, max, 1).name('layer').listen().onChange(function () {
       window.layer = scope.id;

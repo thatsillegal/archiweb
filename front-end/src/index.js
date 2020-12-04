@@ -294,16 +294,12 @@ function onDocumentKeyUp(event) {
 
 function onSelectDown(event) {
   window.highlighted = true;
-  for (let i = 0; i < event.object.length; ++i) {
-    assetManager.highlightItem(event.object[i]);
-  }
+  assetManager.highlightList(event.object);
 }
 
 function onSelectUp(event) {
   window.highlighted = false;
-  for (let i = 0; i < event.object.length; ++i) {
-    assetManager.unHighlightItem(event.object[i]);
-  }
+  assetManager.unHighlightList(event.object);
   transformer.setSelected(event.object);
 }
 
