@@ -138,11 +138,7 @@ const Loader = function (_scene) {
     if (matrix === undefined) matrix = new THREE.Matrix4();
     
     if (object.isLineSegments || object.isLine) {
-      // console.log(object);
-      // console.log('----------------')
-      // console.log(object.matrix);
-      // console.log(object.scale)
-      // console.log('---------------')
+
       object.geometry.applyMatrix4(matrix);
       
       const posArr = object.geometry.getAttribute('position').array;
