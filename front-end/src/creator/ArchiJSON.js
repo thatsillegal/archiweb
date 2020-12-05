@@ -123,6 +123,4 @@ const ArchiJSON = function (_scene) {
   
 }
 
-export {
-  ArchiJSON
-}
+export default ArchiJSON;

@@ -324,4 +324,4 @@ const DragFrames = function (_camera, _scene, _renderer) {
 
 DragFrames.prototype = Object.create(THREE.EventDispatcher.prototype);
 
-export {DragFrames};
+export default DragFrames;

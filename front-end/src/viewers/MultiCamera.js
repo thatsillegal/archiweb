@@ -306,4 +306,4 @@ const MultiCamera = function (_scene, _renderer) {
   
 };
 
-export {MultiCamera};
+export default MultiCamera;

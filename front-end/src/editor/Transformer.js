@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
+import {dragFrames, assetManager} from "@/index";
+
 
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
@@ -25,8 +27,14 @@ import {TransformControls} from "three/examples/jsm/controls/TransformControls";
  * Author: Yichen Mo
  */
 
+/**
+ * Transformer
+ * @param _scene
+ * @param _renderer
+ * @param _camera
+ * @constructor
+ */
 const Transformer = function (_scene, _renderer, _camera) {
-  
   let control = null;
   let scope = this;
   let grouped;
@@ -38,8 +46,8 @@ const Transformer = function (_scene, _renderer, _camera) {
   let clonedObject;
   let shiftDown;
   
-  // up
-  let _dragFrames, _assetManager;
+  //
+  // let _dragFrames, _assetManager;
   
   //API
   
@@ -175,6 +183,10 @@ const Transformer = function (_scene, _renderer, _camera) {
     return mesh;
   }
   
+  /**
+   * @description click event
+   * @param event
+   */
   function onClick(event) {
     if (dragged) {
       dragged = !dragged;
@@ -188,9 +200,6 @@ const Transformer = function (_scene, _renderer, _camera) {
     
     const intersections = raycaster.intersectObjects(window.objects, true);
     const intersected = setFromIntersections(intersections);
-    
-    console.log(intersected);
-    
     
     if (shiftDown && intersected !== undefined) {
       
@@ -233,13 +242,13 @@ const Transformer = function (_scene, _renderer, _camera) {
       
       clear();
       if (refresh) {
-        _assetManager.refreshSelection();
+        assetManager.refreshSelection();
         
         refresh = false;
       }
       
-      if (_dragFrames !== undefined)
-        _dragFrames.enabled = true;
+      if (dragFrames !== undefined)
+        dragFrames.enabled = true;
     }
   }
   
@@ -247,8 +256,8 @@ const Transformer = function (_scene, _renderer, _camera) {
   function attachObject(objs) {
     if (objs.length === 1) {
       control.attach(objs[0]);
-      if (_dragFrames !== undefined)
-        _dragFrames.enabled = false;
+      if (dragFrames !== undefined)
+        dragFrames.enabled = false;
     } else if (objs.length > 1) {
       
       for (let i = 0; i < objs.length; ++i) {
@@ -257,8 +266,8 @@ const Transformer = function (_scene, _renderer, _camera) {
       applyGroupCenter(grouped);
       control.attach(grouped);
       
-      if (_dragFrames !== undefined)
-        _dragFrames.enabled = false;
+      if (dragFrames !== undefined)
+        dragFrames.enabled = false;
     }
   }
   
@@ -286,6 +295,11 @@ const Transformer = function (_scene, _renderer, _camera) {
     
   }
   
+  /**
+   * Apply Transformation to children in group
+   * The matrix on three will be clear
+   * @param object : THREE.Group
+   */
   function applyTransformGroup(object) {
     if (object !== undefined && object.isGroup) {
       
@@ -480,15 +494,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   function setSelected(objects) {
     selected = objects;
   }
-  
-  function setDragFrames(dragFrames) {
-    _dragFrames = dragFrames;
-  }
-  
-  function setAssetManager(assetManager) {
-    _assetManager = assetManager;
-    _assetManager.setTransformer(scope)
-  }
+
   
   function setCamera(camera) {
     control.camera = camera;
@@ -516,8 +522,6 @@ const Transformer = function (_scene, _renderer, _camera) {
   this.addGUI = addGUI;
   
   this.setSelected = setSelected;
-  this.setDragFrames = setDragFrames;
-  this.setAssetManager = setAssetManager;
   this.setCamera = setCamera;
   
   this.applyTransform = applyTransformGroup;
@@ -531,4 +535,4 @@ const Transformer = function (_scene, _renderer, _camera) {
   
 }
 
-export {Transformer};
+export default Transformer;

@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import * as THREE from 'three'
+import {transformer} from "@/index";
 // import * as CSM from 'three-csm';
 // THREE.CSM = CSM;
 
@@ -43,7 +44,6 @@ const SceneBasic = function (_scene, _renderer) {
   let gridHelper = new THREE.GridHelper(1000, 20);
   let axesHelper = new THREE.AxesHelper(5000);
   
-  let _control;
   let _basic = new THREE.Group();
   // TODO: fix csm
   // let csm;
@@ -127,16 +127,16 @@ const SceneBasic = function (_scene, _renderer) {
       .listen().onChange(
       function () {
         gridUpdate(scope.grid);
-        if (_control === undefined) return;
+        if (transformer === undefined) return;
         
         if (scope.grid > 0) {
-          _control.setTranslationSnap(scope.grid);
-          _control.setRotationSnap(THREE.MathUtils.degToRad(15));
-          _control.setScaleSnap(0.25);
+          transformer.setTranslationSnap(scope.grid);
+          transformer.setRotationSnap(THREE.MathUtils.degToRad(15));
+          transformer.setScaleSnap(0.25);
         } else {
-          _control.setTranslationSnap(null);
-          _control.setRotationSnap(null);
-          _control.setScaleSnap(null);
+          transformer.setTranslationSnap(null);
+          transformer.setRotationSnap(null);
+          transformer.setScaleSnap(null);
         }
       }
     );
@@ -158,10 +158,7 @@ const SceneBasic = function (_scene, _renderer) {
     });
   }
   
-  function setControl(control) {
-    _control = control;
-  }
-  
+ 
   init();
   
   // APIs
@@ -170,9 +167,8 @@ const SceneBasic = function (_scene, _renderer) {
   this.shadow = true;
   this.grid = 0;
   this.addGUI = addGUI;
-  this.setControl = setControl;
   
 };
 
 
-export {SceneBasic};
+export default SceneBasic;

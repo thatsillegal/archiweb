@@ -253,6 +253,4 @@ const GeometryFactory = function (_scene) {
 }
 
 
-export {
-  GeometryFactory,
-}
+export default GeometryFactory;

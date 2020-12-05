@@ -28,25 +28,25 @@ import {DragControls} from "three/examples/jsm/controls/DragControls";
  * Author: Yichen Mo
  */
 
-import {DragFrames} from "@/editor/DragFrames";
-import {Transformer} from "@/editor/Transformer";
+import DragFrames from "@/editor/DragFrames";
+import Transformer from "@/editor/Transformer";
 
-import {SceneBasic} from "@/viewers/SceneBasic";
-import {MultiCamera} from "@/viewers/MultiCamera";
+import SceneBasic from "@/viewers/SceneBasic";
+import MultiCamera from "@/viewers/MultiCamera";
 
-import {GeometryFactory} from "@/creator/GeometryFactory";
-import {Loader} from "@/creator/Loader";
-import {AssetManager} from "@/creator/AssetManager";
-import {ArchiJSON} from "@/creator/ArchiJSON";
+import GeometryFactory from "@/creator/GeometryFactory";
+import Loader from "@/creator/Loader";
+import AssetManager from "@/creator/AssetManager";
+import ArchiJSON from "@/creator/ArchiJSON";
 
-const gui = require('@/gui')
+import * as gui from '@/gui'
 
 let renderer, scene;
 let orbit;
 let gb;
 let sceneBasic, transformer, loader, assetManager;
 let multiCamera;
-let archijson;
+let archijson, dragFrames;
 let camera, drag;
 let InfoCard;
 
@@ -172,7 +172,11 @@ function initControls() {
   orbit = new OrbitControls(camera, renderer.domElement);
   initDrag();
   
-  if (D3) {
+  if (!D3) {
+    
+    orbit.enableRotate = false;
+    
+  } else {
     orbit.mouseButtons = {
       LEFT: THREE.MOUSE.PAN,
       RIGHT: THREE.MOUSE.ROTATE
@@ -184,12 +188,6 @@ function initControls() {
     transformer.addGUI(gui.gui);
     
     multiCamera.addControllers(transformer);
-    transformer.setAssetManager(assetManager);
-    transformer.setDragFrames(drag);
-  } else {
-    
-    orbit.enableRotate = false;
-    
   }
   
 }
@@ -332,8 +330,8 @@ function scene3D() {
   sceneBasic = new SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui.gui);
   
-  archijson = new ArchiJSON(scene);
-  archijson.addGUI(gui.gui);
+  // archijson = new ArchiJSON(scene);
+  // archijson.addGUI(gui.gui);
   
   
 }
@@ -370,5 +368,10 @@ export {
   scene3D,
   
   updateObjectPosition,
+  
+  
   archijson,
+  dragFrames,
+  assetManager,
+  transformer
 }
