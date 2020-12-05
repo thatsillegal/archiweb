@@ -28,6 +28,11 @@ import {Wireframe} from "three/examples/jsm/lines/Wireframe";
  * Author: Yichen Mo
  */
 
+/**
+ *
+ * @param _scene
+ * @constructor
+ */
 const ArchiJSON = function (_scene) {
   let scope = this;
   

@@ -1,8 +1,5 @@
 import * as THREE from "three";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
-import {dragFrames, assetManager} from "@/index";
-
-
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
  *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
@@ -27,6 +24,7 @@ import {dragFrames, assetManager} from "@/index";
  * Author: Yichen Mo
  */
 
+import {dragFrames, assetManager} from "@/index";
 /**
  * Transformer
  * @param _scene
@@ -81,10 +79,14 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   function init() {
     control = new TransformControls(_camera, _renderer.domElement);
-    control.addEventListener('object-changed', function (event) {
+    
+    control.addEventListener('object-changed',
+      function (event) {
       if (control.object !== undefined) {
         scope.object = control.object;
         window.highlightObject = toList(control.object);
+        
+        /* ---------- add to info card ---------- */
         addToInfoCard(event.value);
       } else {
         window.highlightObject = window.objects;
@@ -101,7 +103,7 @@ const Transformer = function (_scene, _renderer, _camera) {
         
         control.object.updateMatrix();
         addToInfoCard(control.object);
-        
+  
         if (copy) {
           applyTransformGroup(clonedObject);
           while (clonedObject.children.length > 0) {
@@ -316,7 +318,6 @@ const Transformer = function (_scene, _renderer, _camera) {
       object.updateMatrixWorld(true);
       object.matrixAutoUpdate = true;
       
-      // console.log('after', object.position.x, object.position.y);
     }
   }
   

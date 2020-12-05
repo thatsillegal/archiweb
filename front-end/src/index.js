@@ -35,6 +35,7 @@ import SceneBasic from "@/viewers/SceneBasic";
 import MultiCamera from "@/viewers/MultiCamera";
 
 import GeometryFactory from "@/creator/GeometryFactory";
+import MaterialFactory, {setMaterial, setMaterialOpacity} from "@/creator/MaterialFactory";
 import Loader from "@/creator/Loader";
 import AssetManager from "@/creator/AssetManager";
 import ArchiJSON from "@/creator/ArchiJSON";
@@ -112,7 +113,7 @@ function initScene() {
   
   loader.loadModel('http://model.amomorning.com/tree/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
-    gb.setMeshMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x99A083, transparent: true, opacity: 0.8}))
+    setMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x99A083, transparent: true, opacity: 0.8}))
     mesh.toCamera = true;
     assetManager.refreshSelection();
   });
@@ -120,7 +121,7 @@ function initScene() {
   loader.loadModel('http://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
     mesh.scale.set(2, 2, 2);
-    gb.setMaterialOpacity(mesh, 0.6);
+    setMaterialOpacity(mesh, 0.6);
     mesh.toCamera = true;
     assetManager.refreshSelection();
   });
