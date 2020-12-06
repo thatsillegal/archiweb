@@ -468,4 +468,4 @@ const Loader = function (_scene) {
 }
 
 
-export default Loader;
+export {Loader};

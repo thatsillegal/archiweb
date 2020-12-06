@@ -117,9 +117,6 @@ function initControls() {
   
   transformer.addGUI(gui.gui);
   
-  multiCamera.addControllers(orbit);
-  multiCamera.addControllers(transformer);
-  multiCamera.addControllers(dragFrames);
   
 }
 
@@ -230,7 +227,7 @@ function init() {
   initScene();
   
   renderer.autoClear = false;
-  multiCamera = new MultiCamera(scene, renderer);
+  multiCamera = new MultiCamera(renderer.domElement);
   multiCamera.addGUI(gui.gui);
   
   camera = multiCamera.camera;

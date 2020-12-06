@@ -25,21 +25,26 @@ import * as THREE from 'three'
  * Author: Yichen Mo
  */
 
-const MultiCamera = function (_scene, _renderer) {
+const MultiCamera = function (domElement) {
   this.width = window.innerWidth;
   this.height = window.innerHeight;
   
   let cameraPersp, cameraOrtho, currentCamera = null;
   let scope = this;
-  let controllers = [];
   
+  let _controller;
+  let _transformer;
+  
+  /* ---------- Init Camera ---------- */
   function init() {
     
     initPerspectiveCamera(scope.width, scope.height);
     initOrthographicCamera(scope.width, scope.height);
     
     currentCamera = scope.isometric ? cameraOrtho : cameraPersp;
-    _renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
+    console.log(domElement)
+  
+    domElement.addEventListener('keydown', onDocumentKeyDown, false);
     
   }
   
@@ -63,16 +68,33 @@ const MultiCamera = function (_scene, _renderer) {
     }
   }
   
-  function getTargetPosition() {
-    for (let i = 0; i < controllers.length; ++i) {
-      if (controllers[i].isTransformer === undefined)
-        return controllers[i].target;
+  /* ---------- zoom to objects ---------- */
+  function getBoundingBox(objects) {
+    const box = new THREE.Box3();
+    if(objects.length > 0) {
+      objects.forEach((item) => {
+        const b = new THREE.Box3().setFromObject(item);
+        box.union(b);
+      })
+    } else {
+      box.setFromObject(objects);
     }
+    return box;
+  }
+  
+  function zoomToObjects(objects) {
+    const boundingBox = getBoundingBox(objects);
+    
+    const center = boundingBox.getCenter();
+    const size = boundingBox.getSize();
   }
   
   
+  /* ---------- view position ---------- */
+  
+  
   function viewFrontLeft() {
-    const position = getTargetPosition().clone();
+    const position = _controller.target.clone();
     position.x -= 1200;
     position.y -= 1200;
     position.z += 1200;
@@ -81,14 +103,14 @@ const MultiCamera = function (_scene, _renderer) {
   }
   
   function viewFront() {
-    const position = getTargetPosition().clone();
+    const position = _controller.target.clone();
     position.y = -2000;
     currentCamera.position.copy(position);
   
   }
   
   function viewFrontRight() {
-    const position = getTargetPosition().clone();
+    const position = _controller.target.clone();
     position.x += 1200;
     position.y -= 1200;
     position.z += 1200;
@@ -97,19 +119,19 @@ const MultiCamera = function (_scene, _renderer) {
   }
   
   function viewLeft() {
-    const position = getTargetPosition().clone();
+    const position = _controller.target.clone();
     position.x = -2000;
     currentCamera.position.copy(position);
   }
   
   function viewUp() {
-    const position = getTargetPosition().clone();
+    const position = _controller.target.clone();
     position.z = 2000;
     currentCamera.position.copy(position);
   }
   
   function viewRight() {
-    const position = getTargetPosition().clone();
+    const position = _controller.target.clone();
     position.x = 2000;
     currentCamera.position.copy(position);
     
@@ -117,7 +139,7 @@ const MultiCamera = function (_scene, _renderer) {
   
   function viewBackLeft() {
     
-    const position = getTargetPosition().clone();
+    const position = _controller.target.clone();
     position.x -= 1200;
     position.y += 1200;
     position.z += 1200;
@@ -125,13 +147,13 @@ const MultiCamera = function (_scene, _renderer) {
   }
   
   function viewBack() {
-    const position = getTargetPosition().clone();
+    const position = _controller.target.clone();
     position.y = 2000;
     currentCamera.position.copy(position);
   }
   
   function viewBackRight() {
-    const position = getTargetPosition().clone();
+    const position = _controller.target.clone();
     position.x += 1200;
     position.y += 1200;
     position.z += 1200;
@@ -151,24 +173,11 @@ const MultiCamera = function (_scene, _renderer) {
         
         scope.camera = currentCamera;
         scope.isometric = !currentCamera.isPerspectiveCamera;
-        
-        controllers.forEach((control) => {
-          setCurrentCamera(control)
-        });
-        
+  
+        _controller.object = currentCamera;
+ 
         break;
-      case 86: // V
-        const randomFoV = Math.random() + 0.1;
-        const randomZoom = Math.random() + 0.1;
-        
-        cameraPersp.fov = randomFoV * 160;
-        cameraOrtho.bottom = -randomFoV * 500;
-        cameraOrtho.top = randomFoV * 500;
-        
-        cameraPersp.zoom = randomZoom * 5;
-        cameraOrtho.zoom = randomZoom * 5;
-        break;
-      
+
       case 97:
       case 49: // 1
         viewFrontLeft();
@@ -254,9 +263,13 @@ const MultiCamera = function (_scene, _renderer) {
     
   };
   
-  this.addControllers = function (control) {
-    controllers.push(control);
-  };
+  this.setController = function (controller) {
+    _controller = controller;
+  }
+  
+  this.setTransformer = function (transformer) {
+    _transformer = transformer;
+  }
   
   this.addGUI = function (gui) {
     const camera = gui.addFolder("Camera");
@@ -269,9 +282,7 @@ const MultiCamera = function (_scene, _renderer) {
       
       scope.camera = currentCamera;
       
-      controllers.forEach((control) => {
-        setCurrentCamera(control)
-      });
+      _controller.object = currentCamera;
     });
     
     camera.add(scope, 'view', 0, 9, 1)
@@ -338,4 +349,4 @@ const MultiCamera = function (_scene, _renderer) {
   
 };
 
-export default MultiCamera;
+export {MultiCamera};

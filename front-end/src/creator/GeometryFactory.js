@@ -234,7 +234,7 @@ function sceneAddMesh (_scene, mesh, showEdge = true) {
   _scene.add(mesh);
 }
 export {
-  GeometryFactory as default,
+  GeometryFactory,
   sceneAddMesh,
   createMeshWireframe,
   createMeshEdge

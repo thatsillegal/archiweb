@@ -228,4 +228,4 @@ const AssetManager = function (_scene) {
   }
 }
 
-export default AssetManager;
+export {AssetManager};

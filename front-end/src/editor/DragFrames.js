@@ -79,6 +79,7 @@ const DragFrames = function (_renderer, _scene, _camera) {
   
   
   function activate() {
+    _renderer.autoClear = false;
     
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -334,4 +335,4 @@ const DragFrames = function (_renderer, _scene, _camera) {
 
 DragFrames.prototype = Object.create(THREE.EventDispatcher.prototype);
 
-export default DragFrames;
+export  {DragFrames}

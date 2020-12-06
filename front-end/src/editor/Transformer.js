@@ -538,4 +538,4 @@ const Transformer = function (_scene, _renderer, _camera) {
   
 }
 
-export default Transformer;
+export {Transformer};

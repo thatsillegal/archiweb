@@ -171,4 +171,4 @@ const SceneBasic = function (_scene, _renderer) {
 };
 
 
-export default SceneBasic;
+export {SceneBasic};

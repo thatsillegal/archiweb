@@ -2,6 +2,7 @@
 const MaterialFactory = function () {
 
 }
+
 function setMaterial (mesh, material) {
   if (mesh.material.length > 0) {
     let materials = []
@@ -39,7 +40,7 @@ function setPolygonOffsetMaterial(material) {
 }
 
 export {
-  MaterialFactory as default,
+  MaterialFactory ,
   setMaterial,
   setMaterialOpacity,
   setPolygonOffsetMaterial,
