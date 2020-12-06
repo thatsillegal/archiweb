@@ -1,7 +1,10 @@
 import * as THREE from 'three';
 import * as gui from '@/gui'
-import {MultiCamera} from "@/viewers/MultiCamera";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+
+import {AssetManager, MultiCamera} from "@/archiweb";
+import {DragFrames} from "@/archiweb";
+import {Transformer} from "@/archiweb";
 
 const Viewport = function () {
   
@@ -10,6 +13,10 @@ const Viewport = function () {
   
   const camera = new MultiCamera(renderer.domElement);
   const controller = new OrbitControls(camera.camera, renderer.domElement);
+  
+  let drag;
+  let transformer;
+  let assetManager;
   
   function init() {
     window.objects = [];
@@ -39,6 +46,53 @@ const Viewport = function () {
     animate();
   }
   
+  function onSelectDown(event) {
+    window.highlighted = true;
+    assetManager.highlightList(event.object);
+  }
+  
+  function onSelectUp(event) {
+    window.highlighted = false;
+    assetManager.unHighlightList(event.object);
+    transformer.setSelected(event.object);
+  }
+  
+  function enableAssetManager() {
+    assetManager = new AssetManager(scene);
+    assetManager.addGUI(gui.util);
+  
+    return assetManager;
+  }
+  
+  function enableDragFrames() {
+    if(assetManager === undefined) enableAssetManager();
+  
+    drag = new DragFrames(renderer, scene, camera.camera);
+    
+    drag.addEventListener('selectdown', () => {transformer.clear()});
+    drag.addEventListener('select', onSelectDown);
+    drag.addEventListener('selectup', onSelectUp);
+    
+    camera.setDrag(drag);
+    
+    return drag;
+  }
+  
+  function enableTransformer() {
+    if(assetManager === undefined) enableAssetManager();
+    if(drag === undefined) enableDragFrames();
+    
+    transformer = new Transformer(scene, renderer, camera.camera);
+    camera.setTransformer(transformer);
+    
+    transformer.addGUI(gui.gui);
+    transformer._dragFrames = drag;
+    transformer._assetManager = assetManager;
+    assetManager.setTransformer(transformer);
+    
+    return transformer;
+  }
+  
   function animate() {
     controller.update();
     requestAnimationFrame(animate);
@@ -62,9 +116,9 @@ const Viewport = function () {
   
   function windowResize(w, h) {
     
+    if(drag) drag.onWindowResize(w, h);
     camera.onWindowResize(w, h);
     renderer.setSize(w, h);
-    
     render();
   }
   
@@ -106,6 +160,8 @@ const Viewport = function () {
     renderer.clear();
     renderer.render(scene, camera.camera);
     
+    if(drag) drag.render();
+    
   }
   
   
@@ -116,7 +172,11 @@ const Viewport = function () {
   this.scene = scene;
   this.gui = gui;
   this.camera = camera.camera;
-  this.controller = controller;
+  this.assetManager = assetManager;
+  
+  this.enableDragFrames = enableDragFrames;
+  this.enableTransformer = enableTransformer;
+  this.enableAssetManager = enableAssetManager;
 };
 
 export {Viewport};

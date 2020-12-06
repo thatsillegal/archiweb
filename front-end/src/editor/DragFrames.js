@@ -78,8 +78,7 @@ const DragFrames = function (_renderer, _scene, _camera) {
   }
   
   
-  function activate() {
-    _renderer.autoClear = false;
+  function init() {
     
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -91,11 +90,14 @@ const DragFrames = function (_renderer, _scene, _camera) {
     camera2D.position.y = height / 2;
     camera2D.position.z = 10;
     
+    activate();
+    
+  }
+  
+  function activate() {
     _domElement.addEventListener('pointerdown', onDocumentPointerDown, false);
     _domElement.addEventListener('pointermove', onDocumentPointerMove, false);
     _domElement.addEventListener('pointerup', onDocumentPointerUp, false);
-    
-    
   }
   
   
@@ -212,7 +214,6 @@ const DragFrames = function (_renderer, _scene, _camera) {
     scope.object.updateProjectionMatrix();
     scope.object.updateMatrixWorld();
   
-    console.log(scope.object);
     if (!scope.object.isPerspectiveCamera) {
       console.error('THREE.SelectionBox: Unsupported camera type.');
       return;
@@ -304,12 +305,7 @@ const DragFrames = function (_renderer, _scene, _camera) {
       }
     }
     
-    // if (object.isGroup) {
-    //   for (let x = 0; x < object.children.length; x++) {
-    //     searchChildInFrustum(frustum, object.children[x]);
-    //   }
-    // }
-    //
+
     for (let x = 0; x < object.length; x++) {
       searchChildInFrustum(frustum, object[x]);
     }
@@ -320,15 +316,17 @@ const DragFrames = function (_renderer, _scene, _camera) {
     _renderer.render(scene2D, camera2D);
   }
   
-  activate();
+  init();
   
   this.selected = _selected;
   
   this.enabled = true;
   
   this.object = _camera;
+  this.activate = activate;
+  this.deactivate = deactivate;
   this.dispose = dispose;
-  this.unSelected = unSelected;
+  this.clear = unSelected;
   this.render = render;
   this.onWindowResize = onWindowResize;
 };

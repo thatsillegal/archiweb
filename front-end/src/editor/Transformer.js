@@ -23,6 +23,7 @@ import {TransformControls} from "three/examples/jsm/controls/TransformControls";
  * Date: 2020-11-12
  * Author: Yichen Mo
  */
+import {refreshSelection} from "@/creator/AssetManager";
 
 /**
  * Transformer
@@ -40,13 +41,11 @@ const Transformer = function (_scene, _renderer, _camera) {
   let copy = false;
   let refresh = false;
   //
-  let clonedObject;
+  let clonedObject = new THREE.Group();
   let shiftDown;
   
-  //
-  // let _dragFrames, _assetManager;
+
   this._dragFrames;
-  this._assetManager;
   
   //API
   
@@ -98,7 +97,6 @@ const Transformer = function (_scene, _renderer, _camera) {
       dragged = !event.value;
       
       if (event.value === true) {
-        clonedObject = new THREE.Group();
         setCloneObject(control.object);
       } else {
         
@@ -245,7 +243,7 @@ const Transformer = function (_scene, _renderer, _camera) {
       
       clear();
       if (refresh) {
-        scope._assetManager.refreshSelection();
+        refreshSelection(_scene);
         
         refresh = false;
       }
@@ -276,16 +274,7 @@ const Transformer = function (_scene, _renderer, _camera) {
     }
   }
   
-  function refreshSelection() {
-    window.objects = [];
-    _scene.children.forEach((obj) => {
-      if (obj.layer !== undefined && ~obj.layer.indexOf(window.layer)) {
-        window.objects.push(obj);
-      }
-    })
-    // console.log('current length', window.objects.length);
-    window.highlightObject = window.objects;
-  }
+
   
   function deleteObject(object) {
     if (object === undefined) return;
@@ -516,6 +505,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   }
   
   init();
+  
   this.mode = 0; // 0-transform, 1-rotate, 2-scale
   this.world = false; //true-word, false-local
   this.snap = false;

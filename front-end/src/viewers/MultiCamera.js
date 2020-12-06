@@ -34,6 +34,8 @@ const MultiCamera = function (domElement) {
   
   let _controller;
   let _transformer;
+  let _dragFrames;
+  
   
   /* ---------- Init Camera ---------- */
   function init() {
@@ -60,13 +62,34 @@ const MultiCamera = function (domElement) {
     cameraPersp.up = new THREE.Vector3(0, 0, 1);
   }
   
-  function setCurrentCamera(control) {
-    if (control.isTransformer) {
-      control.setCamera(currentCamera);
-    } else {
-      control.object = currentCamera;
-    }
+  function togglePerspective() {
+    const position = scope.camera.position.clone();
+    cameraPersp.position.copy(position);
+    
+    scope.camera = cameraPersp;
+    scope.isometric = false;
+    
+    _controller.object = cameraPersp;
+    
+    _dragFrames.activate();
+    // _dragFrames.enabled = true;
+    if(_transformer) _transformer.control.camera = cameraPersp;
   }
+  
+  function toggleOrthographic() {
+    const position = scope.camera.position.clone();
+    cameraOrtho.position.copy(position);
+  
+    scope.camera = cameraOrtho;
+    scope.isometric = true;
+  
+    _controller.object = cameraOrtho;
+    // dragFrames enabled not work because of transformer enable it, so have to deactivate directly
+    _dragFrames.deactivate();
+    // _dragFrames.enabled = false;
+    if(_transformer) _transformer.control.camera = cameraOrtho;
+  }
+
   
   /* ---------- zoom to objects ---------- */
   function getBoundingBox(objects) {
@@ -166,16 +189,8 @@ const MultiCamera = function (domElement) {
     switch (event.keyCode) {
       
       case 67: // C
-        const position = currentCamera.position.clone();
-        
-        currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
-        currentCamera.position.copy(position);
-        
-        scope.camera = currentCamera;
-        scope.isometric = !currentCamera.isPerspectiveCamera;
-  
-        _controller.object = currentCamera;
- 
+        if(scope.camera.isPerspectiveCamera) toggleOrthographic();
+        else togglePerspective();
         break;
 
       case 97:
@@ -263,6 +278,10 @@ const MultiCamera = function (domElement) {
     
   };
   
+  this.setDrag = function (drag) {
+    _dragFrames = drag;
+  }
+  
   this.setController = function (controller) {
     _controller = controller;
   }
@@ -275,14 +294,8 @@ const MultiCamera = function (domElement) {
     const camera = gui.addFolder("Camera");
     camera.add(scope, 'isometric')
       .listen().onChange(function () {
-      const position = currentCamera.position.clone();
-      
-      currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
-      currentCamera.position.copy(position);
-      
-      scope.camera = currentCamera;
-      
-      _controller.object = currentCamera;
+      if(scope.isometric) toggleOrthographic();
+      else togglePerspective();
     });
     
     camera.add(scope, 'view', 0, 9, 1)

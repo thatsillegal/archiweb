@@ -33,9 +33,7 @@ const AssetManager = function (_scene) {
   
   
   this.id = 0;
-  // this.group = new THREE.Group();
-  // _scene.add(scope.group);
-  
+
   window.layer = scope.id;
   
   this.addSelectedItem = function (item, id) {
@@ -68,16 +66,7 @@ const AssetManager = function (_scene) {
     }
   }
   
-  this.refreshSelection = function () {
-    window.objects = [];
-    _scene.children.forEach((obj) => {
-      if (obj.layer !== undefined && ~obj.layer.indexOf(window.layer)) {
-        window.objects.push(obj);
-      }
-    })
-    window.highlightObject = window.objects;
-  }
-  
+
   
   this.setGroup = function () {
     const obj = transformer.object;
@@ -103,7 +92,7 @@ const AssetManager = function (_scene) {
      group layer set from union of layers
     */
     group.layer=Array.from(layers);
-    scope.refreshSelection();
+    refreshSelection(_scene);
   }
   
   this.unGroup = function () {
@@ -124,7 +113,7 @@ const AssetManager = function (_scene) {
   
     transformer.control.detach();
     obj.layer = undefined;
-    scope.refreshSelection();
+    refreshSelection(_scene);
   
   }
   
@@ -223,9 +212,21 @@ const AssetManager = function (_scene) {
     gui.add(scope, 'highlightCurrent').name('highlight');
     gui.add(scope, 'id', 0, max, 1).name('layer').listen().onChange(function () {
       window.layer = scope.id;
-      scope.refreshSelection();
+      refreshSelection(_scene);
     });
   }
+  
+  this.refreshSelection = refreshSelection;
 }
 
-export {AssetManager};
+function refreshSelection (scene) {
+  window.objects = [];
+  scene.children.forEach((obj) => {
+    if (obj.layer !== undefined && ~obj.layer.indexOf(window.layer)) {
+      window.objects.push(obj);
+    }
+  })
+  window.highlightObject = window.objects;
+}
+
+export {AssetManager, refreshSelection};

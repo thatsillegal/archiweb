@@ -7,7 +7,7 @@ export {Transformer} from "@/editor/Transformer"
 
 
 export {Loader} from "@/creator/Loader";
-export {AssetManager} from "@/creator/AssetManager";
+export {AssetManager, refreshSelection} from "@/creator/AssetManager";
 export {GeometryFactory, sceneAddMesh, createMeshEdge, createMeshWireframe} from "@/creator/GeometryFactory";
 export {MaterialFactory, setPolygonOffsetMaterial, setMaterial, setMaterialOpacity} from "@/creator/MaterialFactory";
 
