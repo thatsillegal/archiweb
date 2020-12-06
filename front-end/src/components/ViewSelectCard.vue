@@ -51,36 +51,12 @@
         
         
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn-toggle
-            v-model="value"
-            rounded
-          >
-            <v-btn
-              color="gray"
-              large
-              @click="to3D"
-            >
-              3D
-            </v-btn>
-            <v-btn
-              color="gray"
-              large
-              @click="to2D"
-            >
-              2D
-            </v-btn>
-          </v-btn-toggle>
-          <v-spacer></v-spacer>
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </v-row>
 </template>
 
 <script>
-import Viewer from "@/components/Viewer";
 
 export default {
   name: "ViewSelectCard",
@@ -93,21 +69,7 @@ export default {
   }),
   mounted() {
   },
-  methods: {
-    to3D: function () {
-      this.value = 0;
-      
-      this.dialog = false;
-      Viewer.methods.init3D();
-      console.log('3d')
-    },
-    to2D: function () {
-      this.value = 1;
-      this.dialog = false;
-      Viewer.methods.init2D();
-      console.log('2d')
-    }
-  }
+
 }
 </script>
 

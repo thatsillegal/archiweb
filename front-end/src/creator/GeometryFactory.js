@@ -26,7 +26,6 @@ import {Wireframe} from "three/examples/jsm/lines/Wireframe";
  * Date: 2020-11-12
  * Author: Yichen Mo
  */
-
 import {setPolygonOffsetMaterial} from "@/creator/MaterialFactory";
 
 const GeometryFactory = function (_scene) {
@@ -206,9 +205,7 @@ function createMeshEdge(mesh, color = 0x000000) {
   
   const matLine = new THREE.LineBasicMaterial({color: color});
   const geoLine = new THREE.EdgesGeometry(mesh.geometry);
-  const line = new THREE.LineSegments(geoLine, matLine);
-  
-  mesh.add(line);
+  return new THREE.LineSegments(geoLine, matLine);
 }
 
 function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
@@ -225,7 +222,7 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
 
 function sceneAddMesh (_scene, mesh, showEdge = true) {
   if (showEdge) {
-    mesh.add(createMeshWireframe(mesh.geometry, 0xffff00, 0.005));
+    mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
     mesh.add(createMeshEdge(mesh));
     mesh.children[0].visible = false;
   }

@@ -24,7 +24,6 @@ import {TransformControls} from "three/examples/jsm/controls/TransformControls";
  * Author: Yichen Mo
  */
 
-import {dragFrames, assetManager} from "@/index";
 /**
  * Transformer
  * @param _scene
@@ -46,6 +45,8 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   //
   // let _dragFrames, _assetManager;
+  this._dragFrames;
+  this._assetManager;
   
   //API
   
@@ -244,13 +245,13 @@ const Transformer = function (_scene, _renderer, _camera) {
       
       clear();
       if (refresh) {
-        assetManager.refreshSelection();
+        scope._assetManager.refreshSelection();
         
         refresh = false;
       }
       
-      if (dragFrames !== undefined)
-        dragFrames.enabled = true;
+      if (scope._dragFrames !== undefined)
+        scope._dragFrames.enabled = true;
     }
   }
   
@@ -258,8 +259,10 @@ const Transformer = function (_scene, _renderer, _camera) {
   function attachObject(objs) {
     if (objs.length === 1) {
       control.attach(objs[0]);
-      if (dragFrames !== undefined)
-        dragFrames.enabled = false;
+      
+      if (scope._dragFrames !== undefined)
+        scope._dragFrames.enabled = false;
+      
     } else if (objs.length > 1) {
       
       for (let i = 0; i < objs.length; ++i) {
@@ -268,8 +271,8 @@ const Transformer = function (_scene, _renderer, _camera) {
       applyGroupCenter(grouped);
       control.attach(grouped);
       
-      if (dragFrames !== undefined)
-        dragFrames.enabled = false;
+      if (scope._dragFrames !== undefined)
+        scope._dragFrames.enabled = false;
     }
   }
   
@@ -495,7 +498,6 @@ const Transformer = function (_scene, _renderer, _camera) {
   function setSelected(objects) {
     selected = objects;
   }
-
   
   function setCamera(camera) {
     control.camera = camera;

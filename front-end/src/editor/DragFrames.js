@@ -24,7 +24,14 @@ import * as THREE from 'three'
  * Author: Yichen Mo
  */
 
-const DragFrames = function (_camera, _scene, _renderer) {
+/**
+ *
+ * @param _camera
+ * @param _scene
+ * @param _renderer
+ * @constructor
+ */
+const DragFrames = function (_renderer, _scene, _camera) {
   
   let _domElement = _renderer.domElement;
   let _dragInitX, _dragInitY;
@@ -38,6 +45,7 @@ const DragFrames = function (_camera, _scene, _renderer) {
   let _selected = [];
   
   let scene2D, camera2D;
+  
   let scope = this;
   
   function minMax(a, b) {
@@ -200,14 +208,15 @@ const DragFrames = function (_camera, _scene, _renderer) {
       endPoint.y += Number.EPSILON;
     }
     
-    _camera.updateProjectionMatrix();
-    _camera.updateMatrixWorld();
-    
-    if (!_camera.isPerspectiveCamera) {
+    scope.object.updateProjectionMatrix();
+    scope.object.updateMatrixWorld();
+  
+    console.log(scope.object);
+    if (!scope.object.isPerspectiveCamera) {
       console.error('THREE.SelectionBox: Unsupported camera type.');
       return;
     }
-    
+
     const tmpPoint = new THREE.Vector3();
     
     const vecNear = new THREE.Vector3();
@@ -226,16 +235,16 @@ const DragFrames = function (_camera, _scene, _renderer) {
     endPoint.x = Math.max(startPoint.x, endPoint.x);
     endPoint.y = Math.min(startPoint.y, endPoint.y);
     
-    vecNear.setFromMatrixPosition(_camera.matrixWorld);
+    vecNear.setFromMatrixPosition(scope.object.matrixWorld);
     vecTopLeft.copy(tmpPoint);
     vecTopRight.set(endPoint.x, tmpPoint.y, 0);
     vecDownRight.copy(endPoint);
     vecDownLeft.set(tmpPoint.x, endPoint.y, 0);
     
-    vecTopLeft.unproject(_camera);
-    vecTopRight.unproject(_camera);
-    vecDownRight.unproject(_camera);
-    vecDownLeft.unproject(_camera);
+    vecTopLeft.unproject(scope.object);
+    vecTopRight.unproject(scope.object);
+    vecDownRight.unproject(scope.object);
+    vecDownLeft.unproject(scope.object);
     
     vectemp1.copy(vecTopLeft).sub(vecNear);
     vectemp2.copy(vecTopRight).sub(vecNear);
@@ -316,6 +325,7 @@ const DragFrames = function (_camera, _scene, _renderer) {
   
   this.enabled = true;
   
+  this.object = _camera;
   this.dispose = dispose;
   this.unSelected = unSelected;
   this.render = render;

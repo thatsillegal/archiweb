@@ -28,7 +28,7 @@ ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en
     - [SceneBasic](#scenebasic)
     - [DragFrames](#dragframes)
     - [MultiCamera](#multicamera)
-    - [GeometryFactory](#geometrybasic)
+    - [GeometryFactory](#geometryfactory)
     - [Loader](#loader)
     - [similar works](#similar-works)
 - [Extensions](#extensions)

@@ -47,6 +47,7 @@ const MultiCamera = function (_scene, _renderer) {
     let aspect = width / height;
     cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 1, 30000);
     cameraOrtho.position.set(1000, -1500, 1000);
+    cameraOrtho.up = new THREE.Vector3(0, 0, 1);
   }
   
   function initPerspectiveCamera(width, height) {
@@ -77,12 +78,14 @@ const MultiCamera = function (_scene, _renderer) {
     position.y -= 1200;
     position.z += 1200;
     currentCamera.position.copy(position);
+    
   }
   
   function viewFront() {
     const position = getTargetPosition().clone();
     position.y = -2000;
     currentCamera.position.copy(position);
+  
   }
   
   function viewFrontRight() {
@@ -91,6 +94,7 @@ const MultiCamera = function (_scene, _renderer) {
     position.y -= 1200;
     position.z += 1200;
     currentCamera.position.copy(position);
+  
   }
   
   function viewLeft() {
@@ -133,6 +137,8 @@ const MultiCamera = function (_scene, _renderer) {
     position.y += 1200;
     position.z += 1200;
     currentCamera.position.copy(position);
+    currentCamera.updateProjectionMatrix();
+  
   }
   
   function onDocumentKeyDown(event) {
@@ -227,7 +233,7 @@ const MultiCamera = function (_scene, _renderer) {
   
   this.view = 0;
   this.isometric = false;
-  this.fov = currentCamera.fov;
+  this.fov = 45;
   
   this.camera = currentCamera;
   this.onWindowResize = function (w, h) {

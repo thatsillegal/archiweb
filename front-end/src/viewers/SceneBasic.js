@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import * as THREE from 'three'
-import {transformer} from "@/index";
 // import * as CSM from 'three-csm';
 // THREE.CSM = CSM;
 
@@ -30,6 +29,7 @@ import {transformer} from "@/index";
 
 const SceneBasic = function (_scene, _renderer) {
   let scope = this;
+  this._transformer;
   this.skyColor = '#c4ced6';
   this.floorColor = '#80807a';
   this.x = 1500;
@@ -127,16 +127,16 @@ const SceneBasic = function (_scene, _renderer) {
       .listen().onChange(
       function () {
         gridUpdate(scope.grid);
-        if (transformer === undefined) return;
+        if (scope._transformer === undefined) return;
         
         if (scope.grid > 0) {
-          transformer.setTranslationSnap(scope.grid);
-          transformer.setRotationSnap(THREE.MathUtils.degToRad(15));
-          transformer.setScaleSnap(0.25);
+          scope._transformer.setTranslationSnap(scope.grid);
+          scope._transformer.setRotationSnap(THREE.MathUtils.degToRad(15));
+          scope._transformer.setScaleSnap(0.25);
         } else {
-          transformer.setTranslationSnap(null);
-          transformer.setRotationSnap(null);
-          transformer.setScaleSnap(null);
+          scope._transformer.setTranslationSnap(null);
+          scope._transformer.setRotationSnap(null);
+          scope._transformer.setScaleSnap(null);
         }
       }
     );
