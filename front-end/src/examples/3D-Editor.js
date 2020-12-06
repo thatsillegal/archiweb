@@ -153,6 +153,7 @@ function render() {
 
 
 function animate() {
+  orbit.update();
   requestAnimationFrame(animate);
   render();
 }
@@ -218,17 +219,14 @@ function onSelectUp(event) {
 
 // APIs
 
-function updateObjectPosition(uuid, position, model) {
+function updateObject(uuid, position, model) {
   const o = scene.getObjectByProperty('uuid', uuid);
   // o.position.copy(position);
   gb.updateModel(o, model);
 }
 
 function init() {
-  window.objects = [];
-  gui.initGUI();
-  
-  initRender();
+
   initScene();
   
   renderer.autoClear = false;
@@ -245,12 +243,16 @@ function init() {
 
 
 function main() {
+  window.objects = [];
+  gui.initGUI();
+  
+  initRender();
   init();
   animate();
 }
 
 export {
   main,
-  updateObjectPosition,
+  updateObject,
   
 }

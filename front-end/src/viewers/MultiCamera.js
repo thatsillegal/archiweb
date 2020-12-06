@@ -38,21 +38,20 @@ const MultiCamera = function (_scene, _renderer) {
     initPerspectiveCamera(scope.width, scope.height);
     initOrthographicCamera(scope.width, scope.height);
     
-    currentCamera = cameraPersp;
+    currentCamera = scope.isometric ? cameraOrtho : cameraPersp;
     _renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
     
   }
   
   function initOrthographicCamera(width, height) {
-    let aspect = width / height;
-    cameraOrtho = new THREE.OrthographicCamera(-600 * aspect, 600 * aspect, 600, -600, 1, 30000);
-    cameraOrtho.position.set(1000, -1500, 1000);
+    cameraOrtho = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, scope.near, scope.far);
+    cameraOrtho.position.set(scope.x, scope.y, scope.z);
     cameraOrtho.up = new THREE.Vector3(0, 0, 1);
   }
   
   function initPerspectiveCamera(width, height) {
-    cameraPersp = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
-    cameraPersp.position.set(1000, -1500, 1000);
+    cameraPersp = new THREE.PerspectiveCamera(scope.fov, width / height, scope.near, scope.far);
+    cameraPersp.position.set(scope.x, scope.y, scope.z);
     cameraPersp.up = new THREE.Vector3(0, 0, 1);
   }
   
@@ -228,13 +227,21 @@ const MultiCamera = function (_scene, _renderer) {
     
   }
   
-  
-  init();
-  
-  this.view = 0;
+  /* ---------- APIs ---------- */
   this.isometric = false;
   this.fov = 45;
   
+  /* ---------- detail parameters ---------- */
+  this.near = 1;
+  this.far = 10000;
+  this.x = 1000;
+  this.y = -1500;
+  this.z = 1000;
+  
+  init();
+  
+  /* ---------- after init ---------- */
+  this.view = 0;
   this.camera = currentCamera;
   this.onWindowResize = function (w, h) {
     cameraPersp.aspect = w / h;
@@ -266,6 +273,7 @@ const MultiCamera = function (_scene, _renderer) {
         setCurrentCamera(control)
       });
     });
+    
     camera.add(scope, 'view', 0, 9, 1)
       .listen().onChange(function () {
       switch (scope.view) {
@@ -298,7 +306,10 @@ const MultiCamera = function (_scene, _renderer) {
           break;
       }
     });
-    camera.add(scope, 'fov', 0, 150, 1)
+  
+    const detail = camera.addFolder("Detail")
+    
+    detail.add(scope, 'fov', 0, 150, 1)
       .listen().onChange(function () {
       cameraPersp.fov = scope.fov;
       
@@ -307,8 +318,23 @@ const MultiCamera = function (_scene, _renderer) {
       
       currentCamera.updateProjectionMatrix();
     });
-  }
+    
+    detail.add(scope, 'near',0.1, 100)
+      .listen().onChange(function () {
+      cameraOrtho.near = scope.near;
+      cameraPersp.near = scope.near;
+      
+      currentCamera.updateProjectionMatrix();
+    })
   
+    detail.add(scope, 'far', 1000, 100000)
+      .listen().onChange(function () {
+      cameraOrtho.far = scope.far;
+      cameraPersp.far = scope.far;
+    
+      currentCamera.updateProjectionMatrix();
+    })
+  }
   
 };
 
