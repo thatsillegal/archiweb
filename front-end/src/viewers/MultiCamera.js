@@ -44,14 +44,12 @@ const MultiCamera = function (domElement) {
     initOrthographicCamera(scope.width, scope.height);
     
     currentCamera = scope.isometric ? cameraOrtho : cameraPersp;
-    console.log(domElement)
-  
     domElement.addEventListener('keydown', onDocumentKeyDown, false);
-    
   }
   
   function initOrthographicCamera(width, height) {
-    cameraOrtho = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, scope.near, scope.far);
+    cameraOrtho = new THREE.OrthographicCamera(width / - 2, width / 2,
+      height / 2, height / - 2, scope.near, scope.far);
     cameraOrtho.position.set(scope.x, scope.y, scope.z);
     cameraOrtho.up = new THREE.Vector3(0, 0, 1);
   }
@@ -71,7 +69,7 @@ const MultiCamera = function (domElement) {
     
     _controller.object = cameraPersp;
     
-    _dragFrames.activate();
+    if(_dragFrames) _dragFrames.activate();
     // _dragFrames.enabled = true;
     if(_transformer) _transformer.control.camera = cameraPersp;
   }
@@ -84,8 +82,9 @@ const MultiCamera = function (domElement) {
     scope.isometric = true;
   
     _controller.object = cameraOrtho;
+    
     // dragFrames enabled not work because of transformer enable it, so have to deactivate directly
-    _dragFrames.deactivate();
+    if(_dragFrames) _dragFrames.deactivate();
     // _dragFrames.enabled = false;
     if(_transformer) _transformer.control.camera = cameraOrtho;
   }

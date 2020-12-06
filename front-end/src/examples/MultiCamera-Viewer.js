@@ -8,7 +8,6 @@ let scene, renderer, gui;
 
 
 function initScene() {
-  scene.background = new THREE.Color(0xfafafa);
   
   /* ---------- create basic geometry ---------- */
   const gb = new ARCH.GeometryFactory(scene);
@@ -38,19 +37,10 @@ function initScene() {
     mesh.toCamera = true;
   });
   
-  /* ---------- manage assets ---------- */
-  const assetManager = new ARCH.AssetManager(scene);
-  assetManager.refreshSelection();
 }
 
 
 // APIs
-
-function updateObject(uuid, position, model) {
-  const o = scene.getObjectByProperty('uuid', uuid);
-  o.position.copy(position);
-  model.updateModel(o, model);
-}
 
 function main() {
   const viewport = new ARCH.Viewport();
@@ -67,5 +57,4 @@ function main() {
 
 export {
   main,
-  updateObject,
 }
