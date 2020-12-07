@@ -72,6 +72,7 @@ const GeometryFactory = function (_scene) {
     mesh.position.set(x, y, z);
     
     publicProperties(mesh);
+    // console.log(mesh);
     return mesh;
   }
   

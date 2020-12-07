@@ -1,34 +1,19 @@
 import * as THREE from "three";
-import AssetManager from "@/creator/AssetManager";
-import * as gui from "@/gui";
-import GeometryFactory from "@/creator/GeometryFactory";
+import * as ARCH from "@/archiweb"
+
 
 import {DragControls} from "three/examples/jsm/controls/DragControls";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 
-let scene, renderer, camera;
-let orbit, drag;
-
-let gb, assetManager;
-function init() {
-  renderer.autoClear = true;
-  
-  let aspect = window.innerWidth / window.innerHeight;
-  camera = new THREE.OrthographicCamera(-50 * aspect, 50 * aspect, 50, -50, 0.01, 30000);
-  camera.position.set(0, 0, 1000);
-  
-  
-  initScene();
-  initControls();
-}
+let scene, renderer, gui, camera;
+let drag, controller;
+let gb;
 
 function initScene() {
-  scene = new THREE.Scene();
-  assetManager = new AssetManager(scene);
-  assetManager.addGUI(gui.util);
   
-  gb = new GeometryFactory(scene);
+  const axes = new THREE.AxesHelper(50)
+  scene.add(axes);
+  gb = new ARCH.GeometryFactory(scene);
   let controls = {
     color: 0xfafafa
   };
@@ -51,32 +36,33 @@ function initScene() {
   }
   console.log(cl.length);
   
-  assetManager.refreshSelection();
+  ARCH.refreshSelection(scene);
   gb.Curve(cl);
   
 }
 
-function initControls() {
-  if (orbit !== undefined) orbit.dispose();
-  orbit = new OrbitControls(camera, renderer.domElement);
-  orbit.enableRotate = false;
-  
-  initDrag();
+function around(position) {
+  position.x = Math.round(position.x);
+  position.y = Math.round(position.y);
+  position.z = Math.round(position.z);
 }
 
 function initDrag() {
   drag = new DragControls(window.objects, camera, renderer.domElement);
   drag.addEventListener('hoveron', function (event) {
     let o = event.object;
+    around(o.position);
+    
     o.toInfoCard();
-    orbit.enabled = false;
+    controller.enabled = false;
   });
   drag.addEventListener('hoveroff', function () {
-    orbit.enabled = true;
+    controller.enabled = true;
   });
   drag.addEventListener('dragend', function (event) {
-    
     let o = event.object;
+    around(o.position);
+    
     o.toInfoCard();
     gb.Curve(window.objects);
   });
@@ -86,86 +72,26 @@ function initDrag() {
 }
 
 
-function onDocumentKeyDown(event) {
-  switch (event.keyCode) {
-    case 16: // Shift
-      orbit.enabled = false;
-      break;
-    case 73:
-      window.InfoCard.hideInfoCard(!window.InfoCard.show);
-    
-  }
-}
-
-function onDocumentKeyUp(event) {
-  switch (event.keyCode) {
-    
-    case 16: // Shift
-      orbit.enabled = true;
-      break;
-  }
-  
-}
-
 function updateObject(uuid, position) {
   const o = scene.getObjectByProperty('uuid', uuid);
   o.position.copy(position);
   gb.Curve(window.objects);
 }
 
-
-
-function windowResize(w, h) {
-  camera.left = camera.bottom * w / h;
-  camera.right = camera.top * w / h;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w, h);
-  
-  render();
-}
-
-function render() {
-  renderer.render(scene, camera);
-}
-
-
-function animate() {
-  requestAnimationFrame(animate);
-  render();
-}
-
-function initRender() {
-  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  
-  addToDOM();
-}
-
-function addToDOM() {
-  const container = document.getElementById('container');
-  const canvas = container.getElementsByTagName('canvas');
-  if (canvas.length > 0) {
-    container.removeChild(canvas[0]);
-  }
-  container.appendChild(renderer.domElement);
-  
-  window.onresize = function () {
-    windowResize(window.innerWidth, window.innerHeight);
-  };
-  renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
-  renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
-}
-
-
-
 function main() {
-  window.objects = [];
-  gui.initGUI();
-  initRender();
+  const viewport = new ARCH.Viewport();
+  renderer = viewport.renderer;
   
-  init();
-  animate();
+  scene = viewport.scene;
+  gui = viewport.gui;
+  controller = viewport.controller;
+  
+  camera = viewport.to2D();
+  console.log(camera);
+  
+  initScene();
+  initDrag();
+
 }
 
 export {

@@ -19,6 +19,7 @@ const Viewport = function () {
   let assetManager;
   
   function init() {
+    window.layer = 0;
     window.objects = [];
   
     /* ---------- renderer ---------- */
@@ -31,18 +32,17 @@ const Viewport = function () {
     
     /* ---------- gui ---------- */
     gui.initGUI();
+    addGUI(gui.gui);
   
     /* ---------- camera ---------- */
     camera.addGUI(gui.gui);
+    camera.setController(controller);
   
-    /* ---------- orbit controller ---------- */
+    /* ---------- control ---------- */
     controller.mouseButtons = {
       LEFT: THREE.MOUSE.PAN,
       RIGHT: THREE.MOUSE.ROTATE
     }
-    controller.enablePan = false;
-    camera.setController(controller);
-    
     animate();
   }
   
@@ -163,20 +163,66 @@ const Viewport = function () {
     if(drag) drag.render();
     
   }
+
+  function to2D() {
+    camera.top();
+    camera.toggleOrthographic();
+    
+    controller.enablePan = true;
+    controls.pan = true;
+    
+    controller.enableRotate = false;
+    controls.rotate = false;
+  
+    return camera.camera;
+  }
+
+  function to3D() {
+
+    controller.enablePan = false;
+    controls.pan = false;
+    
+    return camera.camera;
+  }
   
   
-  init();
-  
+  const controls = new function (){
+    this.rotate = true;
+    this.pan = false;
+    this.zoom = true;
+  }
   /* ---------- APIs ---------- */
   this.renderer = renderer;
   this.scene = scene;
   this.gui = gui;
-  this.camera = camera.camera;
-  this.assetManager = assetManager;
+  this.controller = controller;
+  this.camera = to3D();
   
   this.enableDragFrames = enableDragFrames;
   this.enableTransformer = enableTransformer;
   this.enableAssetManager = enableAssetManager;
+  
+  this.to2D = to2D;
+  this.to3D = to3D;
+  
+  /* ---------- GUI ---------- */
+
+  function addGUI(gui) {
+    let viewport = gui.addFolder('Viewport');
+    console.log(controls);
+    console.log(viewport);
+    viewport.add(controls, 'rotate').listen().onChange(()=>{
+      controller.enableRotate = !controller.enableRotate;
+    });
+    viewport.add(controls, 'pan').listen().onChange(()=>{
+      controller.enablePan = !controller.enablePan;
+    });
+    viewport.add(controls, 'zoom').listen().onChange(()=>{
+      controller.enableZoom = !controller.enableZoom;
+    });
+  }
+  
+  init();
 };
 
 export {Viewport};

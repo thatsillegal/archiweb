@@ -292,6 +292,10 @@ const MultiCamera = function (domElement) {
   init();
   
   /* ---------- after init ---------- */
+  this.toggleOrthographic = toggleOrthographic;
+  this.togglePerspective = togglePerspective;
+  this.top = viewUp;
+  
   this.onWindowResize = function (w, h) {
     cameraPersp.aspect = w / h;
     cameraPersp.updateProjectionMatrix();
