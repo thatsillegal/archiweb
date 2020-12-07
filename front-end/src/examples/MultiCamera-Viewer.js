@@ -49,6 +49,7 @@ function main() {
   gui = viewport.gui;
   
   initScene();
+  ARCH.refreshSelection(scene);
   
   const sceneBasic = new ARCH.SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui.gui);

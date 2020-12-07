@@ -29,7 +29,7 @@ const MultiCamera = function (domElement) {
   this.width = window.innerWidth;
   this.height = window.innerHeight;
   
-  let cameraPersp, cameraOrtho, currentCamera = null;
+  let cameraPersp, cameraOrtho;
   let scope = this;
   
   let _controller;
@@ -43,7 +43,7 @@ const MultiCamera = function (domElement) {
     initPerspectiveCamera(scope.width, scope.height);
     initOrthographicCamera(scope.width, scope.height);
     
-    currentCamera = scope.isometric ? cameraOrtho : cameraPersp;
+    scope.camera = scope.isometric ? cameraOrtho : cameraPersp;
     domElement.addEventListener('keydown', onDocumentKeyDown, false);
   }
   
@@ -93,22 +93,47 @@ const MultiCamera = function (domElement) {
   /* ---------- zoom to objects ---------- */
   function getBoundingBox(objects) {
     const box = new THREE.Box3();
-    if(objects.length > 0) {
-      objects.forEach((item) => {
-        const b = new THREE.Box3().setFromObject(item);
-        box.union(b);
-      })
+    if(objects instanceof Array) {
+      for(const object of objects)
+        box.expandByObject(object);
     } else {
       box.setFromObject(objects);
     }
     return box;
   }
   
-  function zoomToObjects(objects) {
+  function zoomToObjects(objects, offset=2) {
+  
     const boundingBox = getBoundingBox(objects);
+  
+    const center = boundingBox.getCenter( new THREE.Vector3() );
+    const size = boundingBox.getSize( new THREE.Vector3() );
+
+  
+    const maxSize = Math.max( size.x, size.y, size.z );
+    const fitHeightDistance = maxSize / ( 2 * Math.atan( Math.PI * cameraPersp.fov / 360 ) );
+    const fitWidthDistance = fitHeightDistance / cameraPersp.aspect;
+    const distance = offset * Math.max( fitHeightDistance, fitWidthDistance );
+  
     
-    const center = boundingBox.getCenter();
-    const size = boundingBox.getSize();
+    const direction = _controller.target.clone()
+      .sub( scope.camera.position )
+      .normalize()
+      .multiplyScalar( distance );
+    
+    
+    cameraPersp.maxDistance = distance * 10;
+    scope.camera.lookAt( center );
+  
+    scope.camera.near = distance / 100;
+    scope.camera.far = distance * 100;
+    scope.camera.updateProjectionMatrix();
+  
+    scope.camera.position.copy( _controller.target ).sub(direction);
+  
+    _controller.target = center;
+    _controller.update();
+
   }
   
   
@@ -120,14 +145,14 @@ const MultiCamera = function (domElement) {
     position.x -= 1200;
     position.y -= 1200;
     position.z += 1200;
-    currentCamera.position.copy(position);
+    scope.camera.position.copy(position);
     
   }
   
   function viewFront() {
     const position = _controller.target.clone();
     position.y = -2000;
-    currentCamera.position.copy(position);
+    scope.camera.position.copy(position);
   
   }
   
@@ -136,26 +161,26 @@ const MultiCamera = function (domElement) {
     position.x += 1200;
     position.y -= 1200;
     position.z += 1200;
-    currentCamera.position.copy(position);
+    scope.camera.position.copy(position);
   
   }
   
   function viewLeft() {
     const position = _controller.target.clone();
     position.x = -2000;
-    currentCamera.position.copy(position);
+    scope.camera.position.copy(position);
   }
   
   function viewUp() {
     const position = _controller.target.clone();
     position.z = 2000;
-    currentCamera.position.copy(position);
+    scope.camera.position.copy(position);
   }
   
   function viewRight() {
     const position = _controller.target.clone();
     position.x = 2000;
-    currentCamera.position.copy(position);
+    scope.camera.position.copy(position);
     
   }
   
@@ -165,13 +190,13 @@ const MultiCamera = function (domElement) {
     position.x -= 1200;
     position.y += 1200;
     position.z += 1200;
-    currentCamera.position.copy(position);
+    scope.camera.position.copy(position);
   }
   
   function viewBack() {
     const position = _controller.target.clone();
     position.y = 2000;
-    currentCamera.position.copy(position);
+    scope.camera.position.copy(position);
   }
   
   function viewBackRight() {
@@ -179,8 +204,8 @@ const MultiCamera = function (domElement) {
     position.x += 1200;
     position.y += 1200;
     position.z += 1200;
-    currentCamera.position.copy(position);
-    currentCamera.updateProjectionMatrix();
+    scope.camera.position.copy(position);
+    scope.camera.updateProjectionMatrix();
   
   }
   
@@ -261,11 +286,12 @@ const MultiCamera = function (domElement) {
   this.y = -1500;
   this.z = 1000;
   
+  this.view = 0;
+  this.camera = null;
+  
   init();
   
   /* ---------- after init ---------- */
-  this.view = 0;
-  this.camera = currentCamera;
   this.onWindowResize = function (w, h) {
     cameraPersp.aspect = w / h;
     cameraPersp.updateProjectionMatrix();
@@ -289,8 +315,17 @@ const MultiCamera = function (domElement) {
     _transformer = transformer;
   }
   
+  this.zoomAll = function () {
+    if(window.highlightObject.length === 0) {
+      alert("⚠️ No object selected, use ARCH.refreshSelection(scene) or enable AssetManager in viewport.")
+      return;
+    }
+    zoomToObjects(window.highlightObject);
+  }
+  
   this.addGUI = function (gui) {
     const camera = gui.addFolder("Camera");
+    camera.add(scope, 'zoomAll').name('zoom');
     camera.add(scope, 'isometric')
       .listen().onChange(function () {
       if(scope.isometric) toggleOrthographic();
@@ -338,24 +373,24 @@ const MultiCamera = function (domElement) {
       
       cameraOrtho.top = scope.fov * 600 / 45;
       cameraOrtho.bottom = -scope.fov * 600 / 45;
-      
-      currentCamera.updateProjectionMatrix();
+  
+      scope.camera.updateProjectionMatrix();
     });
     
     detail.add(scope, 'near',0.1, 100)
       .listen().onChange(function () {
       cameraOrtho.near = scope.near;
       cameraPersp.near = scope.near;
-      
-      currentCamera.updateProjectionMatrix();
+  
+      scope.camera.updateProjectionMatrix();
     })
   
     detail.add(scope, 'far', 1000, 100000)
       .listen().onChange(function () {
       cameraOrtho.far = scope.far;
       cameraPersp.far = scope.far;
-    
-      currentCamera.updateProjectionMatrix();
+  
+      scope.camera.updateProjectionMatrix();
     })
   }
   
