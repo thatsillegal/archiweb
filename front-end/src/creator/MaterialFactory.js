@@ -1,11 +1,21 @@
 import * as THREE from 'three';
 import { ToonShader2, ToonShaderHatching, ToonShaderDotted } from 'three/examples/jsm/shaders/ToonShader.js';
+
 /**
  * Material based on {@link https://threejs.org/examples/webgl_marchingcubes.html}
  * @constructor
  */
 const MaterialFactory = function () {
+  function init() {
+    // TODO: load default envmap
+  }
   
+  this.texture = undefined;
+  this.reflection = undefined;
+  this.refrection = undefined;
+  let scope = this;
+  
+  init();
   /* ---------- Normal ---------- */
   
   this.Matte = function (color=0xdddddd) {
@@ -21,31 +31,36 @@ const MaterialFactory = function () {
   }
   
   this.Textured = function (color=0xdddddd, texture) {
-    return new THREE.MeshPhongMaterial( { color: color, specular: 0x111111, shininess: 1, map: texture } );
+    if(texture) scope.texture = texture;
+    return new THREE.MeshPhongMaterial( { color: color, specular: 0x111111, shininess: 1, map: scope.texture } );
   }
   
   /* ---------- Reflection ---------- */
   
   this.Chrome = function (color=0xdddddd, reflectionCube) {
-    const chromeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: reflectionCube } );
+    if(reflectionCube) scope.reflectionCube = reflectionCube;
+    const chromeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: scope.reflectionCube } );
     setMaterialColor(chromeMaterial, color);
     return chromeMaterial;
   }
   
   this.Liquid = function (color=0xdddddd, refractionCube) {
-    const liquidMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: refractionCube, refractionRatio: 0.85 } );
+    if(refractionCube) scope.refractionCube = refractionCube;
+    const liquidMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: scope.refractionCube, refractionRatio: 0.85 } );
     setMaterialColor(liquidMaterial, color);
     return liquidMaterial;
   }
   
   this.Shiny = function (color=0xdddddd, reflectionCube) {
-    const shinyMaterial = new THREE.MeshStandardMaterial( { color: 0x550000, envMap: reflectionCube, roughness: 0.1, metalness: 1.0 } );
+    if(reflectionCube) scope.reflectionCube = reflectionCube;
+    const shinyMaterial = new THREE.MeshStandardMaterial( { color: 0x550000, envMap: scope.reflectionCube, roughness: 0.1, metalness: 1.0 } );
     setMaterialColor(shinyMaterial, color);
     return shinyMaterial;
   }
   
   /* ---------- Shader Material ---------- */
   
+  //FIXME: color not set, always 0xffffff
   /**
    * enable with {@link SceneBasic}
    * @constructor
