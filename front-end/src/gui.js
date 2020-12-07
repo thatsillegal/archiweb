@@ -7,8 +7,6 @@ const controls = new function () {
   this.info = function () {
     window.InfoCard.hideInfoCard(!window.InfoCard.show);
   };
-  
-  
 };
 
 function initGUI() {
@@ -21,10 +19,7 @@ function initGUI() {
   
   const container = document.getElementById('gui-container');
   container.appendChild(gui.domElement);
-  
-  
 }
-
 
 export {
   gui,

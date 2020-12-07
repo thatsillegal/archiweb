@@ -8,5 +8,11 @@
 /* ---------- 2D ---------- */
 // export {main, updateObject} from '@/examples/2D-Editor'
 
-/* ---------- MultiCamera Test ---------- */
-export {main} from '@/examples/MultiCamera-Viewer'
+/* ---------- MultiCamera Example ---------- */
+// export {main} from '@/examples/MultiCamera-Viewer'
+
+/* ---------- ArchiJSON Example ---------- */
+
+
+/* ---------- Material Example ---------- */
+export {main} from '@/examples/MarchingCubes'

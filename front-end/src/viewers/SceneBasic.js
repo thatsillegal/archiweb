@@ -40,6 +40,7 @@ const SceneBasic = function (_scene, _renderer) {
   const geoFloor = new THREE.PlaneBufferGeometry(50000, 50000);
   const mshFloor = new THREE.Mesh(geoFloor, matFloor);
   const dirLight = new THREE.DirectionalLight(0xffffff);
+  const ambientLight = new THREE.AmbientLight(0x444445);
   
   let gridHelper = new THREE.GridHelper(1000, 20);
   let axesHelper = new THREE.AxesHelper(5000);
@@ -62,7 +63,7 @@ const SceneBasic = function (_scene, _renderer) {
     
     skyColorUpdate();
     
-    _basic.add(new THREE.AmbientLight(0x444445));
+    _basic.add(ambientLight);
     
     
     dirLight.position.set(scope.x, scope.y, scope.z);
@@ -167,6 +168,9 @@ const SceneBasic = function (_scene, _renderer) {
   this.shadow = true;
   this.grid = 0;
   this.addGUI = addGUI;
+  
+  this.directLight = dirLight;
+  this.ambientLight = ambientLight;
   
 };
 

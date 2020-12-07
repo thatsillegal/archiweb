@@ -18,6 +18,8 @@ const Viewport = function () {
   let transformer;
   let assetManager;
   
+  let scope = this;
+  
   function init() {
     window.layer = 0;
     window.objects = [];
@@ -57,6 +59,10 @@ const Viewport = function () {
     transformer.setSelected(event.object);
   }
   
+  /**
+   * Enable group/ungroup and highlight/unhighlight object with AssetManager
+   * @returns {AssetManager}
+   */
   function enableAssetManager() {
     assetManager = new AssetManager(scene);
     assetManager.addGUI(gui.util);
@@ -64,6 +70,12 @@ const Viewport = function () {
     return assetManager;
   }
   
+  /**
+   * Enable multiple select with DragFrame control
+   * Highlight object during selection : {@link onSelectDown}
+   * Unhighlight object and push to transformer ( if exist ) after selection : {@link onSelectUp}
+   * @returns {DragFrames}
+   */
   function enableDragFrames() {
     if(assetManager === undefined) enableAssetManager();
   
@@ -78,6 +90,11 @@ const Viewport = function () {
     return drag;
   }
   
+  /**
+   * Transform tool derive from THREE.TransformControl, just like your familiar Rhino Gumball.
+   * be careful to enable while it rewrite click event
+   * @returns {Transformer}
+   */
   function enableTransformer() {
     if(assetManager === undefined) enableAssetManager();
     if(drag === undefined) enableDragFrames();
@@ -126,22 +143,19 @@ const Viewport = function () {
     switch (event.keyCode) {
       case 16: // Shift
         controller.enablePan = true;
-        
         break;
       case 73:
         window.InfoCard.hideInfoCard(!window.InfoCard.show);
-      
+        
     }
   }
   
   function onDocumentKeyUp(event) {
     switch (event.keyCode) {
-      
       case 16: // Shift
         controller.enablePan = false;
         break;
     }
-    
   }
   
   
@@ -161,13 +175,20 @@ const Viewport = function () {
     renderer.render(scene, camera.camera);
     
     if(drag) drag.render();
-    
+    if(scope.draw) scope.draw();
   }
-
+  
+  /**
+   * Enable 2D, pan with right mouse
+   * @returns camera.camera
+   */
   function to2D() {
     camera.top();
     camera.toggleOrthographic();
-    
+    controller.mouseButtons = {
+      LEFT: THREE.MOUSE.ROTATE,
+      RIGHT: THREE.MOUSE.PAN
+    }
     controller.enablePan = true;
     controls.pan = true;
     
@@ -176,16 +197,26 @@ const Viewport = function () {
   
     return camera.camera;
   }
-
+  
+  /**
+   * Enable 3D, rotate with right mouse, pan with shift + right mouse
+   * @returns camera.camera
+   */
   function to3D() {
-
+    controller.mouseButtons = {
+      LEFT: THREE.MOUSE.PAN,
+      RIGHT: THREE.MOUSE.ROTATE
+    }
     controller.enablePan = false;
     controls.pan = false;
     
     return camera.camera;
   }
   
-  
+  /**
+   * Viewport controls, toggle rotate, pan and zoom
+   * Working with {@link addGUI}
+   */
   const controls = new function (){
     this.rotate = true;
     this.pan = false;
@@ -197,6 +228,7 @@ const Viewport = function () {
   this.gui = gui;
   this.controller = controller;
   this.camera = to3D();
+  this.draw = undefined;
   
   this.enableDragFrames = enableDragFrames;
   this.enableTransformer = enableTransformer;
