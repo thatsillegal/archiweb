@@ -2,18 +2,19 @@
  *  entries of different example;
  */
 
-/* ---------- 3D ---------- */
-// export {main, updateObject} from '@/examples/3D-Editor';
-
 /* ---------- 2D ---------- */
-// export {main, updateObject} from '@/examples/2D-Editor'
+// export {main, updateObject} from '@/examples/2d-editor'
+
+/* ---------- 3D ---------- */
+export {main, updateObject} from '@/examples/3d-editor';
 
 /* ---------- MultiCamera Example ---------- */
-// export {main} from '@/examples/MultiCamera-Viewer'
+// export {main} from '@/examples/camera-viewer'
 
 /* ---------- ArchiJSON Example ---------- */
 
 
+
 /* ---------- Material Example ---------- */
-export {main} from '@/examples/MarchingCubes'
-// export {main} from '@/examples/Material-Example'
+// export {main} from '@/examples/marching-cubes'
+// export {main} from '@/examples/material-example'
