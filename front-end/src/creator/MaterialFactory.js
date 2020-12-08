@@ -10,13 +10,12 @@ const MaterialFactory = function () {
     // TODO: load default envmap
   }
   
-  this.texture = undefined;
-  this.reflection = undefined;
-  this.refrection = undefined;
-  let scope = this;
   
   init();
   /* ---------- Normal ---------- */
+  this.Doubled = function (color=0xdddddd) {
+    return new THREE.MeshPhongMaterial({color:color, side:THREE.DoubleSide, shadowSide:THREE.BackSide});
+  }
   
   this.Matte = function (color=0xdddddd) {
     return new THREE.MeshPhongMaterial( { color: color, specular: 0x111111, shininess: 1 } )
@@ -31,29 +30,25 @@ const MaterialFactory = function () {
   }
   
   this.Textured = function (color=0xdddddd, texture) {
-    if(texture) scope.texture = texture;
-    return new THREE.MeshPhongMaterial( { color: color, specular: 0x111111, shininess: 1, map: scope.texture } );
+    return new THREE.MeshPhongMaterial( { color: color, specular: 0x111111, shininess: 1, map: texture } );
   }
   
   /* ---------- Reflection ---------- */
   
   this.Chrome = function (color=0xdddddd, reflectionCube) {
-    if(reflectionCube) scope.reflectionCube = reflectionCube;
-    const chromeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: scope.reflectionCube } );
+    const chromeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: reflectionCube } );
     setMaterialColor(chromeMaterial, color);
     return chromeMaterial;
   }
   
   this.Liquid = function (color=0xdddddd, refractionCube) {
-    if(refractionCube) scope.refractionCube = refractionCube;
-    const liquidMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: scope.refractionCube, refractionRatio: 0.85 } );
+    const liquidMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: refractionCube, refractionRatio: 0.85 } );
     setMaterialColor(liquidMaterial, color);
     return liquidMaterial;
   }
   
   this.Shiny = function (color=0xdddddd, reflectionCube) {
-    if(reflectionCube) scope.reflectionCube = reflectionCube;
-    const shinyMaterial = new THREE.MeshStandardMaterial( { color: 0x550000, envMap: scope.reflectionCube, roughness: 0.1, metalness: 1.0 } );
+    const shinyMaterial = new THREE.MeshStandardMaterial( { color: 0x550000, envMap: reflectionCube, roughness: 0.1, metalness: 1.0 } );
     setMaterialColor(shinyMaterial, color);
     return shinyMaterial;
   }
@@ -67,10 +62,6 @@ const MaterialFactory = function () {
    */
   this.Toon = function (color=0xdddddd, light, ambientLight) {
     const toonMaterial = createShaderMaterial( ToonShader2, light, ambientLight );
-    toonMaterial.h = 0.4;
-    toonMaterial.s = 1;
-    toonMaterial.l = 0.75;
-    
     setMaterialColor(toonMaterial, color);
     return toonMaterial;
   }
@@ -131,6 +122,19 @@ function setMaterial (mesh, material) {
   
 }
 
+function setMaterialHSL(material, hsl) {
+  if(material === undefined) return;
+  if(material.length > 0) {
+    material.forEach((item) => {
+      setMaterialHSL(item, hsl);
+    })
+  }
+  if(material instanceof THREE.ShaderMaterial)
+    material.uniforms["uBaseColor"].value.setHSL(hsl.h, hsl.s, hsl.l);
+  else
+    material.color.setHSL(hsl.h, hsl.s, hsl.l);
+}
+
 function setMaterialColor(material, color) {
   if(material === undefined) return;
   if(material.length > 0) {
@@ -138,7 +142,10 @@ function setMaterialColor(material, color) {
       setMaterialColor(item, color);
     })
   }
-  material.color = new THREE.Color(color);
+  if(material instanceof THREE.ShaderMaterial)
+    material.uniforms["uBaseColor"].value.set(color);
+  else
+    material.color.set(color);
 }
 
 /**
@@ -179,6 +186,7 @@ function setPolygonOffsetMaterial(material) {
 export {
   MaterialFactory ,
   setMaterial,
+  setMaterialHSL,
   setMaterialColor,
   setMaterialOpacity,
   setPolygonOffsetMaterial,

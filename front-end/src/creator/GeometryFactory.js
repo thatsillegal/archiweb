@@ -46,19 +46,16 @@ const GeometryFactory = function (_scene) {
   
   // const scope = this;
   // API
-  this.Box = function ([x, y, z], [w, h, d], material) {
-    material.polygonOffset = true;
-    material.polygonOffsetFactor = 1.0;
-    material.polygonOffsetUnits = 1.0;
+  this.Box = function ([x, y, z], [w, h, d], material, showEdge=true) {
     
     let mesh = new THREE.Mesh(boxGeometry, material);
-    sceneAddMesh(_scene, mesh)
+    sceneAddMesh(_scene, mesh, showEdge)
     
-    mesh.type = 'Box';
+    // mesh.type = 'Box';
     mesh.scale.set(w, h, d);
     mesh.position.set(x, y, z);
     
-    publicProperties(mesh);
+    // publicProperties(mesh);
     
     return mesh;
   }
@@ -227,10 +224,10 @@ function sceneAddMesh (_scene, mesh, showEdge = true) {
     mesh.add(createMeshEdge(mesh));
     mesh.children[0].visible = false;
   }
-  
+  //
   mesh.castShadow = true;
   mesh.receiveShadow = true;
-  
+  //
   mesh.layer = [0];
   _scene.add(mesh);
 }

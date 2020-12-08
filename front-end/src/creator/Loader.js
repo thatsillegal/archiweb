@@ -70,7 +70,7 @@ const Loader = function (_scene) {
     sceneAddMesh(result, line);
     
     if (checkMaterial(result)) {
-      result.material = new THREE.MeshLambertMaterial({color: 0x787774, side: THREE.DoubleSide});
+      result.material = new THREE.MeshLambertMaterial({color: 0x787774, side: THREE.DoubleSide, shadowSide:THREE.BackSide});
     }
     
     return result;
@@ -238,10 +238,12 @@ const Loader = function (_scene) {
     if (mesh.material.length > 0) {
       mesh.material.forEach((item) => {
         item.side = THREE.DoubleSide;
+        item.shadowSide = THREE.BackSide;
       });
       return mesh.material[0].emissive === undefined;
     }
     mesh.material.side = THREE.DoubleSide;
+    mesh.material.shadowSide = THREE.BackSide;
     return mesh.material.emissive === undefined;
   }
   

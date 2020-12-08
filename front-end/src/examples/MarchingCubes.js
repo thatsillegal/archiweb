@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import * as ARCH from '@/archiweb'
 import {MarchingCubes} from "three/examples/jsm/objects/MarchingCubes";
-import {setMaterialColor} from "@/creator/MaterialFactory";
 
 
 const clock = new THREE.Clock();
@@ -12,33 +11,50 @@ let material;
 let time = 0;
 
 const materialFactory = new ARCH.MaterialFactory();
+let reflectionCube, refractionCube, texture;
+
+function loadTextures() {
+  const path = "textures/cube/SwedishRoyalCastle/";
+  const format = '.jpg';
+  const urls = [
+    path + 'px' + format, path + 'nx' + format,
+    path + 'py' + format, path + 'ny' + format,
+    path + 'pz' + format, path + 'nz' + format,
+  ];
+  const cubeTextureLoader = new THREE.CubeTextureLoader();
+  
+  reflectionCube = cubeTextureLoader.load( urls );
+  refractionCube = cubeTextureLoader.load( urls );
+  refractionCube.mapping = THREE.CubeRefractionMapping;
+  
+  texture = new THREE.TextureLoader().load( "textures/uv_grid_opengl.jpg" );
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+}
 
 function initScene() {
-  scene.background = new THREE.Color( 0xffffff );
   
-  // LIGHTS
+  // scene.rotation.x = Math.PI/2;
   
-  console.log();
-  material = materialFactory.Flat(0xaaaaaa);
+  material = materialFactory.Doubled(0xffffff);
   resolution = effectController.resolution;
   
   effect = new MarchingCubes( resolution, material, true, true );
   effect.position.set( 0, 0, 0 );
+  effect.rotateX(Math.PI/2);
   effect.scale.set( 700, 700, 700 );
   
   effect.enableUvs = false;
   effect.enableColors = false;
   
   scene.add( effect );
+  
 
 }
 
 function updateCubes( object, time, numblobs, wally, wallx, wallz ) {
 
   object.reset();
-
-  // fill the field with some metaballs
-
 
   const subtract = 12;
   const strength = 1.2 / ( ( Math.sqrt( numblobs ) - 1 ) / 4 + 1 );
@@ -52,7 +68,6 @@ function updateCubes( object, time, numblobs, wally, wallx, wallz ) {
 
       object.addBall( ballx, bally, ballz, strength, subtract );
 
-
   }
 
   if ( wally ) object.addPlaneY( 2, 12 );
@@ -65,16 +80,16 @@ const effectController = {
   
   speed: 1.0,
   numBlobs: 10,
-  resolution: 28,
+  resolution: 20,
   isolation: 80,
   
   wallx: true,
   wally: true,
   wallz: true,
   
-  material: 'Flat',
-  color: 0xdddddd
-
+  material: 'Doubled',
+  color: 0xdddddd,
+  
 };
 
 function initGUI() {
@@ -90,15 +105,41 @@ function initGUI() {
   h.open();
   const m = gui.addFolder("Material");
   m.add(effectController, "material", Object.keys(materialFactory)).onChange(()=>{
-    const mat = new materialFactory[effectController.material](effectController.color, directLight, ambientLight);
+    let mat;
+    console.log(effectController.material)
+    effect.enableUvs = false;
+    switch (effectController.material) {
+      case "Liquid":
+        mat = new materialFactory[effectController.material](effectController.color, refractionCube);
+        break;
+        
+      case "Chrome" :
+      case "Shiny":
+        mat = new materialFactory[effectController.material](effectController.color, reflectionCube);
+        break;
+  
+      case "Textured":
+        effect.enableUvs = true;
+        mat = new materialFactory[effectController.material](effectController.color, texture);
+        break;
+        
+      case "Dotted":
+      case "Hatching":
+      case "Toon":
+        mat = new materialFactory[effectController.material](effectController.color, directLight, ambientLight);
+        break;
+        
+      default:
+        mat = new materialFactory[effectController.material](effectController.color);
+    }
     effect.material = mat;
+
   });
   m.addColor( effectController, "color").onChange(()=>{
-    setMaterialColor(effect.material, effectController.color);
-    
+    ARCH.setMaterialColor(effect.material, effectController.color);
   });
-  
-  
+
+  m.open();
 }
 
 function draw() {
@@ -122,6 +163,8 @@ function draw() {
 
 // Exporter
 function main() {
+  loadTextures();
+  
   const viewport = new ARCH.Viewport();
   scene = viewport.scene;
   gui = viewport.gui.gui;

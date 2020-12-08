@@ -32,6 +32,8 @@ const SceneBasic = function (_scene, _renderer) {
   this._transformer;
   this.skyColor = '#c4ced6';
   this.floorColor = '#80807a';
+  this.sunColor = '#ffffff';
+  this.ambientColor = '#444445'
   this.x = 1500;
   this.y = -2400;
   this.z = 2500;
@@ -39,8 +41,8 @@ const SceneBasic = function (_scene, _renderer) {
   const matFloor = new THREE.MeshPhongMaterial({color: scope.floorColor, depthWrite: false});
   const geoFloor = new THREE.PlaneBufferGeometry(50000, 50000);
   const mshFloor = new THREE.Mesh(geoFloor, matFloor);
-  const dirLight = new THREE.DirectionalLight(0xffffff);
-  const ambientLight = new THREE.AmbientLight(0x444445);
+  const dirLight = new THREE.DirectionalLight(scope.sunColor);
+  const ambientLight = new THREE.AmbientLight(scope.ambientColor);
   
   let gridHelper = new THREE.GridHelper(1000, 20);
   let axesHelper = new THREE.AxesHelper(5000);
@@ -61,7 +63,8 @@ const SceneBasic = function (_scene, _renderer) {
     _basic.add(mshFloor);
     
     
-    skyColorUpdate();
+    _scene.background = new THREE.Color(scope.skyColor);
+    _scene.fog = new THREE.FogExp2(scope.skyColor, 0.00018);
     
     _basic.add(ambientLight);
     
@@ -75,6 +78,7 @@ const SceneBasic = function (_scene, _renderer) {
     dirLight.shadow.camera.near = 10;
     dirLight.shadow.camera.far = 10000;
     dirLight.shadow.mapSize.set(4096, 4096);
+    dirLight.shadow.bias = -0.0001;
     _basic.add(dirLight);
     
     
@@ -84,7 +88,7 @@ const SceneBasic = function (_scene, _renderer) {
     _renderer.outputEncoding = THREE.sRGBEncoding;
     _renderer.shadowMap.enabled = true;
     _renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    
+   
     gridUpdate();
     axesUpdate();
   }
@@ -105,9 +109,14 @@ const SceneBasic = function (_scene, _renderer) {
     }
   }
   
-  function skyColorUpdate() {
-    _scene.background = new THREE.Color(scope.skyColor);
-    _scene.fog = new THREE.FogExp2(scope.skyColor, 0.00018);
+  function skyColorUpdate(fog = true) {
+    _scene.background.set(scope.skyColor);
+    if(fog) {
+      _scene.fog.density = 0.00018;
+      _scene.fog.color.set(scope.skyColor);
+    }
+    else
+      _scene.fog.density = 0;
   }
   
   
@@ -120,9 +129,14 @@ const SceneBasic = function (_scene, _renderer) {
         axesUpdate(scope.axes);
       }
     );
+
     sceneBasic.add(scope, 'shadow')
       .listen().onChange(function () {
       dirLight.castShadow = scope.shadow;
+    });
+    sceneBasic.add(scope, 'fog')
+      .listen().onChange(function () {
+      skyColorUpdate(scope.fog);
     });
     sceneBasic.add(scope, 'grid').min(0).max(500).step(10)
       .listen().onChange(
@@ -142,10 +156,10 @@ const SceneBasic = function (_scene, _renderer) {
       }
     );
     sceneBasic.addColor(scope, 'skyColor').name('sky').onChange(function () {
-      skyColorUpdate(scope.skyColor);
+      skyColorUpdate(scope.fog);
     });
     sceneBasic.addColor(scope, 'floorColor').name('floor').onChange(function () {
-      mshFloor.material.color = new THREE.Color(scope.floorColor);
+      mshFloor.material.color.set(scope.floorColor);
     });
     let sun = sceneBasic.addFolder('Sun Position')
     sun.add(scope, 'x').min(-5000).max(5000).step(10).onChange(function () {
@@ -157,6 +171,12 @@ const SceneBasic = function (_scene, _renderer) {
     sun.add(scope, 'z').min(1000).max(5000).step(10).onChange(function () {
       dirLight.position.z = scope.z;
     });
+    sun.addColor(scope, 'sunColor').name('sun').onChange(()=>{
+      dirLight.color.set(scope.sunColor);
+    })
+    sun.addColor(scope, 'ambientColor').name('ambient').onChange(()=>{
+      ambientLight.color.set(scope.ambientColor);
+    })
   }
   
  
@@ -166,6 +186,7 @@ const SceneBasic = function (_scene, _renderer) {
   this.floor = mshFloor;
   this.axes = true;
   this.shadow = true;
+  this.fog = true;
   this.grid = 0;
   this.addGUI = addGUI;
   

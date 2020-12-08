@@ -16,3 +16,4 @@
 
 /* ---------- Material Example ---------- */
 export {main} from '@/examples/MarchingCubes'
+// export {main} from '@/examples/Material-Example'
