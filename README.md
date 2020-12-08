@@ -13,8 +13,9 @@
 
 ```
 
-[![repo-size](https://img.shields.io/github/languages/code-size/Inst-AAA/archiweb?style=flat)](https://github.com/Inst-AAA/archiweb/archive/master.zip)
 [![tag](https://img.shields.io/github/v/tag/Inst-AAA/archiweb)](https://github.com/Inst-AAA/archiweb/tags)
+[![repo-size](https://img.shields.io/github/languages/code-size/Inst-AAA/archiweb?style=flat)](https://github.com/Inst-AAA/archiweb/archive/master.zip)
+![total lines](https://img.shields.io/tokei/lines/github/Inst-AAA/archiweb?color=green)
 [![license](https://img.shields.io/github/license/Inst-AAA/archiweb)](LICENSE) 
 
 ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en/) and [three.js](https://threejs.org/). It's recommanded to start from the documentations of both.
