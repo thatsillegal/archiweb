@@ -97,6 +97,7 @@ const Transformer = function (_scene, _renderer, _camera) {
       dragged = !event.value;
       
       if (event.value === true) {
+        clonedObject = new THREE.Group();
         setCloneObject(control.object);
       } else {
         

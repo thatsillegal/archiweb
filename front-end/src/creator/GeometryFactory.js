@@ -32,11 +32,9 @@ const GeometryFactory = function (_scene) {
   
   const lineMaterial = new THREE.LineBasicMaterial({color:0x000000});
   
-  
   // Box Basic
   const boxGeometry = new THREE.BoxBufferGeometry(1, 1, 1);
   boxGeometry.translate(0, 0, 0.5);
-
   
   // Cylinder Basic
   const cylinderGeometry = new THREE.CylinderBufferGeometry(1, 1, 1, 32)
@@ -74,14 +72,9 @@ const GeometryFactory = function (_scene) {
   }
   
   let curveObject, leftCurve, rightCurve;
-  this.Curve = function (objects) {
+  this.Curve = function (positions) {
     _scene.remove(curveObject);
-    let positions = [];
-    for (let obj of objects) {
-      let p = obj.position.clone();
-      p.z = -1;
-      positions.push(p);
-    }
+
     const curve = new THREE.CatmullRomCurve3(positions);
     const points = curve.getPoints(50);
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -206,6 +199,13 @@ function createMeshEdge(mesh, color = 0x000000) {
   return new THREE.LineSegments(geoLine, matLine);
 }
 
+/**
+ * create mesh wireframe with linewidth, must use specific LineMaterial in three@r0.121
+ * @param mesh
+ * @param color
+ * @param linewidth
+ * @returns {Wireframe}
+ */
 function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
   
   setPolygonOffsetMaterial(mesh.material);
@@ -218,18 +218,30 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
   return wireframe;
 }
 
-function sceneAddMesh (_scene, mesh, showEdge = true) {
-  if (showEdge) {
+/**
+ * add a new mesh to a object3D (scene, group)
+ * @param object
+ * @param mesh
+ * @param edge 
+ * @param shadow
+ * @param layer
+ */
+function sceneAddMesh (object, mesh, edge = true, shadow = true, layer=[0]) {
+  // show edge
+  if (edge) {
     mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
     mesh.add(createMeshEdge(mesh));
     mesh.children[0].visible = false;
   }
-  //
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  //
-  mesh.layer = [0];
-  _scene.add(mesh);
+  // show shadow
+  if(shadow) {
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+  }
+  
+  // layer, default is [0]
+  mesh.layer = layer;
+  object.add(mesh);
 }
 export {
   GeometryFactory,

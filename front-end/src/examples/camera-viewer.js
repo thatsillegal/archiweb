@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import * as ARCH from "@/archiweb"
 
 /**
- * Example of
+ *
  */
 
 let scene, renderer, gui;
