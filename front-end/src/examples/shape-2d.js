@@ -1,0 +1,84 @@
+import * as ARCH from '@/archiweb'
+import * as THREE from 'three'
+let scene, gui, renderer;
+let camera, gb;
+let DRAWMODE = false;
+const raycaster = new THREE.Raycaster();
+let b, arr, p, path;
+const xoy = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+const lines = [];
+
+
+const controls = new function() {
+  this.draw = function() {
+    DRAWMODE = !DRAWMODE;
+    renderer.domElement.style.cursor = DRAWMODE? 'pointer' : 'auto';
+    if(DRAWMODE) arr = [];
+  }
+  this.shape = function() {
+    lines.push(gb.Line(path.getPoints()));
+    arr = [];
+  }
+  this.clear = function() {
+    lines.forEach((item)=>{
+      scene.remove(item);
+    })
+    p.geometry.setFromPoints([new THREE.Vector3()]);
+    arr = [];
+  }
+};
+
+
+function onClick(event) {
+  console.log(event)
+  if(DRAWMODE) {
+    const mouse = new THREE.Vector2(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      -(event.clientY / window.innerHeight) * 2 + 1
+    )
+    raycaster.setFromCamera(mouse, camera);
+    let pt = raycaster.ray.intersectPlane(xoy , new THREE.Vector3());
+    b.position.copy(pt);
+    console.log(pt)
+    arr.push(pt);
+    
+    path = new THREE.Path();
+    path.moveTo(arr[0].x, arr[0].y)
+    for(let i = 1; i < arr.length; ++ i) {
+      path.lineTo(arr[i].x, arr[i].y);
+    }
+    path.lineTo(arr[0].x, arr[0].y);
+    
+    p.geometry.setFromPoints(path.getPoints());
+    
+  }
+}
+
+function initScene() {
+  gb = new ARCH.GeometryFactory(scene);
+  b = gb.Box([2, 2, 0], [2, 2, 2]);
+  p = gb.Line(null, 0xaaaaaa);
+  
+  const helper = new THREE.PlaneHelper(xoy , 1, 0xffff00);
+  scene.add(helper);
+}
+
+function main() {
+  const viewport = new ARCH.Viewport();
+  renderer = viewport.renderer;
+  scene = viewport.scene;
+  gui = viewport.gui.gui;
+  camera = viewport.to2D();
+  
+  gui.add(controls, 'draw');
+  gui.add(controls, 'shape');
+  gui.add(controls, 'clear');
+  renderer.domElement.addEventListener('click', onClick, false);
+  
+  initScene();
+  
+}
+
+export {
+  main
+}

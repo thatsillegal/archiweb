@@ -30,7 +30,6 @@ import {setPolygonOffsetMaterial} from "@/creator/MaterialFactory";
 
 const GeometryFactory = function (_scene) {
   
-  const lineMaterial = new THREE.LineBasicMaterial({color:0x000000});
   
   // Box Basic
   const boxGeometry = new THREE.BoxBufferGeometry(1, 1, 1);
@@ -49,7 +48,7 @@ const GeometryFactory = function (_scene) {
     let mesh = new THREE.Mesh(boxGeometry, material);
     sceneAddMesh(_scene, mesh, showEdge)
     
-    // mesh.type = 'Box';
+    mesh.type = 'Box';
     mesh.scale.set(w, h, d);
     mesh.position.set(x, y, z);
     
@@ -67,23 +66,27 @@ const GeometryFactory = function (_scene) {
     mesh.position.set(x, y, z);
     
     publicProperties(mesh);
-    // console.log(mesh);
     return mesh;
   }
   
-  let curveObject, leftCurve, rightCurve;
-  this.Curve = function (positions) {
-    _scene.remove(curveObject);
-
-    const curve = new THREE.CatmullRomCurve3(positions);
-    const points = curve.getPoints(50);
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    
-    curveObject = new THREE.Line(geometry, lineMaterial);
-    _scene.add(curveObject);
-    
-    drawOffsetSplineLine(curve)
+  this.Line = function (points, color=0x000, selectable=false) {
+    let line = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial( { color: color } )
+    );
+    if(selectable)
+      sceneAddMesh(_scene, line, false);
+    else
+      sceneAddMesh(_scene, line, false, false, []);
+  
+    line.type = 'Line';
+    if(points)
+      line.geometry.setFromPoints(points);
+    publicProperties(line);
+    return line;
   }
+  
+
   
   function updateModel (mesh, modelParam) {
     switch (mesh.type) {
@@ -97,6 +100,7 @@ const GeometryFactory = function (_scene) {
         mesh.scale.y = modelParam['r'];
         mesh.scale.z = modelParam['h'];
         break;
+        
       default:
         break;
     }
@@ -114,48 +118,6 @@ const GeometryFactory = function (_scene) {
   }
   
 
-  function drawOffsetSplineLine(curve) {
-    _scene.remove(leftCurve);
-    _scene.remove(rightCurve);
-    let left = [];
-    let right = [];
-    for (let t = 0.0; t <= 1.0; t += 0.02) {
-      let point = curve.getPointAt(t);
-      
-      let tangent = curve.getTangentAt(t);
-      let extension1 = new THREE.Vector3(tangent.x * 2, tangent.y * 2, 0);
-      let extension2 = new THREE.Vector3(-tangent.x * 2, -tangent.y * 2, 0);
-      
-      let tangentGeometry = new THREE.BufferGeometry().setFromPoints([extension2, tangent, extension1]);
-      let tangentLine = new THREE.Line(tangentGeometry, new THREE.LineBasicMaterial({color: 0xff000}))
-      tangentLine.position.copy(point);
-      tangentLine.rotateZ(Math.PI / 2);
-      // scene.add(tangentLine);
-      
-      tangentLine.updateMatrixWorld(true);
-      let normal = tangentLine.geometry.clone();
-      normal.applyMatrix4(tangentLine.matrix);
-      
-      let position = normal.attributes.position;
-      left.push(new THREE.Vector3(position.getX(0), position.getY(0), 0));
-      right.push(new THREE.Vector3(position.getX(2), position.getY(2), 0));
-      
-    }
-    
-    let cv = new THREE.CatmullRomCurve3(left);
-    let points = cv.getPoints(50);
-    let geometry = new THREE.BufferGeometry().setFromPoints(points);
-    
-    leftCurve = new THREE.Line(geometry, lineMaterial);
-    
-    cv = new THREE.CatmullRomCurve3(right);
-    points = cv.getPoints(50);
-    geometry = new THREE.BufferGeometry().setFromPoints(points);
-    rightCurve = new THREE.Line(geometry, lineMaterial);
-    
-    _scene.add(leftCurve);
-    _scene.add(rightCurve);
-  }
   
   
   function publicProperties (mesh) {
