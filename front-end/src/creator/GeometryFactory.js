@@ -86,6 +86,28 @@ const GeometryFactory = function (_scene) {
     return line;
   }
   
+  /**
+   * 2D shape can be used in extruded geometry
+   * @param path
+   * @param color
+   * @constructor
+   */
+  this.Shape = function (shape, material, extruded=0.0) {
+    const extrudeSettings = {
+      depth:extruded,
+      bevelEnabled:false
+    }
+    
+    const mesh = new THREE.Mesh(
+      new THREE.ExtrudeGeometry(shape, extrudeSettings),
+      material
+    );
+    mesh.type = 'Shape';
+    sceneAddMesh(_scene, mesh)
+    
+    publicProperties(mesh);
+    return mesh;
+  }
 
   
   function updateModel (mesh, modelParam) {

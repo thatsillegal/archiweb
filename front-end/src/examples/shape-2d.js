@@ -1,13 +1,20 @@
 import * as ARCH from '@/archiweb'
 import * as THREE from 'three'
+
 let scene, gui, renderer;
-let camera, gb;
+let camera, gb, mf;
 let DRAWMODE = false;
 const raycaster = new THREE.Raycaster();
-let b, arr, p, path;
 const xoy = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-const lines = [];
 
+let b, arr, p, path;
+
+const lines = [];
+const shapes = [];
+
+function getRandomInt(num) {
+  return Math.floor(Math.random()*Math.floor(num));
+}
 
 const controls = new function() {
   this.draw = function() {
@@ -17,6 +24,8 @@ const controls = new function() {
   }
   this.shape = function() {
     lines.push(gb.Line(path.getPoints()));
+    let shape = new THREE.Shape().setFromPoints(path.getPoints());
+    shapes.push(gb.Shape(shape, mf.Matte(), getRandomInt(20)))
     arr = [];
   }
   this.clear = function() {
@@ -55,9 +64,18 @@ function onClick(event) {
 }
 
 function initScene() {
+  mf = new ARCH.MaterialFactory();
   gb = new ARCH.GeometryFactory(scene);
   b = gb.Box([2, 2, 0], [2, 2, 2]);
   p = gb.Line(null, 0xaaaaaa);
+  
+  /* ---------- light ---------- */
+  const light = new THREE.SpotLight(0xffffff, 1.5);
+  light.position.set(0, 0, 1000);
+  scene.add(light);
+  const light2 = new THREE.SpotLight(0xffffff, 3);
+  light2.position.set(100, -100, 1000);
+  scene.add(light2);
   
   const helper = new THREE.PlaneHelper(xoy , 1, 0xffff00);
   scene.add(helper);
