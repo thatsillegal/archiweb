@@ -16,7 +16,6 @@ function initGUI() {
   util.add(controls, 'info');
   util.open();
   
-  
   const container = document.getElementById('gui-container');
   container.appendChild(gui.domElement);
 }
