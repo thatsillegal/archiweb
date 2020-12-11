@@ -35,8 +35,9 @@ ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en
 - [Extensions](#extensions)
   - [java-backend](#java-backend)
   - [webxr](#webxr)
-    - [similar works](#similar-works-1)
+    - [similar framework](#similar-framework)
   - [database](#database)
+    - [similar to web GIS](#similar-to-web-gis)
   - [ddg](#ddg)
 - [Issues](#issues)
 
@@ -248,11 +249,15 @@ Current java-backend is using node.js as server, the examples in plugins folder 
 To avoid changing and merging conflicts of using this template, there are plans to design a universal interface.
 ### webxr
 It's plan to support VR, which is a better display to architectural design.
-#### similar works
+#### similar framework
 - [A-Frame](https://aframe.io/)
 
 ### database
 To be the front-end of [ArchiBase](https://github.com/Inst-AAA/archibase)
+#### Similar to web GIS
+- [3DTilesRenderer](https://github.com/NASA-AMMOS/3DTilesRendererJS)
+- [Cesium](https://cesium.com/)
+- [3D Bag](https://tudelft3d.github.io/3dbag-viewer/#/en/viewer)
 
 ### ddg
 code from [cmu-geometry/ddg-exercises-js](https://github.com/cmu-geometry/ddg-exercises-js) 
