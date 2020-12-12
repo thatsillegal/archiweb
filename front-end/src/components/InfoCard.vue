@@ -152,12 +152,11 @@ export default {
       for (let k of Object.keys(this.info.position)) {
         this.info.position[k] = Number(this.$refs[k][0].lazyValue);
       }
-      console.log(this.info.position)
       
       for (let k of Object.keys(this.info.model)) {
         this.info.model[k] = Number(this.$refs[k][0].lazyValue);
       }
-      updateObject(this.info.uuid, this.info.position, this.info.model);
+      updateObject(this.info.uuid, this.info.model);
     },
     
   }

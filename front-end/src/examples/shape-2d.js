@@ -25,7 +25,7 @@ const controls = new function() {
   this.shape = function() {
     lines.push(gb.Line(path.getPoints()));
     let shape = new THREE.Shape().setFromPoints(path.getPoints());
-    shapes.push(gb.Shape(shape, mf.Matte(), getRandomInt(20)))
+    shapes.push(gb.Shape(shape, mf.Matte(), 0, getRandomInt(20)))
     arr = [];
   }
   this.clear = function() {

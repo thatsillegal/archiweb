@@ -52,7 +52,7 @@ const GeometryFactory = function (_scene) {
     mesh.scale.set(w, h, d);
     mesh.position.set(x, y, z);
     
-    // publicProperties(mesh);
+    publicProperties(mesh);
     
     return mesh;
   }
@@ -86,18 +86,23 @@ const GeometryFactory = function (_scene) {
     return line;
   }
   
+
   /**
    * 2D shape to extruded geometry, set extruded = 0.0 to get a 2d polygon
    *
    * @param shape
    * @param material
+   * @param height
    * @param extruded
    * @returns {Mesh<ExtrudeGeometry, *>}
    * @constructor
    */
-  this.Shape = function (shape, material, extruded=0.0) {
+  this.Shape = function (shape, material, height=0.0, extruded=0.0) {
+    const o = getPointsCenter(shape.getPoints());
+    console.log(o)
+    
     const extrudeSettings = {
-      depth:extruded,
+      depth:1.,
       bevelEnabled:false
     }
     
@@ -105,43 +110,63 @@ const GeometryFactory = function (_scene) {
       new THREE.ExtrudeGeometry(shape, extrudeSettings),
       material
     );
+  
     mesh.type = 'Shape';
+    mesh.geometry.translate(-o.x, -o.y, 0);
+    mesh.position.x = o.x;
+    mesh.position.y = o.y;
+    mesh.position.z = height;
+    mesh.scale.z = extruded;
     sceneAddMesh(_scene, mesh)
     
     publicProperties(mesh);
     return mesh;
   }
-
   
-  function updateModel (mesh, modelParam) {
-    switch (mesh.type) {
+  
+  
+  function getPointsCenter(points) {
+    const v = new THREE.Vector2();
+    points.forEach((pt)=>{
+      v.add(pt);
+    })
+    v.divideScalar(points.length);
+    return v;
+  }
+  
+  
+  function updateModel (self, modelParam) {
+    switch (self.type) {
       case 'Box' :
-        mesh.scale.x = modelParam['w'];
-        mesh.scale.y = modelParam['h'];
-        mesh.scale.z = modelParam['d'];
+        self.scale.x = modelParam['w'];
+        self.scale.y = modelParam['h'];
+        self.scale.z = modelParam['d'];
         break;
       case 'Cylinder' :
-        mesh.scale.x = modelParam['r'];
-        mesh.scale.y = modelParam['r'];
-        mesh.scale.z = modelParam['h'];
+        self.scale.x = modelParam['r'];
+        self.scale.y = modelParam['r'];
+        self.scale.z = modelParam['h'];
+        break;
+      case 'Shape':
+        self.scale.z = modelParam['h'];
         break;
       default:
         break;
     }
   }
   
-  function modelParam (mesh) {
-    switch (mesh.type) {
+  function modelParam (self) {
+    switch (self.type) {
       case 'Box':
-        return {w: mesh.scale.x, h: mesh.scale.y, d: mesh.scale.z};
+        return {w: self.scale.x, h: self.scale.y, d: self.scale.z};
       case 'Cylinder':
-        return {r: mesh.scale.x, h: mesh.scale.z};
+        return {r: self.scale.x, h: self.scale.z};
+      case 'Shape':
+        return {h: self.scale.z};
       default:
         return {};
     }
   }
-  
-
   
   
   function publicProperties (mesh) {
@@ -158,7 +183,6 @@ const GeometryFactory = function (_scene) {
       let o = mesh;
       window.InfoCard.info.uuid = o.uuid;
       window.InfoCard.info.position = o.position;
-      window.InfoCard.info.model = o.modelParam(o);
       window.InfoCard.info.model = o.modelParam(o);
       window.InfoCard.info.properties = {
         type: o.type, material:

@@ -14,6 +14,7 @@ function initScene() {
   
   
   gb = new ARCH.GeometryFactory(scene);
+  const mt = new ARCH.MaterialFactory();
   
   const b1 = gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial({color: 0xdddddd}));
   
@@ -21,7 +22,7 @@ function initScene() {
   
   const b3 = gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial({color: 0xdddddd}));
   
-  const b4 = gb.Cylinder([-300, 0, 0], [50, 300, 4], new THREE.MeshLambertMaterial({color: 0xdddddd}), true);
+  const b4 = gb.Cylinder([330, 430, 0], [50, 100], new THREE.MeshLambertMaterial({color: 0xdddddd}), true);
   
   const loader = new ARCH.Loader(scene);
   loader.addGUI(gui.util);
@@ -42,7 +43,20 @@ function initScene() {
     mesh.toCamera = true;
     assetManager.refreshSelection(scene);
   });
-  
+  const points = [
+    new THREE.Vector2(100, 100),
+    new THREE.Vector2(200, 100),
+    new THREE.Vector2(200, 0),
+    new THREE.Vector2(300, 0),
+    new THREE.Vector2(300, 300),
+    new THREE.Vector2(100, 300),
+  ];
+  const v = new THREE.Vector2(100, 200);
+  points.forEach((pt)=>{
+    pt.add(v);
+  })
+  const shape = new THREE.Shape().setFromPoints(points);
+  gb.Shape(shape, mt.Matte(), 100, 10);
   
   assetManager.refreshSelection(scene);
   assetManager.addSelection([b1, b2, b3, b4], 1);
@@ -52,10 +66,9 @@ function initScene() {
 
 // APIs
 
-function updateObject(uuid, position, model) {
+function updateObject(uuid, model) {
   const o = scene.getObjectByProperty('uuid', uuid);
-  // o.position.copy(position);
-  gb.updateModel(o, model);
+  o.updateModel(o, model);
 }
 
 
