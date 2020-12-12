@@ -87,9 +87,12 @@ const GeometryFactory = function (_scene) {
   }
   
   /**
-   * 2D shape can be used in extruded geometry
-   * @param path
-   * @param color
+   * 2D shape to extruded geometry, set extruded = 0.0 to get a 2d polygon
+   *
+   * @param shape
+   * @param material
+   * @param extruded
+   * @returns {Mesh<ExtrudeGeometry, *>}
    * @constructor
    */
   this.Shape = function (shape, material, extruded=0.0) {
@@ -122,7 +125,6 @@ const GeometryFactory = function (_scene) {
         mesh.scale.y = modelParam['r'];
         mesh.scale.z = modelParam['h'];
         break;
-        
       default:
         break;
     }

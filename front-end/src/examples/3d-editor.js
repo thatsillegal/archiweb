@@ -5,11 +5,9 @@ import * as ARCH from "@/archiweb"
 
 let renderer, scene, gui;
 
-let camera, drag;
+let camera;
 
 let gb, assetManager;
-window.objects = [];
-
 
 function initScene() {
   scene.background = new THREE.Color(0xfafafa);
@@ -50,14 +48,6 @@ function initScene() {
   assetManager.addSelection([b1, b2, b3, b4], 1);
 }
 
-
-function initControls() {
-
-  
-  // //
-
-
-}
 
 
 // APIs
