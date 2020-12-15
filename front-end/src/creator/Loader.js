@@ -2,15 +2,14 @@ import * as THREE from 'three';
 // import { DXFLoader } from 'three-dxf-loader';
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
-import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
-import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
-import {Wireframe} from "three/examples/jsm/lines/Wireframe";
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {Rhino3dmLoader} from "three/examples/jsm/loaders/3DMLoader";
 import {ThreeMFLoader} from "three/examples/jsm/loaders/3MFLoader";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 
+import {sceneAddMesh} from "@/creator/GeometryFactory";
+import {refreshSelection} from "@/creator/AssetManager";
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
  *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
@@ -35,6 +34,16 @@ import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
  * Author: Yichen Mo
  */
 
+/**
+ * loader option with store mode
+ * @type {{}}
+ */
+const loaderOption = {
+  status: "merged", // ["grouped", "merged", "raw"],
+  selectable : true,
+  doubleSide : true
+}
+
 const Loader = function (_scene) {
   
   const manager = new THREE.LoadingManager();
@@ -44,36 +53,42 @@ const Loader = function (_scene) {
   
   function loadModel(object) {
     
-    
-    const materials = new Set();
-    const meshes = [];
-    
-    
-    searchMaterials(object, materials);
-    // console.log(materials)
-    
-    materials.forEach(function (material) {
-      let meshGeometry = new THREE.Geometry();
-      searchMaterialChild(material, object, meshGeometry);
-      meshes.push(new THREE.Mesh(meshGeometry, material));
-    });
-    // console.log(meshes)
-    
-    let lineGeometry = new THREE.BufferGeometry();
-    buffer = new Float32Array();
-    searchLines(object);
-    // console.log(buffer);
-    lineGeometry.setAttribute('position', new THREE.BufferAttribute(buffer, 3));
-    const result = mergeMeshes(meshes);
-    
-    const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
-    sceneAddMesh(result, line);
-    
-    if (checkMaterial(result)) {
-      result.material = new THREE.MeshLambertMaterial({color: 0x787774, side: THREE.DoubleSide, shadowSide:THREE.BackSide});
+    if(loaderOption.status === "merged") {
+      const materials = new Set();
+      const meshes = [];
+  
+  
+      searchMaterials(object, materials);
+      // console.log(materials)
+  
+      materials.forEach(function (material) {
+        let meshGeometry = new THREE.Geometry();
+        searchMaterialChild(material, object, meshGeometry);
+        meshes.push(new THREE.Mesh(meshGeometry, material));
+      });
+      // console.log(meshes)
+  
+      let lineGeometry = new THREE.BufferGeometry();
+      buffer = new Float32Array();
+      searchLines(object);
+      // console.log(buffer);
+      lineGeometry.setAttribute('position', new THREE.BufferAttribute(buffer, 3));
+      const result = mergeMeshes(meshes);
+  
+      const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
+      sceneAddMesh(_scene, result, line);
+  
+      if (checkMaterial(result)) {
+        result.material = new THREE.MeshLambertMaterial({color: 0x787774, side: THREE.DoubleSide, shadowSide:THREE.BackSide});
+      }
+  
+      return result;
+    } else if (loaderOption.status === "grouped") {
+      sceneAddMesh(_scene, object, false, false)
     }
+
     
-    return result;
+
   }
   
   function searchMaterials(object, materials) {
@@ -125,26 +140,7 @@ const Loader = function (_scene) {
     
   }
   
-  function meshLine(geometry, color, linewidth) {
-    const matLine = new LineMaterial({color: color, linewidth: linewidth});
-    const geoLine = new WireframeGeometry2(geometry);
-    const wireframe = new Wireframe(geoLine, matLine);
-    wireframe.computeLineDistances();
-    wireframe.scale.set(1, 1, 1);
-    return wireframe;
-  }
-  
-  function sceneAddMesh(mesh, line) {
-    mesh.add(meshLine(mesh.geometry, 0xffff00, 0.005));
-    mesh.add(line);
-    mesh.children[0].visible = false;
-    
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    
-    mesh.layer = [0];
-    _scene.add(mesh);
-  }
+
   
   function Float32Concat(first, second) {
     let firstLength = first.length,
@@ -247,6 +243,20 @@ const Loader = function (_scene) {
     return mesh.material.emissive === undefined;
   }
   
+  function onOpen(obj) {
+    if (!window.LoaderOption.dialog) {
+      // Do something
+      console.log(loaderOption);
+      if(window.LoaderOption.load) {
+        loadModel(obj)
+        refreshSelection(_scene);
+      }
+    } else {
+      // Wait and when window.listNodes.length === 3:
+      setTimeout(()=>onOpen(obj), 500);
+    }
+  }
+  
   /*-------------------- API --------------------*/
   
   this.loadModel = function (filename, mesh) {
@@ -316,10 +326,15 @@ const Loader = function (_scene) {
   }
   
   
-  this.loadFile = function (file, mesh) {
+  this.loadFile = function (file) {
     let filename = file.name;
     let extension = filename.split('.').pop().toLowerCase();
     let reader = new FileReader();
+    reader.addEventListener('loadstart', function(event) {
+      console.log(event);
+      window.LoaderOption.dialog = true;
+    })
+
     reader.addEventListener('progress', function (event) {
       
       let size = '(' + Math.floor(event.total / 1000) + ' KB)';
@@ -338,8 +353,9 @@ const Loader = function (_scene) {
           
           let loader = new ColladaLoader(manager);
           let collada = loader.parse(contents);
-          
-          mesh(loadModel(collada.scene));
+  
+
+          onOpen(collada.scene);
           
         }, false);
         reader.readAsText(file);
@@ -355,7 +371,7 @@ const Loader = function (_scene) {
           loader.setDRACOLoader(dracoLoader);
           let gltf = loader.parse(contents);
           
-          mesh(loadModel(gltf.scene));
+          onOpen(gltf.scene);
         }, false);
         reader.readAsText(file);
         break;
@@ -374,7 +390,7 @@ const Loader = function (_scene) {
             loader.setDRACOLoader(dracoLoader);
             loader.parse(contents, '', function (gltf) {
               
-              mesh(loadModel(gltf.scene));
+              onOpen(gltf.scene);
             });
             
           }
@@ -389,8 +405,8 @@ const Loader = function (_scene) {
           // obj.scale.set(40, 40, 40);
           obj.updateMatrixWorld(true);
           
-          mesh(loadModel(obj));
           
+          onOpen(obj);
         }, false);
         reader.readAsText(file);
         break;
@@ -404,7 +420,7 @@ const Loader = function (_scene) {
           loader.setLibraryPath('three/examples/jsm/libs/rhino3dm/');
           loader.parse(contents, function (object) {
             
-            mesh(loadModel(object));
+            onOpen(object);
           });
           
         }, false);
@@ -417,7 +433,7 @@ const Loader = function (_scene) {
           let loader = new ThreeMFLoader();
           let object = loader.parse(event.target.result);
           
-          mesh(loadModel(object));
+          onOpen(object);
           
         }, false);
         reader.readAsArrayBuffer(file);
@@ -431,7 +447,7 @@ const Loader = function (_scene) {
           let loader = new FBXLoader(manager);
           let object = loader.parse(contents);
           
-          mesh(loadModel(object));
+          onOpen(object);
         }, false);
         reader.readAsArrayBuffer(file);
         
@@ -460,8 +476,8 @@ const Loader = function (_scene) {
     fileInput.multiple = true;
     fileInput.type = 'file';
     fileInput.addEventListener('change', function () {
+
       scope.loadFile(fileInput.files[0]);
-      console.log(fileInput.files[0]);
       form.reset();
       
     });
@@ -470,4 +486,4 @@ const Loader = function (_scene) {
 }
 
 
-export {Loader};
+export {Loader, loaderOption};

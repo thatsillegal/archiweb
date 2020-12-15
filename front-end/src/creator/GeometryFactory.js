@@ -238,7 +238,12 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
  */
 function sceneAddMesh (object, mesh, edge = true, shadow = true, layer=[0]) {
   // show edge
-  if (edge) {
+  if(edge.isLineSegments) {
+    mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
+    mesh.add(edge);
+    mesh.children[0].visible = false;
+    
+  } else if (edge === true) {
     mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
     mesh.add(createMeshEdge(mesh));
     mesh.children[0].visible = false;
