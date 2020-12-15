@@ -133,14 +133,16 @@ const Transformer = function (_scene, _renderer, _camera) {
       if (object.toCamera) cloned.toCamera = true;
       if (object.layer !== undefined) cloned.layer = Array.from(object.layer);
       
-      if (cloned.material.length > 0) {
-        let materials = []
-        for (let i = 0; i < cloned.material.length; ++i) {
-          materials.push(cloned.material[i].clone());
+      if(cloned.material) {
+        if (cloned.material.length > 0) {
+          let materials = []
+          for (let i = 0; i < cloned.material.length; ++i) {
+            materials.push(cloned.material[i].clone());
+          }
+          cloned.material = materials;
+        } else {
+          cloned.material = cloned.material.clone();
         }
-        cloned.material = materials;
-      } else {
-        cloned.material = cloned.material.clone();
       }
       clonedObject.add(cloned);
     } else {

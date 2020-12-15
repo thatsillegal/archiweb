@@ -8,7 +8,7 @@ import {Rhino3dmLoader} from "three/examples/jsm/loaders/3DMLoader";
 import {ThreeMFLoader} from "three/examples/jsm/loaders/3MFLoader";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 
-import {sceneAddMesh} from "@/creator/GeometryFactory";
+import {sceneAddMesh, sceneMesh} from "@/creator/GeometryFactory";
 import {refreshSelection} from "@/creator/AssetManager";
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
@@ -84,10 +84,14 @@ const Loader = function (_scene) {
   
       return result;
     } else if (loaderOption.status === "grouped") {
+      console.log(object);
+      sceneMesh(object);
+
+      while(object.children.length === 1) {
+        object = object.children[0];
+      }
       sceneAddMesh(_scene, object, false, false)
     }
-
-    
 
   }
   

@@ -228,6 +228,17 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
   return wireframe;
 }
 
+function sceneMesh(object) {
+  object.traverseVisible((mesh)=>{
+    console.log(mesh)
+    if(mesh.isMesh) {
+      mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
+      mesh.children[0].visible = false;
+      mesh.layer=[0];
+    }
+  });
+}
+
 /**
  * add a new mesh to a object3D (scene, group)
  * @param object
@@ -260,6 +271,7 @@ function sceneAddMesh (object, mesh, edge = true, shadow = true, layer=[0]) {
 }
 export {
   GeometryFactory,
+  sceneMesh,
   sceneAddMesh,
   createMeshWireframe,
   createMeshEdge

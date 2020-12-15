@@ -118,8 +118,8 @@ const AssetManager = function (_scene) {
   }
   
   this.highlightItem = function (item) {
-    if(item.material === undefined)
-      return;
+    if(!item.isMesh) return;
+    if(!item.material) return;
     let materials = item.material;
     if (materials.length) {
       for (let j = 0; j < materials.length; ++j) {
@@ -138,8 +138,8 @@ const AssetManager = function (_scene) {
   }
   
   this.unHighlightItem = function (item) {
-    if(item.material === undefined)
-      return;
+    if(!item.isMesh) return;
+    if(!item.material) return;
     let materials = item.material;
     if (materials.length) {
       for (let j = 0; j < materials.length; ++j) {
