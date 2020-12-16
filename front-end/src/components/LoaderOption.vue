@@ -2,13 +2,15 @@
   <v-row justify="center">
     <v-dialog
       v-model="dialog"
-      max-width="320"
+      max-width="360"
       persistent
     >
       <v-card
         class="pa-4"
       >
-        <h3 class="mt-2">Model Status</h3>
+        <h2 class="mt-2">导入选项</h2>
+        <v-divider class="my-3"></v-divider>
+        <h3 class="mt-2">模型状态</h3>
         <v-radio-group
           v-model="option.status"
           row
@@ -31,25 +33,26 @@
 
         </v-radio-group>
   
-        <h3>Other Options</h3>
+        <v-divider class="mb-3"></v-divider>
+        <h3>其他设置</h3>
 
           <v-row
             no-gutters
           >
             <v-col>
-              <v-checkbox
+              <v-switch
                 v-model="option.selectable"
                 label="物件可选"
                 @change="updateOption"
-              ></v-checkbox>
+              ></v-switch>
             </v-col>
     
             <v-col>
-              <v-checkbox
+              <v-switch
                 v-model="option.doubleSide"
                 label="双面材质"
                 @change="updateOption"
-              ></v-checkbox>
+              ></v-switch>
             </v-col>
           </v-row>
           <v-row
@@ -57,22 +60,22 @@
           >
             
             <v-col>
-              <v-checkbox
+              <v-switch
                 :disabled=!toCamera
                 v-model="option.toCamera"
                 label="朝向相机"
                 @change="updateOption"
-              ></v-checkbox>
+              ></v-switch>
 
             </v-col>
 
             <v-col>
-              <v-checkbox
+              <v-switch
                 :disabled=!ZtoY
                 v-model="option.ZtoY"
                 label="映射Y至Z"
                 @change="updateOption"
-              ></v-checkbox>
+              ></v-switch>
               
             </v-col>
           </v-row>
@@ -81,21 +84,21 @@
         >
     
           <v-col>
-            <v-checkbox
+            <v-switch
               v-model="option.shadow"
               label="阴影"
               @change="updateOption"
-            ></v-checkbox>
+            ></v-switch>
     
           </v-col>
     
           <v-col>
-            <v-checkbox
+            <v-switch
               :disabled=!edge
               v-model="option.edge"
               label="边线"
               @change="updateOption"
-            ></v-checkbox>
+            ></v-switch>
     
           </v-col>
         </v-row>
@@ -110,14 +113,14 @@
             depressed
             @click="load=false;dialog=false"
           >
-            Cancel
+            取消
           </v-btn>
           <v-btn
             depressed
             color = "primary"
             @click="load=true;dialog=false"
           >
-            Load
+            载入
           </v-btn>
         </v-card-actions>
     
