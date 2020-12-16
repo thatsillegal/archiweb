@@ -15,55 +15,109 @@
           @change="updateOption"
         >
           <v-radio
-            label="grouped"
+            label="成组"
             value="grouped"
           ></v-radio>
+          <v-spacer></v-spacer>
           <v-radio
-            label="merged"
+            label="融合"
             value="merged"
           ></v-radio>
+          <v-spacer></v-spacer>
           <v-radio
-            label="raw"
+            label="原始"
             value="raw"
           ></v-radio>
 
         </v-radio-group>
   
         <h3>Other Options</h3>
-        <v-col
-          class="my-0 py-0"
-        >
+
           <v-row
-            class="mr-2"
+            no-gutters
           >
+            <v-col>
+              <v-checkbox
+                v-model="option.selectable"
+                label="物件可选"
+                @change="updateOption"
+              ></v-checkbox>
+            </v-col>
+    
+            <v-col>
+              <v-checkbox
+                v-model="option.doubleSide"
+                label="双面材质"
+                @change="updateOption"
+              ></v-checkbox>
+            </v-col>
+          </v-row>
+          <v-row
+            no-gutters
+          >
+            
+            <v-col>
+              <v-checkbox
+                :disabled=!toCamera
+                v-model="option.toCamera"
+                label="朝向相机"
+                @change="updateOption"
+              ></v-checkbox>
+
+            </v-col>
+
+            <v-col>
+              <v-checkbox
+                :disabled=!ZtoY
+                v-model="option.ZtoY"
+                label="映射Y至Z"
+                @change="updateOption"
+              ></v-checkbox>
+              
+            </v-col>
+          </v-row>
+        <v-row
+          no-gutters
+        >
+    
+          <v-col>
             <v-checkbox
-              v-model="option.selectable"
-              label="selectable"
+              v-model="option.shadow"
+              label="阴影"
               @change="updateOption"
             ></v-checkbox>
     
-            <v-spacer></v-spacer>
+          </v-col>
+    
+          <v-col>
             <v-checkbox
-              v-model="option.doubleSide"
-              label="doubleSide"
+              :disabled=!edge
+              v-model="option.edge"
+              label="边线"
               @change="updateOption"
             ></v-checkbox>
-          </v-row>
-          
-        </v-col>
-        
-        <v-card-actions>
+    
+          </v-col>
+        </v-row>
+  
+  
+  
+        <v-card-actions
+          class="px-0"
+        >
+          <v-spacer></v-spacer>
           <v-btn
-            dark
-            @click="load=true;dialog=false"
-          >
-            Load
-          </v-btn>
-          <v-btn
-            dark
+            depressed
             @click="load=false;dialog=false"
           >
             Cancel
+          </v-btn>
+          <v-btn
+            depressed
+            color = "primary"
+            @click="load=true;dialog=false"
+          >
+            Load
           </v-btn>
         </v-card-actions>
     
@@ -81,6 +135,9 @@ export default {
   data: ()=>({
     dialog: false,
     load: true,
+    toCamera:true,
+    ZtoY:true,
+    edge:true
   }),
   mounted() {
     window.LoaderOption = this;
@@ -100,7 +157,10 @@ export default {
   },
   methods: {
     updateOption() {
-      console.log('option changed' , loaderOption)
+      window.LoaderOption.toCamera=(loaderOption.status === "merged");
+      window.LoaderOption.ZtoY=(loaderOption.status !== "raw");
+      window.LoaderOption.edge=(loaderOption.status !== "raw");
+      // console.log('option changed' , loaderOption)
     },
   }
   

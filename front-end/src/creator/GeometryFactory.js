@@ -26,7 +26,7 @@ import {Wireframe} from "three/examples/jsm/lines/Wireframe";
  * Date: 2020-11-12
  * Author: Yichen Mo
  */
-import {setPolygonOffsetMaterial} from "@/creator/MaterialFactory";
+import {setMaterialDoubleSide, setPolygonOffsetMaterial} from "@/creator/MaterialFactory";
 
 const GeometryFactory = function (_scene) {
   
@@ -228,10 +228,18 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
   return wireframe;
 }
 
-function sceneMesh(object) {
+function sceneMesh(object, shadow=true, doubleSide=false, layer=[0]) {
   object.traverseVisible((mesh)=>{
+    mesh.layer = layer;
     console.log(mesh)
+    if(shadow) {
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+    }
     if(mesh.isMesh) {
+      if(doubleSide) {
+        setMaterialDoubleSide(mesh.material);
+      }
       mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
       mesh.children[0].visible = false;
       mesh.layer=[0];

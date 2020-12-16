@@ -148,6 +148,17 @@ function setMaterialColor(material, color) {
     material.color.set(color);
 }
 
+function setMaterialDoubleSide(material) {
+  if(material === undefined) return;
+  if(material.length > 0) {
+    material.forEach((item)=>{
+      setMaterialDoubleSide(item);
+    })
+  }
+  material.side = THREE.DoubleSide;
+  material.shadowSide = THREE.BackSide;
+}
+
 /**
  * Set whole material with transparency and opacity
  * @param material
@@ -189,5 +200,6 @@ export {
   setMaterialHSL,
   setMaterialColor,
   setMaterialOpacity,
+  setMaterialDoubleSide,
   setPolygonOffsetMaterial,
 }

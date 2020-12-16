@@ -32,9 +32,14 @@ const AssetManager = function (_scene) {
   let _gui = null;
   
   
-  this.id = 0;
-
-  window.layer = scope.id;
+  this.setCurrentID = function (id) {
+    scope.id = id;
+    window.layer = scope.id;
+    
+    refreshSelection(_scene);
+  }
+  
+  scope.setCurrentID(0);
   
   this.addSelectedItem = function (item, id) {
     if (item.layer === undefined) {

@@ -56,10 +56,12 @@ function initScene() {
     pt.add(v);
   })
   const shape = new THREE.Shape().setFromPoints(points);
-  gb.Shape(shape, mt.Matte(), 100, 10);
+  const s1 = gb.Shape(shape, mt.Matte(), 100, 10);
   
   assetManager.refreshSelection(scene);
-  assetManager.addSelection([b1, b2, b3, b4], 1);
+  assetManager.addSelection([b1, b2, b3, b4, s1], 1);
+  assetManager.setCurrentID(1);
+  
 }
 
 

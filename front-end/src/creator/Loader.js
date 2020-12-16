@@ -36,12 +36,22 @@ import {refreshSelection} from "@/creator/AssetManager";
 
 /**
  * loader option with store mode
+ * |label| |物件可选|材质双面|朝向相机|映射Y至Z|阴影|边线|
+ * |:----|:----|:----|:----|:----|:----|:----|:----|
+ * | |value|selectable|doubleSide|toCamera|ZtoY|shadow|edge|
+ * |成组|grouped|TRUE|TRUE|FALSE|TRUE|TRUE|TRUE|
+ * |融合|merged|TRUE|TRUE|TRUE|TRUE|TRUE|TRUE|
+ * |原始|raw|TRUE|TRUE|FALSE|FALSE|TRUE|FALSE|
  * @type {{}}
  */
 const loaderOption = {
   status: "merged", // ["grouped", "merged", "raw"],
   selectable : true,
-  doubleSide : true
+  doubleSide : true,
+  toCamera : false,
+  ZtoY: false,
+  shadow: true,
+  edge: false
 }
 
 const Loader = function (_scene) {
@@ -52,6 +62,25 @@ const Loader = function (_scene) {
   let scope = this;
   
   function loadModel(object) {
+    
+    /* ---------- raw ---------- */
+    
+    if(loaderOption.status === "raw") {
+      
+      // set shadow, doubleSide, layer
+      sceneMesh(object, loaderOption.shadow, loaderOption.doubleSide, [0]);
+  
+      // clean nested group
+      while(object.children.length === 1) {
+        object = object.children[0];
+      }
+      
+      sceneAddMesh(_scene, object, loaderOption.edge)
+      return object;
+    }
+    
+    
+    /* ---------- merge ---------- */
     
     if(loaderOption.status === "merged") {
       const materials = new Set();
@@ -83,17 +112,22 @@ const Loader = function (_scene) {
       }
   
       return result;
-    } else if (loaderOption.status === "grouped") {
-      console.log(object);
-      sceneMesh(object);
-
-      while(object.children.length === 1) {
-        object = object.children[0];
-      }
-      sceneAddMesh(_scene, object, false, false)
     }
 
   }
+  
+  // function searchGroupMaterials(object, materials) {
+  //   if(!object.isGroup) return;
+  //   object.children.forEach((obj)=>{
+  //     if(obj.isMesh) {
+  //
+  //     }
+  //   })
+  // }
+  // //
+  // function searchGroupedMesh(object) {
+  //
+  // }
   
   function searchMaterials(object, materials) {
     if (object.isMesh) {
