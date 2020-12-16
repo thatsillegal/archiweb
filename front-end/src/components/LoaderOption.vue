@@ -163,7 +163,6 @@ export default {
       window.LoaderOption.toCamera=(loaderOption.status === "merged");
       window.LoaderOption.ZtoY=(loaderOption.status !== "raw");
       window.LoaderOption.edge=(loaderOption.status !== "raw");
-      // console.log('option changed' , loaderOption)
     },
   }
   

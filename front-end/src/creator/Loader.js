@@ -110,24 +110,108 @@ const Loader = function (_scene) {
       if (checkMaterial(result)) {
         result.material = new THREE.MeshLambertMaterial({color: 0x787774, side: THREE.DoubleSide, shadowSide:THREE.BackSide});
       }
+
+      return result;
+    }
+    
+    if(loaderOption.status === "grouped" ) {
+      // clean nested group
+      while(object.children.length === 1) {
+        object = object.children[0];
+      }
+      const result = searchGroupedMesh(object);
   
+      sceneAddMesh(_scene, result, false, false, [0]);
       return result;
     }
 
   }
   
-  // function searchGroupMaterials(object, materials) {
-  //   if(!object.isGroup) return;
-  //   object.children.forEach((obj)=>{
-  //     if(obj.isMesh) {
+  function searchGroupMaterials(object, materials) {
+    if(!object.isGroup) return;
+    object.children.forEach((obj)=>{
+      if(obj.isMesh) {
+        if (obj.material.length > 0) {
+          materials.add(obj.material[0]);
+        } else {
+          materials.add(obj.material);
+        }
+      }
+    })
+  }
+  
+  function searchGroupLines(object) {
+    if(!object.isGroup) return;
+    object.children.forEach((obj)=> {
+      if (obj.isLineSegments || obj.isLine) {
+    
+    
+        const posArr = obj.geometry.getAttribute('position').array;
+        buffer = Float32Concat(buffer, posArr);
+        return;
+      }
+    })
+  }
+  
+  function searchGroupMaterialChild(material, object, meshGeometry) {
+    if(!object.isGroup) return;
+    object.children.forEach((obj)=> {
+      if(obj.isMesh) {
+        let omaterial = obj.material;
+        if(omaterial.length > 0) {
+          omaterial = omaterial[0]
+        }
+        
+        if(omaterial === material) {
+          if(obj.geometry.isBufferGeometry)
+            obj.geometry = new THREE.Geometry().fromBufferGeometry(obj.geometry);
+          meshGeometry.merge(obj.geometry, obj.matrix);
+        }
+      }
+    })
+  }
   //
-  //     }
-  //   })
-  // }
-  // //
-  // function searchGroupedMesh(object) {
-  //
-  // }
+  function searchGroupedMesh(object) {
+    if(!object.isGroup) return;
+    /* ---------- mesh ---------- */
+    const materials = new Set();
+    const meshes = [];
+    searchGroupMaterials(object, materials)
+  
+    materials.forEach(function (material) {
+      let meshGeometry = new THREE.Geometry();
+      searchGroupMaterialChild(material, object, meshGeometry);
+      meshes.push(new THREE.Mesh(meshGeometry, material));
+    });
+  
+    const ret = new THREE.Group().copy(object);
+    ret.children = [];
+    ret.layer=[0];
+    // ret.matrix = object.matrix;
+    
+    if(materials.size > 0) {
+      const result = mergeMeshes(meshes);
+  
+      /* ---------- line ---------- */
+      let lineGeometry = new THREE.BufferGeometry();
+      buffer = new Float32Array();
+      searchGroupLines(object);
+      // console.log(buffer);
+      lineGeometry.setAttribute('position', new THREE.BufferAttribute(buffer, 3));
+      const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
+  
+  
+      sceneAddMesh(ret, result, line, loaderOption.shadow, [0]);
+      console.log(materials);
+      console.log(result);
+    }
+  
+    /* ---------- group ---------- */
+    object.children.forEach((obj)=>{
+      if(obj.isGroup) ret.add(searchGroupedMesh(obj));
+    })
+    return ret;
+  }
   
   function searchMaterials(object, materials) {
     if (object.isMesh) {
@@ -190,7 +274,6 @@ const Loader = function (_scene) {
     return result;
   }
   
-  // FIXME: linesigments matrix bug in bug-tree.dae
   function searchLines(object, matrix) {
     if (matrix === undefined) matrix = new THREE.Matrix4();
     
