@@ -86,7 +86,7 @@ const DragFrames = function (_renderer, _scene, _camera) {
     scene2D = new THREE.Scene();
     
     camera2D = new THREE.OrthographicCamera(-width / 2, width / 2, -height / 2, height / 2, 1, 10);
-    camera2D.position.x = width / 2 - 8;
+    camera2D.position.x = width / 2;
     camera2D.position.y = height / 2;
     camera2D.position.z = 10;
     
@@ -126,7 +126,7 @@ const DragFrames = function (_renderer, _scene, _camera) {
     camera2D.right = width / 2;
     camera2D.top = -height / 2;
     camera2D.bottom = height / 2;
-    camera2D.position.x = width / 2 - 8;
+    camera2D.position.x = width / 2;
     camera2D.position.y = height / 2;
     camera2D.updateProjectionMatrix();
   }
