@@ -1,8 +1,8 @@
 import socket from "@/socket";
 import * as THREE from 'three';
-import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
-import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
-import {Wireframe} from "three/examples/jsm/lines/Wireframe";
+import {sceneAddMesh} from "@/creator/GeometryFactory";
+import {refreshSelection} from "@/creator/AssetManager";
+
 
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
@@ -29,7 +29,7 @@ import {Wireframe} from "three/examples/jsm/lines/Wireframe";
  */
 
 /**
- *
+ * You need to modify this file to use for specific
  * @param _scene
  * @constructor
  */
@@ -47,7 +47,6 @@ const ArchiJSON = function (_scene) {
   }
   
   this.sendArchiJSON = function (eventName, objects) {
-    
     let geometries = [];
     for (let obj of objects) {
       if (obj.exchange) {
@@ -65,17 +64,7 @@ const ArchiJSON = function (_scene) {
     
   });
   
-  
-  function meshLine(geometry, color, linewidth) {
-    const matLine = new LineMaterial({color: color, linewidth: linewidth});
-    const geoLine = new WireframeGeometry2(geometry);
-    const wireframe = new Wireframe(geoLine, matLine);
-    wireframe.computeLineDistances();
-    wireframe.scale.set(1, 1, 1);
-    wireframe.renderOrder = 2;
-    return wireframe;
-  }
-  
+
   
   function parseGeometry(archiJSON) {
     const geo = new THREE.Geometry();
@@ -93,34 +82,16 @@ const ArchiJSON = function (_scene) {
     }
     
     geo.computeBoundingBox();
-    
     geo.computeFaceNormals();
     geo.normalsNeedUpdate = true;
     
-    const material = new THREE.MeshLambertMaterial({color: 0xdddddd, flatShading: true});
-    material.polygonOffset = true;
-    material.polygonOffsetFactor = 1.0;
-    material.polygonOffsetUnits = 1.0;
+
     
     if (flag) {
+      const material = new THREE.MeshLambertMaterial({color: 0xdddddd, flatShading: true});
       const mesh = new THREE.Mesh(geo, material);
-      mesh.receiveShadow = true;
-      mesh.castShadow = true;
-      
-      mesh.add(meshLine(mesh.geometry, 0xffff00, 0.005));
-      
-      const lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, transparent: false, depthWrite: true});
-      lineMaterial.polygonOffset = true;
-      
-      const edges = new THREE.EdgesGeometry(mesh.geometry);
-      const line = new THREE.LineSegments(edges, lineMaterial);
-      
-      mesh.add(line);
-      
-      mesh.children[0].visible = false;
-      
-      window.objects.push(mesh);
-      _scene.add(mesh)
+      sceneAddMesh(_scene, mesh, true, true, [0, 1]);
+      refreshSelection(_scene);
     }
     
   }
