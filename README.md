@@ -31,13 +31,14 @@ ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en
     - [MultiCamera](#multicamera)
     - [GeometryFactory](#geometryfactory)
     - [Loader](#loader)
+      - [Loader Option](#loader-option)
     - [similar works](#similar-works)
 - [Extensions](#extensions)
   - [java-backend](#java-backend)
   - [webxr](#webxr)
     - [similar framework](#similar-framework)
   - [database](#database)
-    - [similar to web GIS](#similar-to-web-gis)
+    - [Similar to web GIS](#similar-to-web-gis)
   - [ddg](#ddg)
 - [Issues](#issues)
 
@@ -248,6 +249,7 @@ loader.loadModel('/models/autumn-tree.dae', (mesh) => {
 ```
 #### similar works
 - [THREE Editor](https://threejs.org/editor/)
+- [HomeIdea3D](https://homeidea3d.seanwasere.com/)
 ## Extensions
 ### java-backend
 Data exchange format is [ArchiJson](https://github.com/Inst-AAA/archijson).

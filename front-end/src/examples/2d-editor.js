@@ -57,18 +57,11 @@ function initScene() {
   
 }
 
-function around(position) {
-  position.x = Math.round(position.x);
-  position.y = Math.round(position.y);
-  position.z = Math.round(position.z);
-}
-
 function initDrag() {
   drag = new DragControls(window.objects, camera, renderer.domElement);
   drag.addEventListener('hoveron', function (event) {
     // console.log(event)
     let o = event.object;
-    around(o.position);
     o.toInfoCard();
     controller.enabled = false;
   });
@@ -78,7 +71,6 @@ function initDrag() {
 
   drag.addEventListener('dragend', function (event) {
     let o = event.object;
-    around(o.position);
     o.toInfoCard();
   });
   drag.addEventListener('drag', function () {
