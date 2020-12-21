@@ -31,7 +31,6 @@
 </template>
 
 <script>
-import {main} from '@/index'
 import InfoCard from "@/components/InfoCard";
 import ViewSelectCard from "@/components/ViewSelectCard";
 
@@ -40,7 +39,11 @@ export default {
   components: {ViewSelectCard, InfoCard},
   data: () => ({}),
   mounted() {
-    main();
+    console.log('Current Application : ' + window.currentApp);
+    // if(window.currentApp === undefined) window.currentApp='3d-editor';
+    let test = require('@/examples/'+window.currentApp+'.js');
+    test.main();
+    // main();
   },
 
 }
