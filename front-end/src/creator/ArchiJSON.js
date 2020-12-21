@@ -29,7 +29,7 @@ import {refreshSelection} from "@/creator/AssetManager";
  */
 
 /**
- * You need to modify this file to use for specific
+ * You need to modify this file for specific usage
  * @param _scene
  * @constructor
  */

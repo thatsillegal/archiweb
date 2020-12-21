@@ -14,7 +14,7 @@ const undoList = [];
 const redoList = [];
 
 function createCircle(pt) {
-  undoList.push(gb.Cylinder([pt.x, pt.y, pt.z], [100, 1], mf.Flat(Math.random()*0xffffff), true));
+  undoList.push(gb.Cylinder([pt.x, pt.y, pt.z], [Math.random()*100+50, Math.random()*5+1], mf.Flat(Math.random()*0xffffff), true));
   
   undoManager.add({
     undo: function() {
@@ -49,7 +49,7 @@ function initScene() {
   gb = new ARCH.GeometryFactory(scene);
   mf = new ARCH.MaterialFactory();
   
-  const light = new THREE.SpotLight(0xffffff, 1.5);
+  const light = new THREE.DirectionalLight(0xffffff, 1.5);
   light.position.set(0, 0, 1000);
   scene.add(light);
   // refresh global objects
