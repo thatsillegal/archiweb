@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import {updateObject} from "@/index";
+// import {updateObject} from "@/index";
 
 export default {
   name: "InfoCard",
@@ -156,7 +156,7 @@ export default {
       for (let k of Object.keys(this.info.model)) {
         this.info.model[k] = Number(this.$refs[k][0].lazyValue);
       }
-      updateObject(this.info.uuid, this.info.model);
+      // updateObject(this.info.uuid, this.info.model);
     },
     
   }

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Viewer from './components/Viewer'
+import Home from './components/Home'
 
 const examples = [
   '2d-editor', '3d-editor', 'camera-viewer',
@@ -24,7 +25,7 @@ examples.forEach((item)=>{
 })
 
 routes.push(
-  {path: '/', name: 'home', component: Viewer, meta: {title: 'ArchiWeb'}}
+  {path: '/', name: 'home', component: Home, meta: {title: 'ArchiWeb'}}
 )
 
 Vue.use(VueRouter)

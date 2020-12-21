@@ -39,11 +39,8 @@ export default {
   components: {ViewSelectCard, InfoCard},
   data: () => ({}),
   mounted() {
-    console.log('Current Application : ' + window.currentApp);
-    // if(window.currentApp === undefined) window.currentApp='3d-editor';
-    let test = require('@/examples/'+window.currentApp+'.js');
+    const test = require('@/examples'+this.$route.path+'.js');
     test.main();
-    // main();
   },
 
 }
