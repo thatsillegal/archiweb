@@ -16,8 +16,7 @@
             width="40"
           />
         </a>
-        <a class="text-decoration-none" href="https://github.com/Inst-AAA/archiweb" style="color:#000000;"
-           target="_blank">
+        <a class="text-decoration-none" href="/" style="color:#000000;">
           
           <h2 class="pr-2">ArchiWeb</h2>
         

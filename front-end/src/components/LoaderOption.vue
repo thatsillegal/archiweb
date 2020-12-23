@@ -1,4 +1,6 @@
 <template>
+  <section>
+
   <v-row justify="center">
     <v-dialog
       v-model="dialog"
@@ -127,6 +129,7 @@
       </v-card>
     </v-dialog>
   </v-row>
+  </section>
 </template>
 
 <script>

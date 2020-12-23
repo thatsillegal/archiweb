@@ -41,4 +41,7 @@ router.afterEach((to, from) => {
     document.title = to.meta.title || 'ArchiWeb';
   });
 });
-export default router
+export {
+  router as default,
+  examples
+}
