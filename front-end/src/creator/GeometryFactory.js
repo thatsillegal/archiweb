@@ -201,6 +201,7 @@ const GeometryFactory = function (_scene) {
 
 
 function createMeshEdge(mesh, color = 0x000000) {
+  if(!mesh.geometry) return;
   
   setPolygonOffsetMaterial(mesh.material);
   

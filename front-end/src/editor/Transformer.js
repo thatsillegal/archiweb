@@ -281,15 +281,18 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   function deleteObject(object) {
     if (object === undefined) return;
+
     if (!object.isGroup) {
       console.log(object)
       object.parent.remove(object);
     } else {
-      for (let i = 0; i < object.children.length; ++i) {
-        deleteObject(object.children[i]);
+      while(object.children.length > 0) {
+        object.children.forEach((item) => {
+          deleteObject(item);
+        });
       }
     }
-    
+
   }
   
   /**
@@ -363,9 +366,17 @@ const Transformer = function (_scene, _renderer, _camera) {
     }
   }
   
+  function deleteSelected() {
+    let obj = control.object;
+    deleteObject(obj);
+  
+    clear();
+  
+    refreshSelection(_scene);
+  }
   
   function onDocumentKeyDown(event) {
-    let obj;
+    console.log(event);
     switch (event.keyCode) {
       
       case 81: // Q
@@ -427,13 +438,8 @@ const Transformer = function (_scene, _renderer, _camera) {
         break;
       
       case 46: // delete
-        obj = control.object;
-        deleteObject(control.object);
-        
-        clear();
-        refreshSelection();
-        
-        window.objects.splice(window.objects.findIndex(item => item.uuid === obj.uuid), 1);
+        deleteSelected();
+
         break;
       
       case 16: // shift
@@ -485,6 +491,8 @@ const Transformer = function (_scene, _renderer, _camera) {
         control.setScaleSnap(scope.scaleSnap);
       }
     });
+    
+    transformer.add(scope, 'deleteSelected').name('delete');
   }
   
   function setSelected(objects) {
@@ -522,6 +530,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   this.applyTransform = applyTransformGroup;
   this.clear = clear;
+  this.deleteSelected = deleteSelected;
   
   this.translateionSnap = 100;
   this.rotationSnap = 15;

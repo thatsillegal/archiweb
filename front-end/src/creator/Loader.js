@@ -121,7 +121,8 @@ const Loader = function (_scene) {
       }
       const result = searchGroupedMesh(object);
   
-      sceneAddMesh(_scene, result, false, false, [0]);
+      sceneMesh(object, loaderOption.shadow, loaderOption.doubleSide)
+      sceneAddMesh(_scene, result, loaderOption.edge);
       return result;
     }
 
@@ -144,11 +145,8 @@ const Loader = function (_scene) {
     if(!object.isGroup) return;
     object.children.forEach((obj)=> {
       if (obj.isLineSegments || obj.isLine) {
-    
-    
         const posArr = obj.geometry.getAttribute('position').array;
         buffer = Float32Concat(buffer, posArr);
-        return;
       }
     })
   }
