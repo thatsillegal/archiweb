@@ -571,6 +571,7 @@ const Loader = function (_scene) {
         reader.readAsArrayBuffer(file);
         
         break;
+        
       
       default:
         alert('file format not support');

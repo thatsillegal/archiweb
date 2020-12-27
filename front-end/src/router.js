@@ -6,7 +6,7 @@ import Home from './components/Home'
 const examples = [
   '2d-editor', '3d-editor', 'camera-viewer',
   'marching-cubes', 'material-example', 'shape-2d',
-  'undo-redo-canvas'
+  'undo-redo-canvas', 'image-3d'
 ]
 const routes = [];
 examples.forEach((item)=>{
