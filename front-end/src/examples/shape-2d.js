@@ -95,6 +95,7 @@ function main() {
   
   initScene();
   
+  
 }
 
 export {

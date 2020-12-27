@@ -376,7 +376,6 @@ const Transformer = function (_scene, _renderer, _camera) {
   }
   
   function onDocumentKeyDown(event) {
-    console.log(event);
     switch (event.keyCode) {
       
       case 81: // Q

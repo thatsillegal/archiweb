@@ -25,6 +25,7 @@ const Viewport = function () {
     window.objects = [];
   
     /* ---------- renderer ---------- */
+    renderer.domElement.tabIndex = 0;
     renderer.autoClear = false;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -41,10 +42,12 @@ const Viewport = function () {
     camera.setController(controller);
   
     /* ---------- control ---------- */
+    controller.enableKeys = false;
     controller.mouseButtons = {
       LEFT: THREE.MOUSE.PAN,
       RIGHT: THREE.MOUSE.ROTATE
     }
+    controller.update();
     animate();
   }
   
@@ -144,7 +147,7 @@ const Viewport = function () {
       case 16: // Shift
         controller.enablePan = true;
         break;
-      case 73:
+      case 73: // I
         window.InfoCard.hideInfoCard(!window.InfoCard.show);
         
     }

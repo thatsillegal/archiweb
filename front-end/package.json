@@ -17,7 +17,7 @@
     "dat.gui": "^0.7.7",
     "pkgfiles": "^2.3.2",
     "socket.io": "^2.3.0",
-    "three": "^0.121.1",
+    "three": "^0.124.0",
     "three-csm": "^1.1.0",
     "undo-manager": "^1.0.5",
     "vue": "^2.6.11",
