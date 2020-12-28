@@ -119,6 +119,22 @@ const SceneBasic = function (_scene, _renderer) {
       _scene.fog.density = 0;
   }
   
+  function update() {
+    axesUpdate(scope.axes);
+    skyColorUpdate(scope.fog);
+    gridUpdate(scope.grid);
+    mshFloor.material.color.set(scope.floorColor);
+  
+    dirLight.castShadow = scope.shadow;
+    dirLight.position.x = scope.x;
+    dirLight.position.y = scope.y;
+    dirLight.position.z = scope.z;
+    
+    dirLight.color.set(scope.sunColor);
+    ambientLight.color.set(scope.ambientColor);
+  
+  }
+  
   
   function addGUI(gui) {
     let sceneBasic = gui.addFolder('Scene Basic')
@@ -155,10 +171,12 @@ const SceneBasic = function (_scene, _renderer) {
         }
       }
     );
-    sceneBasic.addColor(scope, 'skyColor').name('sky').onChange(function () {
+    sceneBasic.addColor(scope, 'skyColor').name('sky')
+      .listen().onChange(function () {
       skyColorUpdate(scope.fog);
     });
-    sceneBasic.addColor(scope, 'floorColor').name('floor').onChange(function () {
+    sceneBasic.addColor(scope, 'floorColor').name('floor')
+      .listen().onChange(function () {
       mshFloor.material.color.set(scope.floorColor);
     });
     let sun = sceneBasic.addFolder('Sun Position')
@@ -171,10 +189,12 @@ const SceneBasic = function (_scene, _renderer) {
     sun.add(scope, 'z').min(1000).max(5000).step(10).onChange(function () {
       dirLight.position.z = scope.z;
     });
-    sun.addColor(scope, 'sunColor').name('sun').onChange(()=>{
+    sun.addColor(scope, 'sunColor').name('sun')
+      .listen().onChange(()=>{
       dirLight.color.set(scope.sunColor);
     })
-    sun.addColor(scope, 'ambientColor').name('ambient').onChange(()=>{
+    sun.addColor(scope, 'ambientColor').name('ambient')
+      .listen().onChange(()=>{
       ambientLight.color.set(scope.ambientColor);
     })
   }
@@ -189,6 +209,7 @@ const SceneBasic = function (_scene, _renderer) {
   this.fog = true;
   this.grid = 0;
   this.addGUI = addGUI;
+  this.update = update;
   
   this.directLight = dirLight;
   this.ambientLight = ambientLight;

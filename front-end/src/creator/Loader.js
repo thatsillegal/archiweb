@@ -10,6 +10,7 @@ import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 
 import {sceneAddMesh, sceneMesh} from "@/creator/GeometryFactory";
 import {refreshSelection} from "@/creator/AssetManager";
+import {ImageLoader} from "three";
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
  *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
@@ -378,7 +379,7 @@ const Loader = function (_scene) {
   
   /*-------------------- API --------------------*/
   
-  this.loadModel = function (filename, mesh) {
+  this.loadModel = function (filename, callback) {
     let extension = filename.split('.').pop().toLowerCase();
     let loader;
     const dracoLoader = new DRACOLoader();
@@ -387,7 +388,7 @@ const Loader = function (_scene) {
         loader = new ColladaLoader();
         loader.load(filename, function (collada) {
           
-          mesh(loadModel(collada.scene));
+          callback(loadModel(collada.scene));
           
         });
         break;
@@ -398,7 +399,7 @@ const Loader = function (_scene) {
         dracoLoader.setDecoderPath('three/examples/js/libs/draco/gltf/');
         loader.setDRACOLoader(dracoLoader);
         loader.load(filename, function (gltf) {
-          mesh(loadModel(gltf.scene));
+          callback(loadModel(gltf.scene));
         });
         break;
       case 'obj':
@@ -407,19 +408,19 @@ const Loader = function (_scene) {
           obj.rotateX(Math.PI / 2);
           obj.scale.set(40, 40, 40);
           obj.updateMatrixWorld(true);
-          mesh(loadModel(obj));
+          callback(loadModel(obj));
         });
         break;
       case '3mf':
         loader = new ThreeMFLoader();
         loader.load(filename, function (obj) {
-          mesh(loadModel(obj));
+          callback(loadModel(obj));
         });
         break;
       case 'fbx':
         loader = new FBXLoader();
         loader.load(filename, function (obj) {
-          mesh(loadModel(obj));
+          callback(loadModel(obj));
         })
         break;
       
@@ -451,7 +452,13 @@ const Loader = function (_scene) {
     let reader = new FileReader();
     reader.addEventListener('loadstart', function(event) {
       console.log(event);
-      window.LoaderOption.dialog = true;
+      switch (extension) {
+        case 'jpg':
+        case 'png':
+          break;
+        default:
+          window.LoaderOption.dialog = true;
+      }
     })
 
     reader.addEventListener('progress', function (event) {
@@ -572,7 +579,19 @@ const Loader = function (_scene) {
         
         break;
         
-      
+      case 'png':
+      case 'jpg':
+        reader.addEventListener('load', function (event){
+          let contents = event.target.result;
+          let loader = new ImageLoader();
+          loader.load(contents, function ( image ) {
+            scope.dispatchEvent({type: 'load', object:image});
+          });
+        });
+  
+        reader.readAsDataURL(file);
+        break;
+        
       default:
         alert('file format not support');
       
@@ -605,5 +624,7 @@ const Loader = function (_scene) {
   }
 }
 
+
+Loader.prototype = Object.create(THREE.EventDispatcher.prototype);
 
 export {Loader, loaderOption};
