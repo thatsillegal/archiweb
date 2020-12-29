@@ -453,6 +453,7 @@ const Loader = function (_scene) {
     reader.addEventListener('loadstart', function(event) {
       console.log(event);
       switch (extension) {
+        case 'jpeg':
         case 'jpg':
         case 'png':
           break;
@@ -579,13 +580,16 @@ const Loader = function (_scene) {
         
         break;
         
+      case 'jpeg':
       case 'png':
       case 'jpg':
         reader.addEventListener('load', function (event){
           let contents = event.target.result;
           let loader = new ImageLoader();
           loader.load(contents, function ( image ) {
+            
             scope.dispatchEvent({type: 'load', object:image});
+            // alert(''+image.width + ' ' + image.height);
           });
         });
   
@@ -593,7 +597,7 @@ const Loader = function (_scene) {
         break;
         
       default:
-        alert('file format not support');
+        alert('file format ' + extension + ' not support');
       
       
     }

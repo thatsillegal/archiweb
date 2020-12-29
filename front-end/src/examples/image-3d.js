@@ -132,9 +132,6 @@ function main() {
   scene = viewport.scene;
   gui = viewport.gui.gui;
   
-  viewport.enableDragFrames();
-  viewport.enableTransformer();
-  
   const sceneBasic = new ARCH.SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui);
   sceneBasic.floorColor = '#ffffff';
