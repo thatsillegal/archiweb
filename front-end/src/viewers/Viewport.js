@@ -8,7 +8,7 @@ import {Transformer} from "@/archiweb";
 
 const Viewport = function () {
   
-  const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+  const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
   const scene = new THREE.Scene();
   
   const camera = new MultiCamera(renderer.domElement);

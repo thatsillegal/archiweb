@@ -73,6 +73,29 @@ function paintGrid(imagedata, x, y, w, h) {
   
 }
 
+function generateGrid(imagedata) {
+  let mn = gcd(imagedata.width, imagedata.height);
+  console.log(mn)
+  let mim = Math.max(90, control.minimal);
+  if(mn < mim) mn = mim;
+  // mn/=20;
+  
+  for(let x = 0; x < imagedata.width; x += mn) {
+    for(let y = 0; y < imagedata.height; y += mn) {
+      paintGrid(imagedata, x, y, mn, mn);
+    }
+  }
+  ARCH.refreshSelection(scene);
+}
+
+/* ---------- create GUI ---------- */
+function initGUI() {
+  gui.add(control, 'edge');
+  gui.add(control, 'threshold', 0, 1);
+  gui.add(control, 'minimal', 1, 100, 1);
+  gui.add(control, 'update');
+  gui.add(control, 'save');
+}
 
 /* ---------- create your scene object ---------- */
 function initScene() {
@@ -99,20 +122,6 @@ function clear() {
   gb = [];
 }
 
-function generateGrid(imagedata) {
-  let mn = gcd(imagedata.width, imagedata.height);
-  console.log(mn)
-  let mim = Math.max(90, control.minimal);
-  if(mn < mim) mn = mim;
-  // mn/=20;
-  
-  for(let x = 0; x < imagedata.width; x += mn) {
-    for(let y = 0; y < imagedata.height; y += mn) {
-      paintGrid(imagedata, x, y, mn, mn);
-    }
-  }
-  ARCH.refreshSelection(scene);
-}
 
 const control = {
   edge:false,
@@ -121,6 +130,38 @@ const control = {
   update:function (){
     clear();
     generateGrid(image);
+  },
+  save:function() {
+    saveAsImage();
+  }
+}
+
+function saveAsImage() {
+  let imgData;
+  
+  try {
+    imgData = renderer.domElement.toDataURL("image/jpeg");
+    console.log(imgData);
+    saveFile(imgData, new Date().valueOf() + ".jpeg");
+  } catch (e) {
+    console.log(e);
+  }
+  
+}
+
+function saveFile (strData, filename) {
+  const link = document.createElement('a');
+  if (typeof link.download === 'string') {
+    //Firefox requires the link to be in the body
+    document.body.appendChild(link);
+    link.download = filename;
+    
+    link.href = strData;
+    link.click();
+    //remove the link when done
+    document.body.removeChild(link);
+  } else {
+    // location.replace(uri);
   }
 }
 
@@ -135,14 +176,14 @@ function main() {
   const sceneBasic = new ARCH.SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui);
   sceneBasic.floorColor = '#ffffff';
+  sceneBasic.y = -3000;
   sceneBasic.axes = false;
   sceneBasic.shadow = false;
   sceneBasic.update();
   
-  gui.add(control, 'edge');
-  gui.add(control, 'threshold', 0, 1);
-  gui.add(control, 'minimal', 1, 100, 1);
-  gui.add(control, 'update');
+  viewport.controller.enablePan = true;
+  
+  initGUI();
   initScene();
 }
 
