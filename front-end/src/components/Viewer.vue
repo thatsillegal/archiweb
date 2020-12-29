@@ -51,15 +51,15 @@ export default {
 .v-application .title {
   font-size: 0.9rem !important;
 }
-
 .dg .c input[type=checkbox] {
   margin-top: 3px;
 }
-
 input {
-  height: 1.25rem
+  font-size:12px;
+  height: 1.25rem;
+  text-align:center;
+  line-height:normal;
 }
-
 select {
   background: #FFFFFF;
   /* -webkit-writing-mode: horizontal-tb !important; */
