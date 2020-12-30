@@ -173,6 +173,7 @@ function main() {
   scene = viewport.scene;
   gui = viewport.gui.gui;
   
+  
   const sceneBasic = new ARCH.SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui);
   sceneBasic.floorColor = '#ffffff';
@@ -180,6 +181,7 @@ function main() {
   sceneBasic.axes = false;
   sceneBasic.shadow = false;
   sceneBasic.update();
+  sceneBasic.gui.close();
   
   viewport.controller.enablePan = true;
   

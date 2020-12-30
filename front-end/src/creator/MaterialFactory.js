@@ -13,6 +13,14 @@ const MaterialFactory = function () {
   
   init();
   /* ---------- Normal ---------- */
+  this.Void = function() {
+    return new THREE.MeshLambertMaterial({transparent:true, opacity:0});
+  }
+  
+  this.Glass = function(color = 0xdddddd) {
+    return new THREE.MeshLambertMaterial({color:color, transparent:true, opacity:0.4});
+  }
+  
   this.Doubled = function (color=0xdddddd) {
     return new THREE.MeshPhongMaterial({color:color, side:THREE.DoubleSide, shadowSide:THREE.BackSide});
   }

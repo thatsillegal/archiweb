@@ -58,15 +58,14 @@ const ArchiJSON = function (_scene) {
   }
   
   socket.on('stb:receiveGeometry', async function (message) {
-    
     // get geometry
-    parseGeometry(message);
+    scope.parseGeometry(message);
     
   });
   
 
   
-  function parseGeometry(archiJSON) {
+   this.parseGeometry = function(archiJSON) {
     const geo = new THREE.Geometry();
     let flag = true;
     for (let i = 0; i < archiJSON.verts.length; ++i) {
@@ -95,7 +94,6 @@ const ArchiJSON = function (_scene) {
     }
     
   }
-  
   
 }
 

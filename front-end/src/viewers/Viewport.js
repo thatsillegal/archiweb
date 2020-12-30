@@ -244,8 +244,6 @@ const Viewport = function () {
 
   function addGUI(gui) {
     let viewport = gui.addFolder('Viewport');
-    console.log(controls);
-    console.log(viewport);
     viewport.add(controls, 'rotate').listen().onChange(()=>{
       controller.enableRotate = !controller.enableRotate;
     });

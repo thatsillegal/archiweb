@@ -138,6 +138,7 @@ const SceneBasic = function (_scene, _renderer) {
   
   function addGUI(gui) {
     let sceneBasic = gui.addFolder('Scene Basic')
+    scope.gui = sceneBasic;
     sceneBasic.open();
     sceneBasic.add(scope, 'axes')
       .listen().onChange(
