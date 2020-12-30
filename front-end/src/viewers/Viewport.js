@@ -58,8 +58,14 @@ const Viewport = function () {
   
   function onSelectUp(event) {
     window.highlighted = false;
-    assetManager.unHighlightList(event.object);
-    transformer.setSelected(event.object);
+    if(event.object.length > 1000) {
+      assetManager.unHighlightList(event.object);
+      alert('too much selected');
+    } else {
+      console.log(event.object.length > 1000);
+      assetManager.unHighlightList(event.object);
+      transformer.setSelected(event.object);
+    }
   }
   
   /**
@@ -100,7 +106,6 @@ const Viewport = function () {
    */
   function enableTransformer() {
     if(assetManager === undefined) enableAssetManager();
-    if(drag === undefined) enableDragFrames();
     
     transformer = new Transformer(scene, renderer, camera.camera);
     camera.setTransformer(transformer);

@@ -165,6 +165,14 @@ function saveFile (strData, filename) {
   }
 }
 
+/* ---------- check device is pc or not ---------- */
+function isPC() {
+  const agents = ["Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"];
+  for(let i = 0; i < agents.length; ++ i) {
+    if(navigator.userAgent.indexOf(agents[i]) > 0) return false;
+  }
+  return true;
+}
 
 /* ---------- main entry ---------- */
 function main() {
@@ -173,6 +181,12 @@ function main() {
   scene = viewport.scene;
   gui = viewport.gui.gui;
   
+  if(isPC()) {
+    viewport.enableDragFrames();
+    viewport.enableTransformer();
+  } else {
+    viewport.controller.enablePan = true;
+  }
   
   const sceneBasic = new ARCH.SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui);
@@ -183,7 +197,6 @@ function main() {
   sceneBasic.update();
   sceneBasic.gui.close();
   
-  viewport.controller.enablePan = true;
   
   initGUI();
   initScene();
