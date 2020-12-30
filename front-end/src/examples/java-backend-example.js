@@ -3,8 +3,9 @@ import * as ARCH from "@/archiweb"
 
 let scene, gui;
 let geoFty, matFty;
-// let archijson;
+let archijson;
 let lastRandom = 1;
+
 function random(seed){
   seed = seed || lastRandom;
   return lastRandom = ('0.'+Math.sin(seed).toString().substr(6));
@@ -15,6 +16,9 @@ const control = {
   num:10,
   nx:500,
   ny:300,
+  sendToJava: function() {
+    archijson.sendArchiJSON('bts:sendGeometry', window.objects, control);
+  }
 }
 
 function initGUI() {
@@ -31,6 +35,7 @@ function initGUI() {
     border.scale.y = control.ny;
   })
   
+  gui.add(control, 'sendToJava').name('Send Geometries');
 }
 
 
@@ -40,20 +45,25 @@ function initScene() {
   geoFty = new ARCH.GeometryFactory(scene);
   matFty = new ARCH.MaterialFactory();
   //
-  // archijson = ARCH.ArchiJSON(scene);
-  //
-
-
+  archijson = new ARCH.ArchiJSON(scene);
   
   const geometry = new THREE.BufferGeometry();
   const material = new THREE.PointsMaterial( { size: 10, vertexColors: true } );
   points = new THREE.Points(geometry, material);
+  scene.add(points);
+  
+  points.layer = [0];
+  points.exchange = true;
+  points.toArchiJSON = function () {
+    const position = points.geometry.getAttribute('position');
+    return {type: 'Points',matrix: points.matrix.elements, uuid:points.uuid, size:position.itemSize, count:position.count, position:Array.from(position.array)};
+  }
   
   generatePoints(control.num, control.nx, control.ny);
   
-  border = geoFty.Box([0, 0, 0], [control.nx, control.ny, 0],
+  
+  border = geoFty.Plane([0, 0, 0], [control.nx, control.ny, 0.5],
     matFty.Void(), true);
-  ARCH.sceneAddMesh(scene, points, false);
   
   // refresh global objects
   ARCH.refreshSelection(scene);
@@ -72,7 +82,9 @@ function generatePoints(num, nx, ny){
   
   points.geometry.setAttribute('position', new THREE.Float32BufferAttribute( positions, 3 ));
   points.geometry.setAttribute('color', new THREE.Float32BufferAttribute( colors, 3 ));
+  points.geometry.computeBoundingSphere();
 }
+
 
 
 /* ---------- animate per frame ---------- */

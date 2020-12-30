@@ -1,5 +1,8 @@
 package main;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import java.util.List;
 
 /**
@@ -10,15 +13,15 @@ import java.util.List;
  */
 public class ArchiJSON {
     String id;
-    List<Geometry> archijson;
+    List<JsonElement> geometries;
+    Property properties;
 
     @Override
     public String toString() {
-        String str = "";
-        str += "Geometry len: " + archijson.size() + '\n';
-        for (Geometry geom : archijson) {
-            str += geom;
-        }
-        return str;
+        return "ArchiJSON{" +
+                "id='" + id + '\'' +
+                ", geometries=" + geometries +
+                ", properties=" + properties +
+                '}';
     }
 }

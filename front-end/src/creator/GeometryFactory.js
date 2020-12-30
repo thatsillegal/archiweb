@@ -40,9 +40,22 @@ const GeometryFactory = function (_scene) {
   cylinderGeometry.rotateX(Math.PI / 2);
   cylinderGeometry.translate(0, 0, 0.5);
 
+  const planeGeometry = new THREE.PlaneBufferGeometry(1, 1);
   
   // const scope = this;
   // API
+  this.Plane = function ([x, y, z], [w, h], material, showEdge = true) {
+    let mesh = new THREE.Mesh(planeGeometry, material);
+    sceneAddMesh(_scene, mesh, showEdge);
+    
+    mesh.type = 'Plane';
+    mesh.scale.set(w, h, 1);
+    mesh.position.set(x, y, z);
+    
+    publicProperties(mesh);
+    return mesh;
+  }
+  
   this.Box = function ([x, y, z], [w, h, d], material, showEdge=true) {
     
     let mesh = new THREE.Mesh(boxGeometry, material);
@@ -137,6 +150,10 @@ const GeometryFactory = function (_scene) {
   
   function updateModel (self, modelParam) {
     switch (self.type) {
+      case 'Plane':
+        self.scale.x = modelParam['w'];
+        self.scale.y = modelParam['h'];
+        break;
       case 'Box' :
         self.scale.x = modelParam['w'];
         self.scale.y = modelParam['h'];
@@ -157,6 +174,8 @@ const GeometryFactory = function (_scene) {
   
   function modelParam (self) {
     switch (self.type) {
+      case 'Plane':
+        return {w: self.scale.x, h:self.scale.y};
       case 'Box':
         return {w: self.scale.x, h: self.scale.y, d: self.scale.z};
       case 'Cylinder':
@@ -176,7 +195,7 @@ const GeometryFactory = function (_scene) {
     
     mesh.exchange = true;
     mesh.toArchiJSON = function () {
-      return {type: mesh.type, matrix: mesh.matrix.elements};
+      return {type: mesh.type, matrix: mesh.matrix.elements, uuid:mesh.uuid, position:mesh.position, param: mesh.modelParam(mesh)};
     }
     
     mesh.toInfoCard = function () {

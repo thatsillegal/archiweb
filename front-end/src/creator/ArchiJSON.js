@@ -36,25 +36,19 @@ import {refreshSelection} from "@/creator/AssetManager";
 const ArchiJSON = function (_scene) {
   let scope = this;
   
-  this.sendToJava = function () {
-    scope.sendArchiJSON('bts:sendGeometry', window.objects);
-  }
+
   
-  this.addGUI = function (gui) {
-    let de = gui.addFolder('Data Exchange');
-    de.open();
-    de.add(scope, 'sendToJava').name('java');
-  }
-  
-  this.sendArchiJSON = function (eventName, objects) {
+  this.sendArchiJSON = function (eventName, objects, properties) {
     let geometries = [];
     for (let obj of objects) {
       if (obj.exchange) {
+        console.log(obj)
         geometries.push(obj.toArchiJSON());
       }
     }
-    socket.emit(eventName, {archijson: geometries});
-    console.log('emit' + eventName);
+    console.log(geometries);
+    socket.emit(eventName, {geometries: geometries, properties:properties});
+    console.log('emit: ' + eventName);
   }
   
   socket.on('stb:receiveGeometry', async function (message) {

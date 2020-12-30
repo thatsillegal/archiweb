@@ -11,11 +11,17 @@ import java.util.List;
  */
 public class Geometry {
     String type;
+    String uuid;
     List<Double> matrix;
+
 
     @Override
     public String toString() {
-        return "Type: " + type + '\n'
-                + "Matrix: " + matrix + '\n';
+        return "Geometry{" +
+                "type='" + type + '\'' +
+                ", uuid='" + uuid + '\'' +
+                ", matrix=" + matrix +
+                '}';
     }
 }
+
