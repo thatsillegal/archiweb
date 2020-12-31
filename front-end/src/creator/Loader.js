@@ -201,8 +201,8 @@ const Loader = function (_scene) {
   
   
       sceneAddMesh(ret, result, line, loaderOption.shadow, [0]);
-      console.log(materials);
-      console.log(result);
+      // console.log(materials);
+      // console.log(result);
     }
   
     /* ---------- group ---------- */
@@ -366,7 +366,7 @@ const Loader = function (_scene) {
   function onOpen(obj) {
     if (!window.LoaderOption.dialog) {
       // Do something
-      console.log(loaderOption);
+      // console.log(loaderOption);
       if(window.LoaderOption.load) {
         loadModel(obj)
         refreshSelection(_scene);
@@ -450,8 +450,8 @@ const Loader = function (_scene) {
     let filename = file.name;
     let extension = filename.split('.').pop().toLowerCase();
     let reader = new FileReader();
-    reader.addEventListener('loadstart', function(event) {
-      console.log(event);
+    reader.addEventListener('loadstart', function() {
+      // console.log(event);
       switch (extension) {
         case 'jpeg':
         case 'jpg':

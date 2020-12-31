@@ -39,7 +39,7 @@ export default {
   components: {ViewSelectCard, InfoCard},
   data: () => ({}),
   mounted() {
-    const test = require('@/examples'+this.$route.path+'.js');
+    const test = require('@/image-3d.js');
     test.main();
   },
 
@@ -54,7 +54,7 @@ export default {
 .dg .c input[type=checkbox] {
   margin-top: 3px;
 }
-input {
+.dg .c input {
   font-size:12px;
   height: 1.25rem;
   text-align:center;

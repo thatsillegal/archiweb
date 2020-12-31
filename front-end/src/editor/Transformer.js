@@ -228,7 +228,7 @@ const Transformer = function (_scene, _renderer, _camera) {
         }
         
       }
-      console.log(control.object)
+      // console.log(control.object)
       
       
     } else if (selected.length > 0) {

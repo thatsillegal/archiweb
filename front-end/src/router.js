@@ -1,31 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Viewer from './components/Viewer'
-import Home from './components/Home'
 
-const examples = [
-  '2d-editor', '3d-editor', 'camera-viewer',
-  'marching-cubes', 'material-example', 'shape-2d',
-  'undo-redo-canvas', 'image-3d', 'java-backend-example'
-]
+
 const routes = [];
-examples.forEach((item)=>{
-  let res = item.split('-');
-  for(let i = 0; i < res.length; ++ i) {
-    res[i] = res[i].replace(/^\S/, s => s.toUpperCase());
-  }
-  let title = res.join(' ');
-  routes.push({
-    path: '/'+item,
-    name: item,
-    component: Viewer,
-    props: ()=>{window.currentApp = item},
-    meta: {title: 'ArchiWeb ' + title}
-  })
-})
 
 routes.push(
-  {path: '/', name: 'home', component: Home, meta: {title: 'ArchiWeb'}}
+  {path: '/', name: 'home', component: Viewer, meta: {title: 'ArchiWeb'}}
 )
 
 Vue.use(VueRouter)
@@ -43,5 +24,4 @@ router.afterEach((to, from) => {
 });
 export {
   router as default,
-  examples
 }

@@ -20,9 +20,10 @@
       >
         <v-card-title class="headline justify-center">
           
-          ArchiWeb User Manual
+          User Manual
         </v-card-title>
-        <v-card-text class="pa-3">
+
+        <v-card-text class="pa-1">
           <v-col
             v-for="id in (manual.length/2)"
             :key="id"
@@ -64,7 +65,10 @@ export default {
     value: 1,
     dialog: false,
     
-    manual: ["W:Translate", "E:Rotate", "R:Scale", "+/-:Size"
+    manual: [
+      "import:导入新图片，并刷新场景", "update:使用新参数生成体量，返回结果" , "save:保存无水印截图",
+      "edge:是否有边线","threshold:明度差剖分阈值", "minimal:最小体素大小",
+      "W:Translate", "E:Rotate", "R:Scale", "+/-:Size"
       , "Q:World/Local", "S:Snap", "C:Camera", "1-9:Camera View"]
   }),
   mounted() {

@@ -6,6 +6,15 @@ let geoFty, matFty;
 let image;
 let gb = [];
 
+function loadImage() {
+  let loader = new THREE.ImageLoader();
+  loader.load('images/AAA-logo.png', function(obj) {
+    image = getImageData(obj);
+    generateGrid(image);
+  })
+  
+}
+
 function getImageData( image ) {
   
   const canvas = document.createElement('canvas');
@@ -65,17 +74,19 @@ function paintGrid(imagedata, x, y, w, h) {
     // console.log(pixel)
     let illum = getIllumination(pixel);
     let color = new THREE.Color(pixel.r, pixel.g, pixel.b);
-    gb.push(
-    geoFty.Box([x+w/2 - imagedata.width/2, -y-h/2 + imagedata.height/2, 0],
-      [w, h, illum*w], matFty.Matte(color), control.edge)
-    );
+    if(illum > 0.01) {
+      gb.push(
+        geoFty.Box([x + w / 2 - imagedata.width / 2, -y - h / 2 + imagedata.height / 2, 0],
+          [w, h, illum * w], matFty.Matte(color), control.edge)
+      );
+    }
   }
   
 }
 
 function generateGrid(imagedata) {
   let mn = gcd(imagedata.width, imagedata.height);
-  console.log(mn)
+  // console.log(mn)
   let mim = Math.max(90, control.minimal);
   if(mn < mim) mn = mim;
   // mn/=20;
@@ -124,9 +135,9 @@ function clear() {
 
 
 const control = {
-  edge:false,
+  edge:true,
   threshold:0.3,
-  minimal:9,
+  minimal:12,
   update:function (){
     clear();
     generateGrid(image);
@@ -190,7 +201,8 @@ function main() {
   
   const sceneBasic = new ARCH.SceneBasic(scene, renderer);
   sceneBasic.addGUI(gui);
-  sceneBasic.floorColor = '#ffffff';
+  sceneBasic.skyColor = '#ffffff';
+  sceneBasic.floorColor = '#aaaaaa';
   sceneBasic.y = -3000;
   sceneBasic.axes = false;
   sceneBasic.shadow = false;
@@ -200,6 +212,8 @@ function main() {
   
   initGUI();
   initScene();
+  
+  loadImage();
 }
 
 export {
