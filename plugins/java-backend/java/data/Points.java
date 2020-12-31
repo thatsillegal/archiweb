@@ -11,7 +11,7 @@ import java.util.List;
  * @author: amomorning
  * @date: 2020/12/30
  */
-public class Points extends Geometry{
+public class Points extends BaseGeometry {
     int size;
     int count;
 

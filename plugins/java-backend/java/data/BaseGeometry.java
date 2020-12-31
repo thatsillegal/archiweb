@@ -9,7 +9,7 @@ import java.util.List;
  * @author: amomorning
  * @date: 2020/11/23
  */
-public class Geometry {
+public class BaseGeometry {
     String type;
     String uuid;
     List<Double> matrix;

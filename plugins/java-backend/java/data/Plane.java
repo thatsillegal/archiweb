@@ -6,7 +6,7 @@ package data;
  * @author: amomorning
  * @date: 2020/12/30
  */
-public class Plane extends Geometry {
+public class Plane extends BaseGeometry {
     Vector3 position;
     Param param;
 

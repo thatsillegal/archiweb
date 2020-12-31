@@ -16,7 +16,8 @@ public class Main {
     public static void main(String[] args) {
         Server server = new Server(args);
 
+        if(args.length == 0) {
+            PApplet.main("main.Show");
+        }
     }
-
-
 }

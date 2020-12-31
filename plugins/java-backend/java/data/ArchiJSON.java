@@ -17,7 +17,7 @@ public class ArchiJSON {
     List<JsonElement> geometryElements;
     Property properties;
 
-    List<Geometry> geometries;
+    List<BaseGeometry> geometries;
 
     public String getId() {
         return id;
@@ -43,11 +43,11 @@ public class ArchiJSON {
         this.properties = properties;
     }
 
-    public List<Geometry> getGeometries() {
+    public List<BaseGeometry> getGeometries() {
         return geometries;
     }
 
-    public void setGeometries(List<Geometry> geometries) {
+    public void setGeometries(List<BaseGeometry> geometries) {
         this.geometries = geometries;
     }
 
@@ -55,13 +55,13 @@ public class ArchiJSON {
         this.geometries = new ArrayList<>();
 
         for(JsonElement e : this.geometryElements) {
-            Geometry geom = fromJSONElements(e, gson);
+            BaseGeometry geom = fromJSONElements(e, gson);
             System.out.println(geom);
             this.geometries.add(geom);
         }
     }
 
-    private Geometry fromJSONElements(JsonElement e, Gson gson) {
+    private BaseGeometry fromJSONElements(JsonElement e, Gson gson) {
         String type = e.getAsJsonObject().get("type").getAsString();
         switch (type) {
             case "Points":
