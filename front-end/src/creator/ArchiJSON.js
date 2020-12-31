@@ -47,7 +47,7 @@ const ArchiJSON = function (_scene) {
       }
     }
     console.log(geometries);
-    socket.emit(eventName, {geometries: geometries, properties:properties});
+    socket.emit(eventName, {geometryElements: geometries, properties:properties});
     console.log('emit: ' + eventName);
   }
   

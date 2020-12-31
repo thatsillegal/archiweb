@@ -1,4 +1,4 @@
-package main;
+package data;
 
 import wblut.geom.WB_Point;
 

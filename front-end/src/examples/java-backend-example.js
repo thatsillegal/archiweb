@@ -13,6 +13,7 @@ function random(seed){
 
 /* ---------- GUI setup ---------- */
 const control = {
+  seed:1,
   num:10,
   nx:500,
   ny:300,
@@ -23,6 +24,9 @@ const control = {
 
 function initGUI() {
   
+  gui.add(control, 'seed', 0, 1).onChange(() => {
+    generatePoints(control.num, control.nx, control.ny);
+  })
   gui.add(control, 'num', 5, 1000, 1).onChange(()=>{
     generatePoints(control.num, control.nx, control.ny);
   });
@@ -72,7 +76,7 @@ function initScene() {
 function generatePoints(num, nx, ny){
   positions = [];
   colors = [];
-  random(233);
+  random(control.seed);
   for (let i = 0; i < num; ++ i) {
     const x = random() * nx - nx/2;
     const y = random() * ny - ny/2;
