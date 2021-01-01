@@ -2,16 +2,13 @@ package main;
 
 import com.google.gson.Gson;
 import data.ArchiJSON;
+import data.Plane;
+import data.Points;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import processing.core.PApplet;
-import sun.rmi.runtime.Log;
+import wblut.geom.WB_AABB;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.util.Enumeration;
 
 /**
  * @classname: archiweb
@@ -23,7 +20,7 @@ public class Server {
     Socket socket;
     ArchiJSON archijson;
 
-    public Server(String[] args) {
+    public Server(String... args) {
         try {
             if (args.length > 0) {
                 socket = IO.socket(args[0]);
@@ -60,10 +57,15 @@ public class Server {
             System.out.println(archijson.getId());
             archijson.parseGeometryElements(gson);
 
+            Show.pts = ((Points)archijson.getGeometries().get(0)).getWB_Points();
+            Show.plane = ((Plane) archijson.getGeometries().get(1)).getWB_Polygon();
+            Show.calcVoronoi();
+
             System.out.println(archijson);
             // processing
         });
     }
+
 
 
 }

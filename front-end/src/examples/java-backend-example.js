@@ -30,11 +30,11 @@ function initGUI() {
   gui.add(control, 'num', 5, 1000, 1).onChange(()=>{
     generatePoints(control.num, control.nx, control.ny);
   });
-  gui.add(control, 'nx', 100, 1000).onChange(()=>{
+  gui.add(control, 'nx', 100, 1000, 1).onChange(()=>{
     generatePoints(control.num, control.nx, control.ny);
     border.scale.x = control.nx;
   })
-  gui.add(control, 'ny', 100, 1000).onChange(()=>{
+  gui.add(control, 'ny', 100, 1000, 1).onChange(()=>{
     generatePoints(control.num, control.nx, control.ny);
     border.scale.y = control.ny;
   })

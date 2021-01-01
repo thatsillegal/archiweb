@@ -14,9 +14,9 @@ import java.util.Enumeration;
  */
 public class Main {
     public static void main(String[] args) {
-        Server server = new Server(args);
-
-        if(args.length == 0) {
+        if(args.length > 0) {
+            new Server(args);
+        } else {
             PApplet.main("main.Show");
         }
     }
