@@ -52,8 +52,8 @@ public class Show extends PApplet {
         }
     }
 
-    public static void calcVoronoi() {
-       WB_Voronoi2D vor = WB_VoronoiCreator.getClippedVoronoi2D(pts, plane, 2);
+    public static List<WB_Polygon> calcVoronoi(double d) {
+       WB_Voronoi2D vor = WB_VoronoiCreator.getClippedVoronoi2D(pts, plane, d);
        plys = new ArrayList<>();
 
        for(WB_VoronoiCell2D cell: vor.getCells()){
@@ -61,6 +61,7 @@ public class Show extends PApplet {
        }
 
        draw = true;
+       return plys;
     }
 
 

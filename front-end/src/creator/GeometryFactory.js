@@ -277,9 +277,11 @@ function sceneMesh(object, shadow=true, doubleSide=false, layer=[0]) {
  */
 function sceneAddMesh (object, mesh, edge = true, shadow = true, layer=[0]) {
   // show edge
-  setPolygonOffsetMaterial(mesh.material);
-  mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
-  mesh.children[0].visible = false;
+  if(mesh.isMesh) {
+    setPolygonOffsetMaterial(mesh.material);
+    mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
+    mesh.children[0].visible = false;
+  }
   
   if(edge.isLineSegments) {
     mesh.add(edge);

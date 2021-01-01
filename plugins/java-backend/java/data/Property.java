@@ -7,16 +7,13 @@ package data;
  * @date: 2020/12/30
  */
 public class Property {
-    int num;
-    int nx;
-    int ny;
+    double d;
 
-    @Override
-    public String toString() {
-        return "Property{" +
-                "num=" + num +
-                ", nx=" + nx +
-                ", ny=" + ny +
-                '}';
+    public double getD() {
+        return d;
+    }
+
+    public void setD(double d) {
+        this.d = d;
     }
 }

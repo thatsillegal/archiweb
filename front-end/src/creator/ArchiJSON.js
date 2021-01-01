@@ -1,7 +1,5 @@
 import socket from "@/socket";
-import * as THREE from 'three';
-import {sceneAddMesh} from "@/creator/GeometryFactory";
-import {refreshSelection} from "@/creator/AssetManager";
+import * as THREE from "three";
 
 
 /**
@@ -33,10 +31,9 @@ import {refreshSelection} from "@/creator/AssetManager";
  * @param _scene
  * @constructor
  */
-const ArchiJSON = function (_scene) {
+const ArchiJSON = function (_scene, _geoFty) {
   let scope = this;
-  
-
+  let lines = [];
   
   this.sendArchiJSON = function (eventName, objects, properties) {
     let geometries = [];
@@ -59,34 +56,16 @@ const ArchiJSON = function (_scene) {
   
 
   
-   this.parseGeometry = function(archiJSON) {
-    const geo = new THREE.Geometry();
-    let flag = true;
-    for (let i = 0; i < archiJSON.verts.length; ++i) {
-      const vt = archiJSON.verts[i];
-      geo.vertices.push(new THREE.Vector3(vt[0], vt[1], vt[2]));
-      flag &= true;
-    }
-    
-    for (let i = 0; i < archiJSON.faces.length; ++i) {
-      const fs = archiJSON.faces[i];
-      geo.faces.push(new THREE.Face3(fs[0], fs[1], fs[2]));
-      flag &= true;
-    }
-    
-    geo.computeBoundingBox();
-    geo.computeFaceNormals();
-    geo.normalsNeedUpdate = true;
-    
-
-    
-    if (flag) {
-      const material = new THREE.MeshLambertMaterial({color: 0xdddddd, flatShading: true});
-      const mesh = new THREE.Mesh(geo, material);
-      sceneAddMesh(_scene, mesh, true, true, [0, 1]);
-      refreshSelection(_scene);
-    }
-    
+   this.parseGeometry = function(geometryElements) {
+     lines.forEach((line)=>{
+       line.parent.remove(line);
+     })
+     lines = [];
+      for(let e of geometryElements) {
+        const line = _geoFty.Line();
+        line.geometry.setAttribute('position', new THREE.Float32BufferAttribute( e.positions, e.size ));
+        lines.push(line);
+      }
   }
   
 }

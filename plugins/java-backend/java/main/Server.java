@@ -1,14 +1,19 @@
 package main;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import data.ArchiJSON;
 import data.Plane;
 import data.Points;
+import data.Polygon;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import wblut.geom.WB_AABB;
+import wblut.geom.WB_Polygon;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @classname: archiweb
@@ -59,12 +64,26 @@ public class Server {
 
             Show.pts = ((Points)archijson.getGeometries().get(0)).getWB_Points();
             Show.plane = ((Plane) archijson.getGeometries().get(1)).getWB_Polygon();
-            Show.calcVoronoi();
+            List<WB_Polygon> plys = Show.calcVoronoi(archijson.getProperties().getD());
 
-            System.out.println(archijson);
+            ArchiJSON ret = new ArchiJSON();
+            ret.setId(archijson.getId());
+            List<JsonElement> elements = new ArrayList<>();
+            for(WB_Polygon ply : plys) {
+                Polygon p = new Polygon();
+                p.fromWB_Polygon(ply);
+
+                elements.add(gson.toJsonTree(p));
+            }
+            ret.setGeometryElements(elements);
+
+            socket.emit("stb:sendGeometry",gson.toJson(ret));
+
+//            System.out.println(gson.toJson(ret));
             // processing
         });
     }
+
 
 
 

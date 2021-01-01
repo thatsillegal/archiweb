@@ -18,8 +18,12 @@ const control = {
   nx:500,
   ny:300,
   sendToJava: function() {
-    archijson.sendArchiJSON('bts:sendGeometry', window.objects, control);
+    archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
   }
+}
+
+const property = {
+  d:1,
 }
 
 function initGUI() {
@@ -39,6 +43,8 @@ function initGUI() {
     border.scale.y = control.ny;
   })
   
+  gui.add(property, 'd', 0.5, 20);
+  
   gui.add(control, 'sendToJava').name('Send Geometries');
 }
 
@@ -49,7 +55,7 @@ function initScene() {
   geoFty = new ARCH.GeometryFactory(scene);
   matFty = new ARCH.MaterialFactory();
   //
-  archijson = new ARCH.ArchiJSON(scene);
+  archijson = new ARCH.ArchiJSON(scene, geoFty);
   
   const geometry = new THREE.BufferGeometry();
   const material = new THREE.PointsMaterial( { size: 10, vertexColors: true } );
@@ -60,7 +66,9 @@ function initScene() {
   points.exchange = true;
   points.toArchiJSON = function () {
     const position = points.geometry.getAttribute('position');
-    return {type: 'Points',matrix: points.matrix.elements, uuid:points.uuid, size:position.itemSize, count:position.count, position:Array.from(position.array)};
+    return {type: 'Points',matrix: points.matrix.elements,
+      uuid: points.uuid, size: position.itemSize,
+      count:position.count, position:Array.from(position.array)};
   }
   
   generatePoints(control.num, control.nx, control.ny);

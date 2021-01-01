@@ -10,6 +10,7 @@ const mime = require('mime');   //mime类型获取插件
 
 let app = new Koa();
 let router = new Router();
+let date = new Date();
 
 
 const http = require('http').createServer(app.callback());
@@ -46,13 +47,13 @@ app.use(router.routes());
 
 
 io.on('connection', socket => {
-  console.info(`Client connected [id=${socket.id}]`);
+  console.info(date.toLocaleString(), `Client connected [id=${socket.id}]`);
   socket.on('disconnect', async function () {
-    console.info(`Client [id=${socket.id}] disconnect :)`);
+    console.info(date.toLocaleString(), `Client [id=${socket.id}] disconnect :)`);
   });
   
   socket.on('bts:sendGeometry', async function (data) {
-    console.log('bts:sendGeometry: ' + data);
+    console.log(date.toLocaleString(), 'bts:sendGeometry: ' + data);
     data.id = socket.id;
     
     io.emit('bts:receiveGeometry', data);
@@ -61,7 +62,8 @@ io.on('connection', socket => {
   
   socket.on('stb:sendGeometry', async function (data) {
     data = JSON.parse(data);
-    io.to(data.id).emit('stb:receiveGeometry', data.geometry);
+    console.log(date.toLocaleString(), 'stb:sendGeometry');
+    io.to(data.id).emit('stb:receiveGeometry', data.geometryElements);
   });
   
 });
