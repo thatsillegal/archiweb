@@ -27,10 +27,6 @@ public class ArchiJSON {
         this.id = id;
     }
 
-    public List<JsonElement> getGeometryElements() {
-        return geometryElements;
-    }
-
     public void setGeometryElements(List<JsonElement> geometryElements) {
         this.geometryElements = geometryElements;
     }
@@ -39,16 +35,9 @@ public class ArchiJSON {
         return properties;
     }
 
-    public void setProperties(Property properties) {
-        this.properties = properties;
-    }
 
     public List<BaseGeometry> getGeometries() {
         return geometries;
-    }
-
-    public void setGeometries(List<BaseGeometry> geometries) {
-        this.geometries = geometries;
     }
 
     public void parseGeometryElements(Gson gson) {
@@ -64,10 +53,12 @@ public class ArchiJSON {
     private BaseGeometry fromJSONElements(JsonElement e, Gson gson) {
         String type = e.getAsJsonObject().get("type").getAsString();
         switch (type) {
-            case "Points":
-                return gson.fromJson(e, Points.class);
+            case "Vertices":
+                return gson.fromJson(e, Vertices.class);
             case "Plane":
                 return gson.fromJson(e, Plane.class);
+            case "Segments":
+                return gson.fromJson(e, Segments.class);
             default:
                 return null;
         }

@@ -26,24 +26,24 @@ const property = {
   d:1,
 }
 
+function update() {
+  generatePoints(control.num, control.nx, control.ny);
+  border.scale.x = control.nx;
+  border.scale.y = control.ny;
+  
+  archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
+}
+
 function initGUI() {
   
-  gui.add(control, 'seed', 0, 1).onChange(() => {
-    generatePoints(control.num, control.nx, control.ny);
-  })
-  gui.add(control, 'num', 5, 1000, 1).onChange(()=>{
-    generatePoints(control.num, control.nx, control.ny);
-  });
-  gui.add(control, 'nx', 100, 1000, 1).onChange(()=>{
-    generatePoints(control.num, control.nx, control.ny);
-    border.scale.x = control.nx;
-  })
-  gui.add(control, 'ny', 100, 1000, 1).onChange(()=>{
-    generatePoints(control.num, control.nx, control.ny);
-    border.scale.y = control.ny;
-  })
+  gui.add(control, 'seed', 0, 1).onChange(() => {update()});
+  gui.add(control, 'num', 5, 1000, 1).onChange(()=>{update()});
+  gui.add(control, 'nx', 100, 1000, 1).onChange(()=>{update()});
+  gui.add(control, 'ny', 100, 1000, 1).onChange(()=>{update()});
   
-  gui.add(property, 'd', 0.5, 20);
+  gui.add(property, 'd', 0.5, 20).onChange(()=>{
+    archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
+  });
   
   gui.add(control, 'sendToJava').name('Send Geometries');
 }
@@ -66,7 +66,7 @@ function initScene() {
   points.exchange = true;
   points.toArchiJSON = function () {
     const position = points.geometry.getAttribute('position');
-    return {type: 'Points',matrix: points.matrix.elements,
+    return {type: 'Vertices',matrix: points.matrix.elements,
       uuid: points.uuid, size: position.itemSize,
       count:position.count, position:Array.from(position.array)};
   }
@@ -77,8 +77,10 @@ function initScene() {
   border = geoFty.Plane([0, 0, 0], [control.nx, control.ny, 0.5],
     matFty.Void(), true);
   
+  
   // refresh global objects
   ARCH.refreshSelection(scene);
+  archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
 }
 
 function generatePoints(num, nx, ny){

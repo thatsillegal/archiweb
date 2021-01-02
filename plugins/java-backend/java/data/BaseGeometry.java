@@ -1,6 +1,6 @@
 package data;
 
-import java.util.Arrays;
+import com.google.gson.JsonObject;
 import java.util.List;
 
 /**
@@ -9,19 +9,10 @@ import java.util.List;
  * @author: amomorning
  * @date: 2020/11/23
  */
-public class BaseGeometry {
+public abstract class BaseGeometry {
     String type;
     String uuid;
     List<Double> matrix;
-
-
-    @Override
-    public String toString() {
-        return "Geometry{" +
-                "type='" + type + '\'' +
-                ", uuid='" + uuid + '\'' +
-                ", matrix=" + matrix +
-                '}';
-    }
+    JsonObject properties;
 }
 

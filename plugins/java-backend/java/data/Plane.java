@@ -1,12 +1,5 @@
 package data;
 
-import wblut.geom.WB_AABB;
-import wblut.geom.WB_AABB2D;
-import wblut.geom.WB_Point;
-import wblut.geom.WB_Polygon;
-
-import java.util.List;
-
 /**
  * @classname: archiweb
  * @description:
@@ -14,56 +7,36 @@ import java.util.List;
  * @date: 2020/12/30
  */
 public class Plane extends BaseGeometry {
-    Vector3 position;
-    Param param;
+    BasePoint position;
+    int w;
+    int h;
 
-    public WB_Polygon getWB_Polygon() {
-        double w = param.w / 2;
-        double h = param.h / 2;
+    public Plane() {
+        this.type = "Plane";
+    }
 
-        WB_Point p1 = new WB_Point(position.x - w, position.y - h);
-        WB_Point p2 = new WB_Point(position.x + w, position.y - h);
-        WB_Point p3 = new WB_Point(position.x + w, position.y + h);
-        WB_Point p4 = new WB_Point(position.x - w, position.y + h);
+    public BasePoint getPosition() {
+        return position;
+    }
 
-        return new WB_Polygon(p1, p2, p3, p4);
+    public int getW() {
+        return w;
+    }
+
+    public int getH() {
+        return h;
     }
 
     @Override
     public String toString() {
         return "Plane{" +
                 "position=" + position +
-                ", param=" + param +
-                ", type='" + type + '\'' +
-                ", matrix=" + matrix +
-                '}';
-    }
-}
-
-class Vector3 {
-    double x;
-    double y;
-    double z;
-
-    @Override
-    public String toString() {
-        return "Vector3{" +
-                "x=" + x +
-                ", y=" + y +
-                ", z=" + z +
-                '}';
-    }
-}
-
-class Param {
-    double w;
-    double h;
-
-    @Override
-    public String toString() {
-        return "Param{" +
-                "w=" + w +
+                ", w=" + w +
                 ", h=" + h +
+                ", type='" + type + '\'' +
+                ", uuid='" + uuid + '\'' +
+                ", matrix=" + matrix +
+                ", properties=" + properties +
                 '}';
     }
 }

@@ -1,10 +1,6 @@
 package main;
 
-import io.socket.client.IO;
 import processing.core.PApplet;
-
-import java.net.*;
-import java.util.Enumeration;
 
 /**
  * @classname: archiweb

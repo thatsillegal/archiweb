@@ -1,19 +1,14 @@
 package main;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import converter.WB_Converter;
 import data.ArchiJSON;
 import data.Plane;
-import data.Points;
-import data.Polygon;
+import data.Vertices;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import wblut.geom.WB_AABB;
-import wblut.geom.WB_Polygon;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @classname: archiweb
@@ -22,22 +17,20 @@ import java.util.List;
  * @date: 2020/12/31
  */
 public class Server {
-    Socket socket;
-    ArchiJSON archijson;
+    private static final int PORT = 27781;
+    private Socket socket;
+    public Generator generator;
+
 
     public Server(String... args) {
         try {
             if (args.length > 0) {
                 socket = IO.socket(args[0]);
-
                 this.setup();
                 System.out.println("Socket connected to " + args[0]);
             } else {
-                int port = 27781;
-                String uri = "http://127.0.0.1:" + port;
-
+                String uri = "http://127.0.0.1:" + PORT;
                 socket = IO.socket(uri);
-
                 this.setup();
                 System.out.println("Socket connected to " + uri);
             }
@@ -50,37 +43,25 @@ public class Server {
 
     public void setup() {
 
+        generator = new Generator();
+        Gson gson = new Gson();
+
         socket.connect();
 
         socket.on("bts:receiveGeometry", args -> {
-            System.out.println(args.length);
-            System.out.println(args[0]);
-            System.out.println(socket.id());
-            Gson gson = new Gson();
             // receive
-            archijson = gson.fromJson(args[0].toString(), ArchiJSON.class);
-            System.out.println(archijson.getId());
+            ArchiJSON archijson = gson.fromJson(args[0].toString(), ArchiJSON.class);
             archijson.parseGeometryElements(gson);
 
-            Show.pts = ((Points)archijson.getGeometries().get(0)).getWB_Points();
-            Show.plane = ((Plane) archijson.getGeometries().get(1)).getWB_Polygon();
-            List<WB_Polygon> plys = Show.calcVoronoi(archijson.getProperties().getD());
+            // processing
+            generator.pts = WB_Converter.toWB_Point( (Vertices)archijson.getGeometries().get(0) );
+            generator.plane = WB_Converter.toWB_Polygon( (Plane) archijson.getGeometries().get(1) );
+            generator.calcVoronoi(archijson.getProperties().getD());
 
-            ArchiJSON ret = new ArchiJSON();
-            ret.setId(archijson.getId());
-            List<JsonElement> elements = new ArrayList<>();
-            for(WB_Polygon ply : plys) {
-                Polygon p = new Polygon();
-                p.fromWB_Polygon(ply);
-
-                elements.add(gson.toJsonTree(p));
-            }
-            ret.setGeometryElements(elements);
-
+            // return
+            ArchiJSON ret = generator.toArchiJSON(archijson.getId(), gson);
             socket.emit("stb:sendGeometry",gson.toJson(ret));
 
-//            System.out.println(gson.toJson(ret));
-            // processing
         });
     }
 

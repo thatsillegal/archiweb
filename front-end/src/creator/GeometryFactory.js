@@ -195,7 +195,8 @@ const GeometryFactory = function (_scene) {
     
     mesh.exchange = true;
     mesh.toArchiJSON = function () {
-      return {type: mesh.type, matrix: mesh.matrix.elements, uuid:mesh.uuid, position:mesh.position, param: mesh.modelParam(mesh)};
+      
+      return Object.assign({type: mesh.type, matrix: mesh.matrix.elements, uuid:mesh.uuid, position:mesh.position}, mesh.modelParam(mesh));
     }
     
     mesh.toInfoCard = function () {
