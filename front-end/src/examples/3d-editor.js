@@ -16,13 +16,13 @@ function initScene() {
   gb = new ARCH.GeometryFactory(scene);
   const mt = new ARCH.MaterialFactory();
   
-  const b1 = gb.Box([150, 150, 0], [300, 300, 300], new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  const b1 = gb.Box([150, 150, 0], [300, 300, 300], mt.Matte());
   
-  const b2 = gb.Box([-300, -300, 0], [300, 300, 100], new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  const b2 = gb.Box([-300, -300, 0], [300, 300, 100], mt.Matte());
   
-  const b3 = gb.Box([300, -500, 0], [300, 300, 150], new THREE.MeshLambertMaterial({color: 0xdddddd}));
+  const b3 = gb.Box([300, -500, 0], [300, 300, 150], mt.Matte());
   
-  const b4 = gb.Cylinder([330, 430, 0], [50, 100], new THREE.MeshLambertMaterial({color: 0xdddddd}), true);
+  const b4 = gb.Cylinder([330, 430, 0], [50, 100], mt.Matte(), true);
   
   const loader = new ARCH.Loader(scene);
   loader.addGUI(gui.util);

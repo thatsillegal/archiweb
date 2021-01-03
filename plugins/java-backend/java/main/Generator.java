@@ -35,10 +35,8 @@ public class Generator {
             app.fill(255);
             render.drawPoint(pts, 2);
             render.drawPolygonEdges(plane);
-
             render.drawPolygonEdges(plys);
         }
-
     }
 
     public void calcVoronoi(double d) {
