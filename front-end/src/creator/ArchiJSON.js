@@ -35,12 +35,12 @@ const ArchiJSON = function (_scene, _geoFty) {
   let scope = this;
   let lines = [];
   
-  this.sendArchiJSON = function (eventName, objects, properties) {
+  this.sendArchiJSON = function (eventName, objects, properties={}) {
     let geometries = [];
     for (let obj of objects) {
       if (obj.exchange) {
-        console.log(obj)
         geometries.push(obj.toArchiJSON());
+        
       }
     }
     console.log(geometries);

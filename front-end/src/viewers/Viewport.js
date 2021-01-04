@@ -62,7 +62,6 @@ const Viewport = function () {
       assetManager.unHighlightList(event.object);
       alert('too much selected');
     } else {
-      console.log(event.object.length > 1000);
       assetManager.unHighlightList(event.object);
       transformer.setSelected(event.object);
     }

@@ -1,13 +1,22 @@
-import * as THREE from "three";
 import * as ARCH from "@/archiweb"
 
-let scene, renderer, gui, camera;
-let geoFty, matFty;
-let astMgr;
+let scene, renderer, gui;
+let geoFty, matFty, astMgr;
+let archijson;
+let reconstructed = [];
 
 /* ---------- GUI setup ---------- */
 function initGUI() {
-
+  const control = {
+    send: function() {
+      reconstructed.forEach((it)=> {
+        it.parent.remove(it);
+      })
+      reconstructed = [];
+      archijson.sendArchiJSON('bts:sendGeometry', window.objects);
+    }
+  }
+  gui.gui.add(control, 'send');
 }
 
 
@@ -16,10 +25,23 @@ function initScene() {
   geoFty = new ARCH.GeometryFactory(scene);
   matFty = new ARCH.MaterialFactory();
   
+  const b1 = geoFty.Box([100, 100, 0],[200, 200, 300], matFty.Matte());
   
+  archijson = new ARCH.ArchiJSON(scene, geoFty);
   
   // refresh global objects
-  ARCH.refreshSelection();
+  ARCH.refreshSelection(scene);
+  astMgr.addSelection([b1], 1);
+  astMgr.setCurrentID(1);
+  
+  archijson.sendArchiJSON('bts:sendGeometry', window.objects);
+  archijson.parseGeometry = (geometryElements)=>{
+    for(let e of geometryElements) {
+      let p = e.position;
+      reconstructed.push(geoFty.Box([p.x, p.y, p.z], [e.w, e.h, e.d], matFty.Matte() ));
+    }
+    ARCH.refreshSelection(scene);
+  }
 }
 
 
@@ -35,7 +57,6 @@ function main() {
   renderer = viewport.renderer;
   scene = viewport.scene;
   gui = viewport.gui;
-  camera = viewport.camera;
   
   astMgr = viewport.enableAssetManager();
   viewport.enableDragFrames();

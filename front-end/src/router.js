@@ -6,7 +6,8 @@ import Home from './components/Home'
 const examples = [
   '2d-editor', '3d-editor', 'camera-viewer',
   'marching-cubes', 'material-example', 'shape-2d',
-  'undo-redo-canvas', 'image-3d', 'java-backend-example'
+  'undo-redo-canvas', 'image-3d', 'java-backend-example',
+  'archijson-geometry'
 ]
 const routes = [];
 examples.forEach((item)=>{
