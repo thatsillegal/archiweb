@@ -56,8 +56,8 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
-  this.Box = function ([x, y, z], [w, h, d], material, showEdge=true) {
-    
+  this.Box = function ([x, y, z]=[0,0,0], [w, h, d]=[1,1,1], material, showEdge=true) {
+    if(!material) material = new THREE.MeshPhongMaterial( { color: 0xdddddd, specular: 0x111111, shininess: 1 } );
     let mesh = new THREE.Mesh(boxGeometry, material);
     sceneAddMesh(_scene, mesh, showEdge)
     

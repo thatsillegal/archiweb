@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import * as ARCH from "@/archiweb"
 
 let scene, renderer, gui;
@@ -26,22 +27,45 @@ function initScene() {
   matFty = new ARCH.MaterialFactory();
   
   const b1 = geoFty.Box([100, 100, 0],[200, 200, 300], matFty.Matte());
+  const c1 = geoFty.Cylinder([400, 300, 0], [100, 400], matFty.Matte(0xffff00), true);
+  console.log('b1', b1);
   
   archijson = new ARCH.ArchiJSON(scene, geoFty);
   
   // refresh global objects
   ARCH.refreshSelection(scene);
-  astMgr.addSelection([b1], 1);
+  astMgr.addSelection([b1, c1], 1);
   astMgr.setCurrentID(1);
   
-  archijson.sendArchiJSON('bts:sendGeometry', window.objects);
   archijson.parseGeometry = (geometryElements)=>{
     for(let e of geometryElements) {
-      let p = e.position;
-      reconstructed.push(geoFty.Box([p.x, p.y, p.z], [e.w, e.h, e.d], matFty.Matte() ));
+  
+      console.log(e)
+      let b = scene.getObjectByProperty('uuid', e.uuid);
+      let re = !b;
+      b = re ? geoFty.Box(): b;
+      
+      const m = new THREE.Matrix4().fromArray(e.matrix);
+      const scale = new THREE.Vector3();
+      const position = new THREE.Vector3();
+      const quaternion = new THREE.Quaternion();
+      
+      m.decompose(position, quaternion, scale);
+      // console.log(quaternion)
+      b.quaternion.copy(quaternion);
+      b.position.copy(position);
+      b.scale.copy(scale);
+
+      console.log(b)
+      
+      if(re) reconstructed.push(b);
     }
     ARCH.refreshSelection(scene);
   }
+}
+
+window.searchSceneByUUID = function(uuid) {
+  return scene.getObjectByProperty('uuid', uuid);
 }
 
 
