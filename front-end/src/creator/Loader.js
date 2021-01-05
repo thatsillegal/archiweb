@@ -10,7 +10,6 @@ import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 
 import {sceneAddMesh, sceneMesh} from "@/creator/GeometryFactory";
 import {refreshSelection} from "@/creator/AssetManager";
-import {ImageLoader} from "three";
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
  *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
@@ -585,7 +584,7 @@ const Loader = function (_scene) {
       case 'jpg':
         reader.addEventListener('load', function (event){
           let contents = event.target.result;
-          let loader = new ImageLoader();
+          let loader = new THREE.ImageLoader();
           loader.load(contents, function ( image ) {
             
             scope.dispatchEvent({type: 'load', object:image});
@@ -596,6 +595,14 @@ const Loader = function (_scene) {
         reader.readAsDataURL(file);
         break;
         
+      // case 'ifc':
+      //   reader.addEventListener('load', function (event) {
+      //     let contents = event.target.result;
+      //     let loader = new IFCLoader();
+      //   });
+      //   reader.readAsArrayBuffer(file);
+      //   break;
+      //
       default:
         alert('file format ' + extension + ' not support');
       
