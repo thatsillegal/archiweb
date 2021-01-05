@@ -26,7 +26,7 @@ function initScene() {
   geoFty = new ARCH.GeometryFactory(scene);
   matFty = new ARCH.MaterialFactory();
   
-  const b1 = geoFty.Box([100, 100, 0],[200, 200, 300], matFty.Matte());
+  const b1 = geoFty.Box([100, 100, 0],[200, 200, 300], matFty.Matte(0xff0000));
   const c1 = geoFty.Cylinder([400, 300, 0], [100, 400], matFty.Matte(0xffff00), true);
   console.log('b1', b1);
   
@@ -43,7 +43,14 @@ function initScene() {
       console.log(e)
       let b = scene.getObjectByProperty('uuid', e.uuid);
       let re = !b;
-      b = re ? geoFty.Box(): b;
+      if(re) {
+        if(e.type === 'Cylinder') {
+          b = geoFty.Cylinder();
+        }
+        if(e.type === 'Box') {
+          b = geoFty.Box();
+        }
+      }
       
       const m = new THREE.Matrix4().fromArray(e.matrix);
       const scale = new THREE.Vector3();

@@ -70,7 +70,8 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
-  this.Cylinder = function ([x, y, z], [r, h], material, showEdge = false) {
+  this.Cylinder = function ([x, y, z]=[0,0,0], [r, h]=[1,1], material, showEdge = false) {
+    if(!material) material = new THREE.MeshPhongMaterial( { color: 0xdddddd, specular: 0x111111, shininess: 1 } );
     let mesh = new THREE.Mesh(cylinderGeometry, material);
     sceneAddMesh(_scene, mesh, showEdge);
     
