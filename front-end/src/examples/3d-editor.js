@@ -16,11 +16,11 @@ function initScene() {
   gb = new ARCH.GeometryFactory(scene);
   const mt = new ARCH.MaterialFactory();
   
-  const b1 = gb.Box([150, 150, 0], [300, 300, 300], mt.Matte());
+  const b1 = gb.Cuboid([150, 150, 0], [300, 300, 300], mt.Matte());
   
-  const b2 = gb.Box([-300, -300, 0], [300, 300, 100], mt.Matte());
+  const b2 = gb.Cuboid([-300, -300, 0], [300, 300, 100], mt.Matte());
   
-  const b3 = gb.Box([300, -500, 0], [300, 300, 150], mt.Matte());
+  const b3 = gb.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
   
   const b4 = gb.Cylinder([330, 430, 0], [50, 100], mt.Matte(), true);
   
@@ -56,7 +56,7 @@ function initScene() {
     pt.add(v);
   })
   const shape = new THREE.Shape().setFromPoints(points);
-  const s1 = gb.Shape(shape, mt.Matte(), 100, 10);
+  const s1 = gb.Prism(shape, mt.Matte(), 100, 10);
   
   assetManager.refreshSelection(scene);
   assetManager.addSelection([b1, b2, b3, b4, s1], 1);

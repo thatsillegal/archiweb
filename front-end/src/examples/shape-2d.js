@@ -25,7 +25,7 @@ const controls = new function() {
   this.shape = function() {
     lines.push(gb.Line(path.getPoints()));
     let shape = new THREE.Shape().setFromPoints(path.getPoints());
-    shapes.push(gb.Shape(shape, mf.Matte(), 0, getRandomInt(20)))
+    shapes.push(gb.Prism(shape, mf.Matte(), 0, getRandomInt(20)))
     arr = [];
   }
   this.clear = function() {
@@ -66,7 +66,7 @@ function onClick(event) {
 function initScene() {
   mf = new ARCH.MaterialFactory();
   gb = new ARCH.GeometryFactory(scene);
-  b = gb.Box([2, 2, 0], [2, 2, 2]);
+  b = gb.Cuboid([2, 2, 0], [2, 2, 2]);
   p = gb.Line(null, 0xaaaaaa);
   
   /* ---------- light ---------- */

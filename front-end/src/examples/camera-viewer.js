@@ -11,15 +11,15 @@ let scene, renderer, gui;
 function initScene() {
   /* ---------- create basic geometry ---------- */
   const gb = new ARCH.GeometryFactory(scene);
-  gb.Box( [150, 150, 0],
+  gb.Cuboid( [150, 150, 0],
           [300, 300, 300],
           new THREE.MeshLambertMaterial({color: 0xdddddd}));
   
-  gb.Box( [-300, -300, 0],
+  gb.Cuboid( [-300, -300, 0],
           [300, 300, 100],
           new THREE.MeshLambertMaterial({color: 0xdddddd}));
   
-  gb.Box( [300, -500, 0],
+  gb.Cuboid( [300, -500, 0],
           [300, 300, 150],
           new THREE.MeshLambertMaterial({color: 0xdddddd}));
   

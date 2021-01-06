@@ -72,8 +72,8 @@ function initScene() {
   const material = materialFactory.Doubled();
   
   const gf = new ARCH.GeometryFactory(scene);
-  li.push(gf.Box([900, 150, 0], [300, 300, 300], material));
-  li.push(gf.Box([1000, 0, 0], [300, 300, 100], material));
+  li.push(gf.Cuboid([900, 150, 0], [300, 300, 300], material));
+  li.push(gf.Cuboid([1000, 0, 0], [300, 300, 100], material));
   
   const b = new THREE.BoxBufferGeometry(1, 1, 1);
   b.translate(0, 0, 0.5);

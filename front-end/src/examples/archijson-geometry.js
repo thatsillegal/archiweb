@@ -26,7 +26,7 @@ function initScene() {
   geoFty = new ARCH.GeometryFactory(scene);
   matFty = new ARCH.MaterialFactory();
   
-  const b1 = geoFty.Box([100, 100, 0],[200, 200, 300], matFty.Matte(0xff0000));
+  const b1 = geoFty.Cuboid([100, 100, 0],[200, 200, 300], matFty.Matte(0xff0000));
   const c1 = geoFty.Cylinder([400, 300, 0], [100, 400], matFty.Matte(0xffff00), true);
   console.log('b1', b1);
   
@@ -47,8 +47,8 @@ function initScene() {
         if(e.type === 'Cylinder') {
           b = geoFty.Cylinder();
         }
-        if(e.type === 'Box') {
-          b = geoFty.Box();
+        if(e.type === 'Cuboid') {
+          b = geoFty.Cuboid();
         }
       }
       
