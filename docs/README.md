@@ -62,6 +62,7 @@ git push origin main
 
 ```
 ### Install
+node.js and java environment is required.
 ``` bash
 git clone https://github.com/Inst-AAA/archiweb.git
 cd archiweb/front-end
@@ -70,7 +71,7 @@ cd archiweb/front-end
 npm install
 
 # run server
-npm run server
+npm run serve
 ```
 
 check out to specific branch, such as:
