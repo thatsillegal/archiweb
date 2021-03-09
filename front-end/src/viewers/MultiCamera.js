@@ -85,7 +85,6 @@ const MultiCamera = function (domElement) {
     
     // dragFrames enabled not work because of transformer enable it, so have to deactivate directly
     if(_dragFrames) _dragFrames.deactivate();
-    // _dragFrames.enabled = false;
     if(_transformer) _transformer.control.camera = cameraOrtho;
   }
 

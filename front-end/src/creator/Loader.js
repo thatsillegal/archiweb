@@ -7,9 +7,9 @@ import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {Rhino3dmLoader} from "three/examples/jsm/loaders/3DMLoader";
 import {ThreeMFLoader} from "three/examples/jsm/loaders/3MFLoader";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
-
 import {sceneAddMesh, sceneMesh} from "@/creator/GeometryFactory";
 import {refreshSelection} from "@/creator/AssetManager";
+import {Geometry} from "three/examples/jsm/deprecated/Geometry"
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
  *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
@@ -76,6 +76,7 @@ const Loader = function (_scene) {
       }
       
       sceneAddMesh(_scene, object, loaderOption.edge)
+      object.toCamera = loaderOption.toCamera;
       return object;
     }
     
@@ -91,11 +92,10 @@ const Loader = function (_scene) {
       // console.log(materials)
   
       materials.forEach(function (material) {
-        let meshGeometry = new THREE.Geometry();
+        let meshGeometry = new Geometry();
         searchMaterialChild(material, object, meshGeometry);
         meshes.push(new THREE.Mesh(meshGeometry, material));
       });
-      // console.log(meshes)
   
       let lineGeometry = new THREE.BufferGeometry();
       buffer = new Float32Array();
@@ -103,6 +103,7 @@ const Loader = function (_scene) {
       // console.log(buffer);
       lineGeometry.setAttribute('position', new THREE.BufferAttribute(buffer, 3));
       const result = mergeMeshes(meshes);
+      console.log(result)
   
       const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
       sceneAddMesh(_scene, result, line);
@@ -110,7 +111,8 @@ const Loader = function (_scene) {
       if (checkMaterial(result)) {
         result.material = new THREE.MeshLambertMaterial({color: 0x787774, side: THREE.DoubleSide, shadowSide:THREE.BackSide});
       }
-
+  
+      result.toCamera = loaderOption.toCamera;
       return result;
     }
     
@@ -123,6 +125,8 @@ const Loader = function (_scene) {
   
       sceneMesh(object, loaderOption.shadow, loaderOption.doubleSide)
       sceneAddMesh(_scene, result, loaderOption.edge);
+      
+      result.toCamera = loaderOption.toCamera;
       return result;
     }
 
@@ -162,7 +166,7 @@ const Loader = function (_scene) {
         
         if(omaterial === material) {
           if(obj.geometry.isBufferGeometry)
-            obj.geometry = new THREE.Geometry().fromBufferGeometry(obj.geometry);
+            obj.geometry = new Geometry().fromBufferGeometry(obj.geometry);
           meshGeometry.merge(obj.geometry, obj.matrix);
         }
       }
@@ -177,7 +181,7 @@ const Loader = function (_scene) {
     searchGroupMaterials(object, materials)
   
     materials.forEach(function (material) {
-      let meshGeometry = new THREE.Geometry();
+      let meshGeometry = new Geometry();
       searchGroupMaterialChild(material, object, meshGeometry);
       meshes.push(new THREE.Mesh(meshGeometry, material));
     });
@@ -227,12 +231,14 @@ const Loader = function (_scene) {
     }
   }
   
-  function mergeMeshes(meshes, toBufferGeometry) {
-    if (meshes.length === 1) return meshes[0];
+  function mergeMeshes(meshes) {
+    if (meshes.length === 1) {
+      meshes[0].geometry = meshes[0].geometry.toBufferGeometry();
+      return meshes[0];
+    }
     
-    var finalGeometry,
-      materials = [],
-      mergedGeometry = new THREE.Geometry(),
+    let materials = [],
+      mergedGeometry = new Geometry(),
       mergedMesh;
     
     meshes.forEach(function (mesh, index) {
@@ -246,13 +252,8 @@ const Loader = function (_scene) {
     
     mergedGeometry.groupsNeedUpdate = true;
     
-    if (toBufferGeometry) {
-      finalGeometry = new THREE.BufferGeometry().fromGeometry(mergedGeometry);
-    } else {
-      finalGeometry = mergedGeometry;
-    }
-    
-    mergedMesh = new THREE.Mesh(finalGeometry, materials);
+
+    mergedMesh = new THREE.Mesh(mergedGeometry.toBufferGeometry(), materials);
     mergedMesh.geometry.computeFaceNormals();
     mergedMesh.geometry.computeVertexNormals();
     
@@ -300,7 +301,7 @@ const Loader = function (_scene) {
         omaterial = omaterial[0];
       }
       if (omaterial === material) {
-        object.geometry = new THREE.Geometry().fromBufferGeometry(object.geometry);
+        object.geometry = new Geometry().fromBufferGeometry(object.geometry);
         object.geometry.applyMatrix4(matrix);
         meshGeometry.merge(object.geometry, object.matrix);
       }

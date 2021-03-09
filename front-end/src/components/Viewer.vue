@@ -54,7 +54,7 @@ export default {
 .dg .c input[type=checkbox] {
   margin-top: 3px;
 }
-input {
+.dg .c input {
   font-size:12px;
   height: 1.25rem;
   text-align:center;

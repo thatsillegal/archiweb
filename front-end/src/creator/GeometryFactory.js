@@ -243,6 +243,7 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
   setPolygonOffsetMaterial(mesh.material);
   
   const matLine = new LineMaterial({color: color, linewidth: linewidth});
+
   const geoLine = new WireframeGeometry2(mesh.geometry);
   const wireframe = new Wireframe(geoLine, matLine);
   wireframe.computeLineDistances();

@@ -77,10 +77,9 @@ const SceneBasic = function (_scene, _renderer) {
     dirLight.shadow.camera.right = 5000;
     dirLight.shadow.camera.near = 10;
     dirLight.shadow.camera.far = 10000;
-    dirLight.shadow.mapSize.set(4096, 4096);
+    dirLight.shadow.mapSize.set(2048, 2048);
     dirLight.shadow.bias = -0.0001;
     _basic.add(dirLight);
-    
     
     // _scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
     // _scene.add( new THREE.DirectionalLightHelper(dirLight));
