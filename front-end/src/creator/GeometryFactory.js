@@ -189,17 +189,36 @@ const GeometryFactory = function (_scene) {
   }
   
   
+  function fromArchiJSON(self, element) {
+    let m, scale, position, quaternion;
+
+    switch (element.type) {
+      case 'Cuboid':
+      case 'Cylinder':
+        m = new THREE.Matrix4().fromArray(element.matrix);
+        scale = new THREE.Vector3();
+        position = new THREE.Vector3();
+        quaternion = new THREE.Quaternion();
+        
+        m.decompose(position, quaternion, scale);
+        self.quaternion.copy(quaternion);
+        self.position.copy(position);
+        self.scale.copy(scale);
+        break;
+    }
+  }
+  
   function publicProperties (mesh) {
     
     mesh.updateModel = updateModel;
     mesh.modelParam = modelParam;
+    mesh.fromArchiJSON = fromArchiJSON;
     
     mesh.exchange = true;
     mesh.toArchiJSON = function () {
-      
       return Object.assign({type: mesh.type, matrix: mesh.matrix.elements, uuid:mesh.uuid, position:mesh.position}, mesh.modelParam(mesh));
     }
-    
+  
     mesh.toInfoCard = function () {
       let o = mesh;
       window.InfoCard.info.uuid = o.uuid;

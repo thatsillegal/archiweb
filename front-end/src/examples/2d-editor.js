@@ -9,6 +9,7 @@ let drag, controller;
 let curve, gb, line;
 let count = 100;
 let tans = [];
+let cl = [];
 let left, right;
 function initScene() {
   
@@ -30,7 +31,6 @@ function initScene() {
   scene.add(light);
   
   let pos = [[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
-  let cl = [];
   for (let p of pos) {
     cl.push(gb.Cylinder(p, [1, 1],
       new THREE.MeshLambertMaterial({color: 0xff0000})));
@@ -58,11 +58,11 @@ function initScene() {
 }
 
 function initDrag() {
-  drag = new DragControls(window.objects, camera, renderer.domElement);
+  drag = new DragControls(cl, camera, renderer.domElement);
   drag.addEventListener('hoveron', function (event) {
     // console.log(event)
     let o = event.object;
-    o.toInfoCard();
+    if(o.type === 'Cylinder') o.toInfoCard();
     controller.enabled = false;
   });
   drag.addEventListener('hoveroff', function () {
@@ -71,7 +71,7 @@ function initDrag() {
 
   drag.addEventListener('dragend', function (event) {
     let o = event.object;
-    o.toInfoCard();
+    if(o.type === 'Cylinder') o.toInfoCard();
   });
   drag.addEventListener('drag', function () {
     const points = curve.getPoints(500);
