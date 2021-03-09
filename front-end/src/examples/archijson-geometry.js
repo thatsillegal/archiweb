@@ -20,7 +20,7 @@ function initGUI() {
 function parseGeometry(geometryElements) {
   for(let e of geometryElements) {
     let b = scene.getObjectByProperty('uuid', e.uuid);
-
+  
     if(!b) {
       b = geoFty[e.type]();
       reconstructed.push(b);
@@ -42,7 +42,7 @@ function initScene() {
   
   const c1 = geoFty.Cylinder([400, 300, 0], [100, 400], matFty.Matte(0xffff00), true);
   
-  
+  const p1 = geoFty.Plane([-600, 300, 1], [600, 600], matFty.Matte(0xff00ff), true)
   
   
   

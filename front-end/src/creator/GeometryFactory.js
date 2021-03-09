@@ -44,7 +44,7 @@ const GeometryFactory = function (_scene) {
   
   // const scope = this;
   // API
-  this.Plane = function ([x, y, z], [w, d], material, showEdge = true) {
+  this.Plane = function ([x, y, z]=[0, 0, 0], [w, d]=[1, 1], material, showEdge = true) {
     let mesh = new THREE.Mesh(planeGeometry, material);
     sceneAddMesh(_scene, mesh, showEdge);
     
@@ -153,20 +153,20 @@ const GeometryFactory = function (_scene) {
     switch (self.type) {
       case 'Plane':
         self.scale.x = modelParam['w'];
-        self.scale.y = modelParam['d'];
+        self.scale.y = modelParam['h'];
         break;
       case 'Cuboid' :
         self.scale.x = modelParam['w'];
-        self.scale.y = modelParam['d'];
-        self.scale.z = modelParam['h'];
+        self.scale.y = modelParam['h'];
+        self.scale.z = modelParam['d'];
         break;
       case 'Cylinder' :
         self.scale.x = modelParam['r'];
         self.scale.y = modelParam['r'];
-        self.scale.z = modelParam['h'];
+        self.scale.z = modelParam['d'];
         break;
       case 'Prism':
-        self.scale.z = modelParam['h'];
+        self.scale.z = modelParam['d'];
         break;
       default:
         break;
@@ -180,9 +180,9 @@ const GeometryFactory = function (_scene) {
       case 'Cuboid':
         return {w: self.scale.x, h: self.scale.y, d: self.scale.z};
       case 'Cylinder':
-        return {r: self.scale.x, h: self.scale.z};
+        return {r: self.scale.x, d: self.scale.z};
       case 'Prism':
-        return {h: self.scale.z};
+        return {height: self.position.z, extrude: self.scale.z};
       default:
         return {};
     }
@@ -195,6 +195,7 @@ const GeometryFactory = function (_scene) {
     switch (element.type) {
       case 'Cuboid':
       case 'Cylinder':
+      case 'Plane':
         m = new THREE.Matrix4().fromArray(element.matrix);
         scale = new THREE.Vector3();
         position = new THREE.Vector3();
