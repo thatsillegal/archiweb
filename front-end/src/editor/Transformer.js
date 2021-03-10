@@ -94,6 +94,7 @@ const Transformer = function (_scene, _renderer, _camera) {
     });
     
     control.addEventListener('dragging-changed', function (event) {
+      addDraggingFlag(scope.object, event.value);
       dragged = !event.value;
       
       if (event.value === true) {
@@ -126,7 +127,17 @@ const Transformer = function (_scene, _renderer, _camera) {
     _renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
     _renderer.domElement.addEventListener('click', onClick, false);
   }
-  
+  function addDraggingFlag(object, flag) {
+    if(!object.isGroup) {
+      // console.log(object);
+      object.dragging = flag;
+      object.parent.dragging = flag;
+    } else {
+      for (let i = 0; i < object.children.length; ++i) {
+        addDraggingFlag(object.children[i], flag);
+      }
+    }
+  }
   function setCloneObject(object) {
     if (!object.isGroup) {
       const cloned = object.clone();

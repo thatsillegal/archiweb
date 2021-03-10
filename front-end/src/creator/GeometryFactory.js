@@ -41,6 +41,7 @@ const GeometryFactory = function (_scene) {
   cylinderGeometry.translate(0, 0, 0.5);
 
   const planeGeometry = new THREE.PlaneBufferGeometry(1, 1);
+  const sphereGeometry = new THREE.SphereGeometry(1, 16, 16);
   
   // const scope = this;
   // API
@@ -70,6 +71,19 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
+  this.Sphere = function([x, y, z]=[0, 0, 0], r=1,material) {
+    if(!material) material = new THREE.MeshPhongMaterial( { color: 0xdddddd, specular: 0x111111, shininess: 1 } );
+    let mesh = new THREE.Mesh(sphereGeometry, material);
+    sceneAddMesh(_scene, mesh, false);
+    
+    mesh.type = 'Sphere';
+    mesh.scale.set(r, r, r);
+    mesh.position.set(x, y, z);
+    
+    publicProperties(mesh);
+    return mesh;
+  }
+  
   this.Cylinder = function ([x, y, z]=[0,0,0], [r, h]=[1,1], material, showEdge = false) {
     if(!material) material = new THREE.MeshPhongMaterial( { color: 0xdddddd, specular: 0x111111, shininess: 1 } );
     let mesh = new THREE.Mesh(cylinderGeometry, material);
@@ -83,21 +97,31 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
-  this.Line = function (points, color=0x000, selectable=false) {
-    let line = new THREE.Line(
-      new THREE.BufferGeometry(),
-      new THREE.LineBasicMaterial( { color: color } )
-    );
+  this.Segments = function (points, closed=false, color=0x000, selectable=false) {
+    let segments;
+    if(closed) {
+      segments = new THREE.LineLoop(
+        new THREE.BufferGeometry(),
+        new THREE.LineBasicMaterial({color: color})
+      );
+      
+    } else {
+      segments = new THREE.Line(
+        new THREE.BufferGeometry(),
+        new THREE.LineBasicMaterial({color: color})
+      );
+    }
     if(selectable)
-      sceneAddMesh(_scene, line, false);
+      sceneAddMesh(_scene, segments, false);
     else
-      sceneAddMesh(_scene, line, false, false, []);
+      sceneAddMesh(_scene, segments, false, false, []);
   
-    line.type = 'Line';
+    segments.type = 'Segments';
+    segments.closed = closed;
     if(points)
-      line.geometry.setFromPoints(points);
-    publicProperties(line);
-    return line;
+      segments.geometry.setFromPoints(points);
+    publicProperties(segments);
+    return segments;
   }
   
 
@@ -111,27 +135,25 @@ const GeometryFactory = function (_scene) {
    * @returns {Mesh<ExtrudeGeometry, *>}
    * @constructor
    */
-  this.Prism = function (shape, material, height=0.0, extruded=0.0) {
-    const o = getPointsCenter(shape.getPoints());
-    console.log(o)
-    
-    const extrudeSettings = {
-      depth:1.,
-      bevelEnabled:false
-    }
-    
+  this.Prism = function (shape, material, height=0.0, extruded=0.0, showEdge=false) {
+
     const mesh = new THREE.Mesh(
-      new THREE.ExtrudeGeometry(shape, extrudeSettings),
+      new THREE.ExtrudeGeometry(shape, {
+        depth:1.,
+        bevelEnabled:false
+      }),
       material
     );
   
     mesh.type = 'Prism';
-    mesh.geometry.translate(-o.x, -o.y, 0);
-    mesh.position.x = o.x;
-    mesh.position.y = o.y;
+    mesh.shape = shape;
+    mesh.center = getPointsCenter(shape.getPoints());
+    mesh.geometry.translate(-mesh.center.x, -mesh.center.y, 0);
+    mesh.position.x = mesh.center.x;
+    mesh.position.y = mesh.center.y;
     mesh.position.z = height;
     mesh.scale.z = extruded;
-    sceneAddMesh(_scene, mesh)
+    sceneAddMesh(_scene, mesh, showEdge)
     
     publicProperties(mesh);
     return mesh;
@@ -166,7 +188,23 @@ const GeometryFactory = function (_scene) {
         self.scale.z = modelParam['d'];
         break;
       case 'Prism':
-        self.scale.z = modelParam['d'];
+        self.shape = modelParam['shape'];
+        self.geometry = new THREE.ExtrudeGeometry(self.shape, {depth:1., bevelEnabled:false});
+        self.position.z = modelParam['height'];
+        self.scale.z = modelParam['extruded'];
+        self.children[0] = createMeshWireframe(self, 0xffff00, 0.005)
+        self.children[0].visible = false;
+        
+        self.center = getPointsCenter(self.shape.getPoints());
+        self.geometry.translate(-self.center.x, -self.center.y, 0);
+        self.position.x = self.center.x;
+        self.position.y = self.center.y;
+        
+        break;
+      case 'Sphere':
+        self.scale.x = modelParam['r'];
+        self.scale.y = modelParam['r'];
+        self.scale.z = modelParam['r'];
         break;
       default:
         break;
@@ -182,7 +220,9 @@ const GeometryFactory = function (_scene) {
       case 'Cylinder':
         return {r: self.scale.x, d: self.scale.z};
       case 'Prism':
-        return {height: self.position.z, extrude: self.scale.z};
+        return {shape: self.shape, height: self.position.z, extrude: self.scale.z};
+      case 'Sphere':
+        return {r:self.scale.x};
       default:
         return {};
     }
@@ -196,6 +236,7 @@ const GeometryFactory = function (_scene) {
       case 'Cuboid':
       case 'Cylinder':
       case 'Plane':
+      case 'Sphere':
         m = new THREE.Matrix4().fromArray(element.matrix);
         scale = new THREE.Vector3();
         position = new THREE.Vector3();
@@ -237,6 +278,7 @@ const GeometryFactory = function (_scene) {
       };
     }
   }
+  
   
 }
 

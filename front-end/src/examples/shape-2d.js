@@ -23,7 +23,7 @@ const controls = new function() {
     if(DRAWMODE) arr = [];
   }
   this.shape = function() {
-    lines.push(gb.Line(path.getPoints()));
+    lines.push(gb.Segments(path.getPoints()));
     let shape = new THREE.Shape().setFromPoints(path.getPoints());
     shapes.push(gb.Prism(shape, mf.Matte(), 0, getRandomInt(20)))
     arr = [];
@@ -67,7 +67,7 @@ function initScene() {
   mf = new ARCH.MaterialFactory();
   gb = new ARCH.GeometryFactory(scene);
   b = gb.Cuboid([2, 2, 0], [2, 2, 2]);
-  p = gb.Line(null, 0xaaaaaa);
+  p = gb.Segments(null, 0xaaaaaa);
   
   /* ---------- light ---------- */
   const light = new THREE.SpotLight(0xffffff, 1.5);
