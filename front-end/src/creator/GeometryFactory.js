@@ -118,35 +118,40 @@ const GeometryFactory = function (_scene) {
   
     segments.type = 'Segments';
     segments.closed = closed;
-    if(points)
+    if (points) {
       segments.geometry.setFromPoints(points);
+      segments.size = points.length
+      segments.points = points;
+    }
     publicProperties(segments);
     return segments;
   }
   
-
+  
   /**
    * 2D shape to extruded geometry, set extruded = 0.0 to get a 2d polygon
    *
-   * @param shape
+   * @param segments
    * @param material
    * @param height
    * @param extruded
+   * @param showEdge
    * @returns {Mesh<ExtrudeGeometry, *>}
    * @constructor
    */
-  this.Prism = function (shape, material, height=0.0, extruded=0.0, showEdge=false) {
-
+  this.Prism = function (segments, material, height = 0.0, extruded = 0.0, showEdge = false) {
+    const shape = new THREE.Shape().setFromPoints(segments.points)
+    
     const mesh = new THREE.Mesh(
       new THREE.ExtrudeGeometry(shape, {
-        depth:1.,
-        bevelEnabled:false
+        depth: 1.,
+        bevelEnabled: false
       }),
       material
     );
-  
+    
     mesh.type = 'Prism';
-    mesh.shape = shape;
+    mesh.segments = segments;
     mesh.center = getPointsCenter(shape.getPoints());
     mesh.geometry.translate(-mesh.center.x, -mesh.center.y, 0);
     mesh.position.x = mesh.center.x;
@@ -187,24 +192,32 @@ const GeometryFactory = function (_scene) {
         self.scale.y = modelParam['r'];
         self.scale.z = modelParam['d'];
         break;
-      case 'Prism':
-        self.shape = modelParam['shape'];
-        self.geometry = new THREE.ExtrudeGeometry(self.shape, {depth:1., bevelEnabled:false});
-        self.position.z = modelParam['height'];
-        self.scale.z = modelParam['extruded'];
-        self.children[0] = createMeshWireframe(self, 0xffff00, 0.005)
-        self.children[0].visible = false;
-        
-        self.center = getPointsCenter(self.shape.getPoints());
-        self.geometry.translate(-self.center.x, -self.center.y, 0);
-        self.position.x = self.center.x;
-        self.position.y = self.center.y;
-        
-        break;
       case 'Sphere':
         self.scale.x = modelParam['r'];
         self.scale.y = modelParam['r'];
         self.scale.z = modelParam['r'];
+        break;
+      case 'Prism':
+        self.segments = modelParam['segments'];
+        self.shape = new THREE.Shape().setFromPoints(
+          coordinateToPoint(self.segments.coordinates, self.segments.size));
+        self.geometry = new THREE.ExtrudeGeometry(self.shape, {depth: 1., bevelEnabled: false});
+        self.position.z = modelParam['height'];
+        self.scale.z = modelParam['extruded'];
+        self.children[0] = createMeshWireframe(self, 0xffff00, 0.005)
+        self.children[0].visible = false;
+    
+        self.center = getPointsCenter(self.shape.getPoints());
+        self.geometry.translate(-self.center.x, -self.center.y, 0);
+        self.position.x = self.center.x;
+        self.position.y = self.center.y;
+    
+        break;
+      case 'Segments':
+        self.size = modelParam['size'];
+        self.points = coordinateToPoint(modelParam['coordinates'], self.size);
+        self.closed = modelParam['closed'];
+        self.geometry.setFromPoints(self.points);
         break;
       default:
         break;
@@ -213,16 +226,18 @@ const GeometryFactory = function (_scene) {
   
   function modelParam (self) {
     switch (self.type) {
+      case 'Segments':
+        return {size: self.size, coordinates: self.geometry.getAttribute('position').array, closed: self.closed};
       case 'Plane':
-        return {w: self.scale.x, h:self.scale.y};
+        return {w: self.scale.x, h: self.scale.y};
       case 'Cuboid':
         return {w: self.scale.x, h: self.scale.y, d: self.scale.z};
       case 'Cylinder':
         return {r: self.scale.x, d: self.scale.z};
       case 'Prism':
-        return {shape: self.shape, height: self.position.z, extrude: self.scale.z};
+        return {segments: modelParam(self.segments), height: self.position.z, extrude: self.scale.z};
       case 'Sphere':
-        return {r:self.scale.x};
+        return {r: self.scale.x};
       default:
         return {};
     }
@@ -241,12 +256,14 @@ const GeometryFactory = function (_scene) {
         scale = new THREE.Vector3();
         position = new THREE.Vector3();
         quaternion = new THREE.Quaternion();
-        
+  
         m.decompose(position, quaternion, scale);
         self.quaternion.copy(quaternion);
         self.position.copy(position);
         self.scale.copy(scale);
         break;
+      case 'Segments':
+  
     }
   }
   
@@ -258,7 +275,14 @@ const GeometryFactory = function (_scene) {
     
     mesh.exchange = true;
     mesh.toArchiJSON = function () {
-      return Object.assign({type: mesh.type, matrix: mesh.matrix.elements, uuid:mesh.uuid, position:mesh.position}, mesh.modelParam(mesh));
+      return Object.assign({
+          type: mesh.type,
+          matrix: mesh.matrix.elements,
+          uuid: mesh.uuid,
+          position: mesh.position
+        },
+    
+        mesh.modelParam(mesh));
     }
   
     mesh.toInfoCard = function () {
@@ -279,6 +303,16 @@ const GeometryFactory = function (_scene) {
     }
   }
   
+  /* ---------- Geometry Operator ---------- */
+  function coordinateToPoint(array, size) {
+    const points = []
+    for (let i = 0; i < size; ++i) {
+      points.push(new THREE.Vector3(array[i * 3], array[i * 3 + 1], array[i * 3 + 2]))
+    }
+    return points;
+  }
+  
+  // this.coordinateToPoint = coordinateToPoint;
   
 }
 

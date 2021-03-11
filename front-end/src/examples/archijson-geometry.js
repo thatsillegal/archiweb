@@ -1,12 +1,12 @@
 import * as ARCH from "@/archiweb"
-import * as THREE from "three";
+// import * as THREE from "three";
 
 let scene, renderer, gui;
 let geoFty, matFty, astMgr;
 let archijson;
 let reconstructed = [];
 let cl = []
-let l1, f1, shape;
+let l1, f1;
 /* ---------- GUI setup ---------- */
 function initGUI() {
   const control = {
@@ -52,11 +52,9 @@ function initScene() {
   l1 = geoFty.Segments(cl.map((handle)=>handle.position), true);
   cl.forEach((c)=>c.parent=l1);
   
-  shape = new THREE.Shape().setFromPoints(cl.map((handle)=>handle.position));
-  f1 = geoFty.Prism(shape,
+  f1 = geoFty.Prism(l1,
     matFty.Matte(0x0000ff), 5, 1)
-  
-  console.log(shape)
+  console.log(l1.modelParam(l1))
   // refresh global objects
   ARCH.refreshSelection(scene);
   astMgr.addSelection(cl, 2)
@@ -73,13 +71,11 @@ window.searchSceneByUUID = function(uuid) {
 
 
 function draw() {
-  if(l1.dragging) {
+  if (l1 && l1.dragging) {
     
-    l1.geometry.setFromPoints(cl.map((handle) => handle.position));
-    // f1.parent.remove(f1);
-    shape = new THREE.Shape().setFromPoints(cl.map((handle) => handle.position));
-    f1.updateModel(f1, {shape: shape, height: 5, extruded: 1});
-  
+    l1.geometry.setFromPoints((cl.map((handle) => handle.position)))
+    f1.updateModel(f1, {segments: l1.modelParam(l1), height: 5, extruded: 1});
+    
   }
   
 }

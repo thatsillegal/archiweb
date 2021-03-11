@@ -23,9 +23,9 @@ const controls = new function() {
     if(DRAWMODE) arr = [];
   }
   this.shape = function() {
-    lines.push(gb.Segments(path.getPoints()));
-    let shape = new THREE.Shape().setFromPoints(path.getPoints());
-    shapes.push(gb.Prism(shape, mf.Matte(), 0, getRandomInt(20)))
+    let segs = gb.Segments(path.getPoints());
+    lines.push(segs);
+    shapes.push(gb.Prism(segs, mf.Matte(), 0, getRandomInt(20), true))
     arr = [];
   }
   this.clear = function() {

@@ -66,8 +66,8 @@ function paintGrid(imagedata, x, y, w, h) {
     let illum = getIllumination(pixel);
     let color = new THREE.Color(pixel.r, pixel.g, pixel.b);
     gb.push(
-    geoFty.Box([x+w/2 - imagedata.width/2, -y-h/2 + imagedata.height/2, 0],
-      [w, h, illum*w], matFty.Matte(color), control.edge)
+    geoFty.Cuboid([x + w / 2 - imagedata.width / 2, -y - h / 2 + imagedata.height / 2, 0],
+      [w, h, illum * w], matFty.Matte(color), control.edge)
     );
   }
   

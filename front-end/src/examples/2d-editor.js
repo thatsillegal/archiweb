@@ -41,17 +41,17 @@ function initScene() {
   
   const points = curve.getPoints(50);
   
-
-  for(let i = 0; i < count; ++ i) {
-    tans.push(gb.Line(null, 0xff000));
-    tans[i].rotation.z = Math.PI/2;
+  
+  for (let i = 0; i < count; ++i) {
+    tans.push(gb.Segments(null, false, 0xff000));
+    tans[i].rotation.z = Math.PI / 2;
     scene.add(tans[i]);
   }
-  left = gb.Line(null, 0xff0000);
-  right = gb.Line(null, 0x0000ff);
+  left = gb.Segments(null, false, 0xff0000);
+  right = gb.Segments(null, false, 0x0000ff);
   updateCurve();
   
-  line = gb.Line(points)
+  line = gb.Segments(points)
   
   ARCH.refreshSelection(scene);
   

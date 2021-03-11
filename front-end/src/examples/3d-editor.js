@@ -52,11 +52,12 @@ function initScene() {
     new THREE.Vector2(100, 300),
   ];
   const v = new THREE.Vector2(100, 200);
-  points.forEach((pt)=>{
+  points.forEach((pt) => {
     pt.add(v);
   })
-  const shape = new THREE.Shape().setFromPoints(points);
-  const s1 = gb.Prism(shape, mt.Matte(), 100, 10);
+  const segs = gb.Segments(points, true)
+  segs.visible = false;
+  const s1 = gb.Prism(segs, mt.Matte(), 100, 10, true);
   
   assetManager.refreshSelection(scene);
   assetManager.addSelection([b1, b2, b3, b4, s1], 1);
