@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ToonShader2, ToonShaderHatching, ToonShaderDotted } from 'three/examples/jsm/shaders/ToonShader.js';
+import {ToonShader2, ToonShaderDotted, ToonShaderHatching} from 'three/examples/jsm/shaders/ToonShader.js';
 
 /**
  * Material based on {@link https://threejs.org/examples/webgl_marchingcubes.html}
@@ -13,50 +13,59 @@ const MaterialFactory = function () {
   
   init();
   /* ---------- Normal ---------- */
-  this.Void = function() {
-    return new THREE.MeshLambertMaterial({transparent:true, opacity:0});
+  this.Void = function () {
+    return new THREE.MeshLambertMaterial({transparent: true, opacity: 0});
   }
   
-  this.Glass = function(color = 0xdddddd) {
-    return new THREE.MeshLambertMaterial({color:color, transparent:true, opacity:0.4});
+  this.Glass = function (color = 0xdddddd) {
+    return new THREE.MeshLambertMaterial({color: color, transparent: true, opacity: 0.4});
   }
   
-  this.Doubled = function (color=0xdddddd) {
-    return new THREE.MeshPhongMaterial({color:color, side:THREE.DoubleSide, shadowSide:THREE.BackSide});
+  this.Doubled = function (color = 0xdddddd) {
+    return new THREE.MeshPhongMaterial({color: color, side: THREE.DoubleSide, shadowSide: THREE.BackSide});
   }
   
-  this.Matte = function (color=0xdddddd) {
-    return new THREE.MeshPhongMaterial( { color: color, specular: 0x111111, shininess: 1 } )
+  this.Matte = function (color = 0xdddddd) {
+    return new THREE.MeshPhongMaterial({color: color, specular: 0x111111, shininess: 1})
   }
   
-  this.Flat = function (color=0xdddddd) {
-    return new THREE.MeshLambertMaterial( { color: color} )
-  }
-
-  this.Plastic = function (color=0xdddddd) {
-    return new THREE.MeshPhongMaterial( { color: color, specular: 0x888888, shininess: 250 } )
+  this.Flat = function (color = 0xdddddd) {
+    return new THREE.MeshLambertMaterial({color: color})
   }
   
-  this.Textured = function (color=0xdddddd, texture) {
-    return new THREE.MeshPhongMaterial( { color: color, specular: 0x111111, shininess: 1, map: texture } );
+  this.Plastic = function (color = 0xdddddd) {
+    return new THREE.MeshPhongMaterial({color: color, specular: 0x888888, shininess: 250})
+  }
+  
+  this.Textured = function (color = 0xdddddd, texture) {
+    return new THREE.MeshPhongMaterial({color: color, specular: 0x111111, shininess: 1, map: texture});
   }
   
   /* ---------- Reflection ---------- */
   
-  this.Chrome = function (color=0xdddddd, reflectionCube) {
-    const chromeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: reflectionCube } );
+  this.Chrome = function (color = 0xdddddd, reflectionCube) {
+    const chromeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, envMap: reflectionCube});
     setMaterialColor(chromeMaterial, color);
     return chromeMaterial;
   }
   
-  this.Liquid = function (color=0xdddddd, refractionCube) {
-    const liquidMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: refractionCube, refractionRatio: 0.85 } );
+  this.Liquid = function (color = 0xdddddd, refractionCube) {
+    const liquidMaterial = new THREE.MeshLambertMaterial({
+      color: 0xffffff,
+      envMap: refractionCube,
+      refractionRatio: 0.85
+    });
     setMaterialColor(liquidMaterial, color);
     return liquidMaterial;
   }
   
-  this.Shiny = function (color=0xdddddd, reflectionCube) {
-    const shinyMaterial = new THREE.MeshStandardMaterial( { color: 0x550000, envMap: reflectionCube, roughness: 0.1, metalness: 1.0 } );
+  this.Shiny = function (color = 0xdddddd, reflectionCube) {
+    const shinyMaterial = new THREE.MeshStandardMaterial({
+      color: 0x550000,
+      envMap: reflectionCube,
+      roughness: 0.1,
+      metalness: 1.0
+    });
     setMaterialColor(shinyMaterial, color);
     return shinyMaterial;
   }
@@ -68,8 +77,8 @@ const MaterialFactory = function () {
    * enable with {@link SceneBasic}
    * @constructor
    */
-  this.Toon = function (color=0xdddddd, light, ambientLight) {
-    const toonMaterial = createShaderMaterial( ToonShader2, light, ambientLight );
+  this.Toon = function (color = 0xdddddd, light, ambientLight) {
+    const toonMaterial = createShaderMaterial(ToonShader2, light, ambientLight);
     setMaterialColor(toonMaterial, color);
     return toonMaterial;
   }
@@ -78,8 +87,8 @@ const MaterialFactory = function () {
    * enable with {@link SceneBasic}
    * @constructor
    */
-  this.Hatching = function (color=0xdddddd, light, ambientLight) {
-    const hatchingMaterial = createShaderMaterial( ToonShaderHatching, light, ambientLight );
+  this.Hatching = function (color = 0xdddddd, light, ambientLight) {
+    const hatchingMaterial = createShaderMaterial(ToonShaderHatching, light, ambientLight);
     setMaterialColor(hatchingMaterial, color);
     return hatchingMaterial;
   }
@@ -88,30 +97,30 @@ const MaterialFactory = function () {
    * enable with {@link SceneBasic}
    * @constructor
    */
-  this.Dotted = function (color=0xdddddd, light, ambientLight) {
-    const dottedMaterial = createShaderMaterial( ToonShaderDotted, light, ambientLight );
+  this.Dotted = function (color = 0xdddddd, light, ambientLight) {
+    const dottedMaterial = createShaderMaterial(ToonShaderDotted, light, ambientLight);
     setMaterialColor(dottedMaterial, color);
     return dottedMaterial;
   }
   
-  function createShaderMaterial( shader, light, ambientLight ) {
+  function createShaderMaterial(shader, light, ambientLight) {
     
-    const u = THREE.UniformsUtils.clone( shader.uniforms );
+    const u = THREE.UniformsUtils.clone(shader.uniforms);
     
     const vs = shader.vertexShader;
     const fs = shader.fragmentShader;
     
-    const material = new THREE.ShaderMaterial( { uniforms: u, vertexShader: vs, fragmentShader: fs } );
+    const material = new THREE.ShaderMaterial({uniforms: u, vertexShader: vs, fragmentShader: fs});
     
-    material.uniforms[ "uDirLightPos" ].value = light.position;
-    material.uniforms[ "uDirLightColor" ].value = light.color;
+    material.uniforms["uDirLightPos"].value = light.position;
+    material.uniforms["uDirLightColor"].value = light.color;
     
-    material.uniforms[ "uAmbientLightColor" ].value = ambientLight.color;
+    material.uniforms["uAmbientLightColor"].value = ambientLight.color;
     
     return material;
     
   }
-
+  
 }
 
 /**
@@ -119,7 +128,7 @@ const MaterialFactory = function () {
  * @param mesh
  * @param material
  */
-function setMaterial (mesh, material) {
+function setMaterial(mesh, material) {
   if (mesh.material.length > 0) {
     let materials = []
     mesh.material.forEach(() => materials.push(material));
@@ -131,35 +140,35 @@ function setMaterial (mesh, material) {
 }
 
 function setMaterialHSL(material, hsl) {
-  if(material === undefined) return;
-  if(material.length > 0) {
+  if (material === undefined) return;
+  if (material.length > 0) {
     material.forEach((item) => {
       setMaterialHSL(item, hsl);
     })
   }
-  if(material instanceof THREE.ShaderMaterial)
+  if (material instanceof THREE.ShaderMaterial)
     material.uniforms["uBaseColor"].value.setHSL(hsl.h, hsl.s, hsl.l);
   else
     material.color.setHSL(hsl.h, hsl.s, hsl.l);
 }
 
 function setMaterialColor(material, color) {
-  if(material === undefined) return;
-  if(material.length > 0) {
+  if (material === undefined) return;
+  if (material.length > 0) {
     material.forEach((item) => {
       setMaterialColor(item, color);
     })
   }
-  if(material instanceof THREE.ShaderMaterial)
+  if (material instanceof THREE.ShaderMaterial)
     material.uniforms["uBaseColor"].value.set(color);
   else
     material.color.set(color);
 }
 
 function setMaterialDoubleSide(material) {
-  if(material === undefined) return;
-  if(material.length > 0) {
-    material.forEach((item)=>{
+  if (material === undefined) return;
+  if (material.length > 0) {
+    material.forEach((item) => {
       setMaterialDoubleSide(item);
     })
   }
@@ -173,8 +182,8 @@ function setMaterialDoubleSide(material) {
  * @param opacity
  */
 function setMaterialOpacity(material, opacity) {
-  if(material === undefined) return;
-  if(material.length > 0) {
+  if (material === undefined) return;
+  if (material.length > 0) {
     material.forEach((item) => {
       setMaterialOpacity(item, opacity);
     })
@@ -190,8 +199,8 @@ function setMaterialOpacity(material, opacity) {
  * @param material
  */
 function setPolygonOffsetMaterial(material) {
-  if(material === undefined) return;
-  if(material.length > 0) {
+  if (material === undefined) return;
+  if (material.length > 0) {
     material.forEach((item) => {
       setPolygonOffsetMaterial(item);
     })
@@ -203,7 +212,7 @@ function setPolygonOffsetMaterial(material) {
 }
 
 export {
-  MaterialFactory ,
+  MaterialFactory,
   setMaterial,
   setMaterialHSL,
   setMaterialColor,

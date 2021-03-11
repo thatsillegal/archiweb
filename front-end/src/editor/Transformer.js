@@ -44,7 +44,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   let clonedObject = new THREE.Group();
   let shiftDown;
   
-
+  
   this._dragFrames;
   
   //API
@@ -79,19 +79,19 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   function init() {
     control = new TransformControls(_camera, _renderer.domElement);
-    
+  
     control.addEventListener('object-changed',
       function (event) {
-      if (control.object !== undefined) {
-        scope.object = control.object;
-        window.highlightObject = toList(control.object);
+        if (control.object !== undefined) {
+          scope.object = control.object;
+          window.highlightObject = toList(control.object);
         
-        /* ---------- add to info card ---------- */
-        addToInfoCard(event.value);
-      } else {
-        window.highlightObject = window.objects;
-      }
-    });
+          /* ---------- add to info card ---------- */
+          addToInfoCard(event.value);
+        } else {
+          window.highlightObject = window.objects;
+        }
+      });
     
     control.addEventListener('dragging-changed', function (event) {
       addDraggingFlag(scope.object, event.value);
@@ -127,8 +127,9 @@ const Transformer = function (_scene, _renderer, _camera) {
     _renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
     _renderer.domElement.addEventListener('click', onClick, false);
   }
+  
   function addDraggingFlag(object, flag) {
-    if(!object.isGroup) {
+    if (!object.isGroup) {
       // console.log(object);
       object.dragging = flag;
       object.parent.dragging = flag;
@@ -138,13 +139,14 @@ const Transformer = function (_scene, _renderer, _camera) {
       }
     }
   }
+  
   function setCloneObject(object) {
     if (!object.isGroup) {
       const cloned = object.clone();
       if (object.toCamera) cloned.toCamera = true;
       if (object.layer !== undefined) cloned.layer = Array.from(object.layer);
-      
-      if(cloned.material) {
+  
+      if (cloned.material) {
         if (cloned.material.length > 0) {
           let materials = []
           for (let i = 0; i < cloned.material.length; ++i) {
@@ -180,18 +182,18 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   function setFromIntersections(intersections) {
     let mesh = undefined;
-    for(let i = 0; i < intersections.length; ++ i) {
+    for (let i = 0; i < intersections.length; ++i) {
       let item = intersections[i].object;
-      if(item.isMesh) {
+      if (item.isMesh) {
         mesh = item;
         break;
       }
     }
-    if(mesh !== undefined && mesh.parent.isGroup) {
+    if (mesh !== undefined && mesh.parent.isGroup) {
       let group = mesh.parent;
-      while(group.parent.isGroup)
+      while (group.parent.isGroup)
         group = group.parent;
-      
+    
       applyGroupCenter(group);
       return group;
     }
@@ -244,7 +246,7 @@ const Transformer = function (_scene, _renderer, _camera) {
       
     } else if (selected.length > 0) {
       selected.forEach((obj) => {
-        if(obj.isGroup) {
+        if (obj.isGroup) {
           applyGroupCenter(obj);
         }
       })
@@ -288,22 +290,21 @@ const Transformer = function (_scene, _renderer, _camera) {
     }
   }
   
-
   
   function deleteObject(object) {
     if (object === undefined) return;
-
+  
     if (!object.isGroup) {
       console.log(object)
       object.parent.remove(object);
     } else {
-      while(object.children.length > 0) {
+      while (object.children.length > 0) {
         object.children.forEach((item) => {
           deleteObject(item);
         });
       }
     }
-
+  
   }
   
   /**
@@ -449,7 +450,7 @@ const Transformer = function (_scene, _renderer, _camera) {
       
       case 46: // delete
         deleteSelected();
-
+  
         break;
       
       case 16: // shift

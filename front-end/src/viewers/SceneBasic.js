@@ -87,7 +87,7 @@ const SceneBasic = function (_scene, _renderer) {
     _renderer.outputEncoding = THREE.sRGBEncoding;
     _renderer.shadowMap.enabled = true;
     _renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-   
+  
     gridUpdate();
     axesUpdate();
   }
@@ -110,11 +110,10 @@ const SceneBasic = function (_scene, _renderer) {
   
   function skyColorUpdate(fog = true) {
     _scene.background.set(scope.skyColor);
-    if(fog) {
+    if (fog) {
       _scene.fog.density = 0.00018;
       _scene.fog.color.set(scope.skyColor);
-    }
-    else
+    } else
       _scene.fog.density = 0;
   }
   
@@ -145,7 +144,7 @@ const SceneBasic = function (_scene, _renderer) {
         axesUpdate(scope.axes);
       }
     );
-
+  
     sceneBasic.add(scope, 'shadow')
       .listen().onChange(function () {
       dirLight.castShadow = scope.shadow;
@@ -190,16 +189,16 @@ const SceneBasic = function (_scene, _renderer) {
       dirLight.position.z = scope.z;
     });
     sun.addColor(scope, 'sunColor').name('sun')
-      .listen().onChange(()=>{
+      .listen().onChange(() => {
       dirLight.color.set(scope.sunColor);
     })
     sun.addColor(scope, 'ambientColor').name('ambient')
-      .listen().onChange(()=>{
+      .listen().onChange(() => {
       ambientLight.color.set(scope.ambientColor);
     })
   }
   
- 
+  
   init();
   
   // APIs

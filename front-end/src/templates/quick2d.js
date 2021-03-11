@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 
-import * as THREE from "three";
 import * as ARCH from "@/archiweb"
 
 let scene, renderer, gui, camera;

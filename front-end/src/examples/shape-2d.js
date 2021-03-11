@@ -13,23 +13,23 @@ const lines = [];
 const shapes = [];
 
 function getRandomInt(num) {
-  return Math.floor(Math.random()*Math.floor(num));
+  return Math.floor(Math.random() * Math.floor(num));
 }
 
-const controls = new function() {
-  this.draw = function() {
+const controls = new function () {
+  this.draw = function () {
     DRAWMODE = !DRAWMODE;
-    renderer.domElement.style.cursor = DRAWMODE? 'pointer' : 'auto';
-    if(DRAWMODE) arr = [];
+    renderer.domElement.style.cursor = DRAWMODE ? 'pointer' : 'auto';
+    if (DRAWMODE) arr = [];
   }
-  this.shape = function() {
+  this.shape = function () {
     let segs = gb.Segments(path.getPoints());
     lines.push(segs);
     shapes.push(gb.Prism(segs, mf.Matte(), 0, getRandomInt(20), true))
     arr = [];
   }
-  this.clear = function() {
-    lines.forEach((item)=>{
+  this.clear = function () {
+    lines.forEach((item) => {
       scene.remove(item);
     })
     p.geometry.setFromPoints([new THREE.Vector3()]);
@@ -40,20 +40,20 @@ const controls = new function() {
 
 function onClick(event) {
   console.log(event)
-  if(DRAWMODE) {
+  if (DRAWMODE) {
     const mouse = new THREE.Vector2(
       (event.clientX / window.innerWidth) * 2 - 1,
       -(event.clientY / window.innerHeight) * 2 + 1
     )
     raycaster.setFromCamera(mouse, camera);
-    let pt = raycaster.ray.intersectPlane(xoy , new THREE.Vector3());
+    let pt = raycaster.ray.intersectPlane(xoy, new THREE.Vector3());
     b.position.copy(pt);
     console.log(pt)
     arr.push(pt);
     
     path = new THREE.Path();
     path.moveTo(arr[0].x, arr[0].y)
-    for(let i = 1; i < arr.length; ++ i) {
+    for (let i = 1; i < arr.length; ++i) {
       path.lineTo(arr[i].x, arr[i].y);
     }
     path.lineTo(arr[0].x, arr[0].y);
@@ -77,7 +77,7 @@ function initScene() {
   light2.position.set(100, -100, 1000);
   scene.add(light2);
   
-  const helper = new THREE.PlaneHelper(xoy , 1, 0xffff00);
+  const helper = new THREE.PlaneHelper(xoy, 1, 0xffff00);
   scene.add(helper);
 }
 

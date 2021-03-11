@@ -12,7 +12,7 @@
         :src="item.src"
         :to="item.to"
       >
-    
+
       </v-carousel-item>
     </v-carousel>
   
@@ -20,37 +20,37 @@
       <h1 class="text-center display-2 hidden-xs-only pt-10"> Gallery </h1>
       <h1 class="text-center display-1 hidden-sm-and-up py-5"> Gallery </h1>
     </v-container>
-    <v-row >
-    <v-col
-      v-for="(theme,id) in themes"
-      :key="id"
-      class="elevation-0 col-3"
-    >
+    <v-row>
+      <v-col
+        v-for="(theme,id) in themes"
+        :key="id"
+        class="elevation-0 col-3"
+      >
       
-      <v-hover v-slot:default="{ hover }">
-        <v-card
-          :class="{ 'on-hover': hover }"
-          :elevation="hover ? 10 : 4"
-          :to="theme"
-          class="mx-auto"
-          max-height="380"
-          max-width="320"
-        >
+        <v-hover v-slot:default="{ hover }">
+          <v-card
+            :class="{ 'on-hover': hover }"
+            :elevation="hover ? 10 : 4"
+            :to="theme"
+            class="mx-auto"
+            max-height="380"
+            max-width="320"
+          >
           
-          <v-col>
-            <v-img :src="'/images/'+theme+'.jpg'">
-            </v-img>
-            <v-row class="justify-center align-center ma-0">
-              <h3 class="mt-3"> {{ theme }}</h3>
-            </v-row>
-          </v-col>
+            <v-col>
+              <v-img :src="'/images/'+theme+'.jpg'">
+              </v-img>
+              <v-row class="justify-center align-center ma-0">
+                <h3 class="mt-3"> {{ theme }}</h3>
+              </v-row>
+            </v-col>
         
         
-        </v-card>
-      </v-hover>
+          </v-card>
+        </v-hover>
     
-    </v-col>
-  </v-row>
+      </v-col>
+    </v-row>
   </div>
 </template>
 

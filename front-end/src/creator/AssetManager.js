@@ -71,11 +71,10 @@ const AssetManager = function (_scene) {
     }
   }
   
-
   
   this.setGroup = function () {
     const obj = transformer.object;
-    if(obj === undefined) {
+    if (obj === undefined) {
       alert("⚠️ no object selected");
       return;
     }
@@ -85,7 +84,7 @@ const AssetManager = function (_scene) {
     transformer.applyTransform(obj);
     
     let layers = new Set();
-    while(obj.children.length > 0) {
+    while (obj.children.length > 0) {
       obj.children.forEach((item) => {
         group.add(item);
         item.layer.forEach(layers.add, layers);
@@ -96,21 +95,21 @@ const AssetManager = function (_scene) {
     /*
      group layer set from union of layers
     */
-    group.layer=Array.from(layers);
+    group.layer = Array.from(layers);
     refreshSelection(_scene);
   }
   
   this.unGroup = function () {
     let obj = transformer.object;
-    if(obj === undefined || !obj.isGroup) {
+    if (obj === undefined || !obj.isGroup) {
       alert("⚠️ no group selected");
       return;
     }
-    
+  
     const parent = obj.parent;
     transformer.applyTransform(obj);
   
-    while(obj.children.length > 0) {
+    while (obj.children.length > 0) {
       obj.children.forEach((item) => {
         parent.add(item);
       });
@@ -123,8 +122,8 @@ const AssetManager = function (_scene) {
   }
   
   this.highlightItem = function (item) {
-    if(!item.isMesh) return;
-    if(!item.material) return;
+    if (!item.isMesh) return;
+    if (!item.material) return;
     let materials = item.material;
     if (materials.length) {
       for (let j = 0; j < materials.length; ++j) {
@@ -133,7 +132,7 @@ const AssetManager = function (_scene) {
     } else {
       materials.emissive.set(0x666600);
     }
-    
+  
     if (item.children.length > 0) {
       item.children[0].visible = true;
     }
@@ -143,8 +142,8 @@ const AssetManager = function (_scene) {
   }
   
   this.unHighlightItem = function (item) {
-    if(!item.isMesh) return;
-    if(!item.material) return;
+    if (!item.isMesh) return;
+    if (!item.material) return;
     let materials = item.material;
     if (materials.length) {
       for (let j = 0; j < materials.length; ++j) {
@@ -153,7 +152,7 @@ const AssetManager = function (_scene) {
     } else {
       materials.emissive.set(0x000000);
     }
-    
+  
     if (item.children.length > 0) {
       item.children[0].visible = false;
     }
@@ -165,7 +164,7 @@ const AssetManager = function (_scene) {
   this.highlightGroup = function (group) {
     
     group.children.forEach((item) => {
-      if(item.isGroup) scope.highlightGroup(item);
+      if (item.isGroup) scope.highlightGroup(item);
       else scope.highlightItem(item);
     })
     
@@ -173,7 +172,7 @@ const AssetManager = function (_scene) {
   
   this.unHighlightGroup = function (group) {
     group.children.forEach((item) => {
-      if(item.isGroup) scope.unHighlightGroup(item);
+      if (item.isGroup) scope.unHighlightGroup(item);
       else scope.unHighlightItem(item);
     })
   
@@ -181,14 +180,14 @@ const AssetManager = function (_scene) {
   
   this.highlightList = function (list) {
     list.forEach((item) => {
-      if(item.isGroup) scope.highlightGroup(item);
+      if (item.isGroup) scope.highlightGroup(item);
       else scope.highlightItem(item);
     });
   }
   
   this.unHighlightList = function (list) {
     list.forEach((item) => {
-      if(item.isGroup) scope.unHighlightGroup(item);
+      if (item.isGroup) scope.unHighlightGroup(item);
       else scope.unHighlightItem(item);
     });
   }
@@ -199,7 +198,7 @@ const AssetManager = function (_scene) {
     if (window.highlighted) {
       window.highlighted = false;
       scope.unHighlightList(window.highlightObject);
-
+  
     } else {
       window.highlighted = true;
       scope.highlightList(window.highlightObject);
@@ -224,7 +223,7 @@ const AssetManager = function (_scene) {
   this.refreshSelection = refreshSelection;
 }
 
-function refreshSelection (scene) {
+function refreshSelection(scene) {
   window.objects = [];
   scene.children.forEach((obj) => {
     if (obj.layer !== undefined && ~obj.layer.indexOf(window.layer)) {

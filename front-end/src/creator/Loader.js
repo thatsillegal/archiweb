@@ -46,9 +46,9 @@ import {Geometry} from "three/examples/jsm/deprecated/Geometry"
  */
 const loaderOption = {
   status: "merged", // ["grouped", "merged", "raw"],
-  selectable : true,
-  doubleSide : true,
-  toCamera : false,
+  selectable: true,
+  doubleSide: true,
+  toCamera: false,
   ZtoY: false,
   shadow: true,
   edge: false
@@ -64,17 +64,17 @@ const Loader = function (_scene) {
   function loadModel(object) {
     
     /* ---------- raw ---------- */
+  
+    if (loaderOption.status === "raw") {
     
-    if(loaderOption.status === "raw") {
-      
       // set shadow, doubleSide, layer
       sceneMesh(object, loaderOption.shadow, loaderOption.doubleSide, [0]);
-  
+    
       // clean nested group
-      while(object.children.length === 1) {
+      while (object.children.length === 1) {
         object = object.children[0];
       }
-      
+    
       sceneAddMesh(_scene, object, loaderOption.edge)
       object.toCamera = loaderOption.toCamera;
       return object;
@@ -82,21 +82,21 @@ const Loader = function (_scene) {
     
     
     /* ---------- merge ---------- */
-    
-    if(loaderOption.status === "merged") {
+  
+    if (loaderOption.status === "merged") {
       const materials = new Set();
       const meshes = [];
-  
-  
+    
+    
       searchMaterials(object, materials);
       // console.log(materials)
-  
+    
       materials.forEach(function (material) {
         let meshGeometry = new Geometry();
         searchMaterialChild(material, object, meshGeometry);
         meshes.push(new THREE.Mesh(meshGeometry, material));
       });
-  
+    
       let lineGeometry = new THREE.BufferGeometry();
       buffer = new Float32Array();
       searchLines(object);
@@ -104,38 +104,42 @@ const Loader = function (_scene) {
       lineGeometry.setAttribute('position', new THREE.BufferAttribute(buffer, 3));
       const result = mergeMeshes(meshes);
       console.log(result)
-  
+    
       const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
       sceneAddMesh(_scene, result, line);
-  
+    
       if (checkMaterial(result)) {
-        result.material = new THREE.MeshLambertMaterial({color: 0x787774, side: THREE.DoubleSide, shadowSide:THREE.BackSide});
+        result.material = new THREE.MeshLambertMaterial({
+          color: 0x787774,
+          side: THREE.DoubleSide,
+          shadowSide: THREE.BackSide
+        });
       }
-  
+    
       result.toCamera = loaderOption.toCamera;
       return result;
     }
-    
-    if(loaderOption.status === "grouped" ) {
+  
+    if (loaderOption.status === "grouped") {
       // clean nested group
-      while(object.children.length === 1) {
+      while (object.children.length === 1) {
         object = object.children[0];
       }
       const result = searchGroupedMesh(object);
-  
+    
       sceneMesh(object, loaderOption.shadow, loaderOption.doubleSide)
       sceneAddMesh(_scene, result, loaderOption.edge);
-      
+    
       result.toCamera = loaderOption.toCamera;
       return result;
     }
-
+  
   }
   
   function searchGroupMaterials(object, materials) {
-    if(!object.isGroup) return;
-    object.children.forEach((obj)=>{
-      if(obj.isMesh) {
+    if (!object.isGroup) return;
+    object.children.forEach((obj) => {
+      if (obj.isMesh) {
         if (obj.material.length > 0) {
           materials.add(obj.material[0]);
         } else {
@@ -146,8 +150,8 @@ const Loader = function (_scene) {
   }
   
   function searchGroupLines(object) {
-    if(!object.isGroup) return;
-    object.children.forEach((obj)=> {
+    if (!object.isGroup) return;
+    object.children.forEach((obj) => {
       if (obj.isLineSegments || obj.isLine) {
         const posArr = obj.geometry.getAttribute('position').array;
         buffer = Float32Concat(buffer, posArr);
@@ -156,25 +160,26 @@ const Loader = function (_scene) {
   }
   
   function searchGroupMaterialChild(material, object, meshGeometry) {
-    if(!object.isGroup) return;
-    object.children.forEach((obj)=> {
-      if(obj.isMesh) {
+    if (!object.isGroup) return;
+    object.children.forEach((obj) => {
+      if (obj.isMesh) {
         let omaterial = obj.material;
-        if(omaterial.length > 0) {
+        if (omaterial.length > 0) {
           omaterial = omaterial[0]
         }
-        
-        if(omaterial === material) {
-          if(obj.geometry.isBufferGeometry)
+      
+        if (omaterial === material) {
+          if (obj.geometry.isBufferGeometry)
             obj.geometry = new Geometry().fromBufferGeometry(obj.geometry);
           meshGeometry.merge(obj.geometry, obj.matrix);
         }
       }
     })
   }
+  
   //
   function searchGroupedMesh(object) {
-    if(!object.isGroup) return;
+    if (!object.isGroup) return;
     /* ---------- mesh ---------- */
     const materials = new Set();
     const meshes = [];
@@ -188,12 +193,12 @@ const Loader = function (_scene) {
   
     const ret = new THREE.Group().copy(object);
     ret.children = [];
-    ret.layer=[0];
+    ret.layer = [0];
     // ret.matrix = object.matrix;
-    
-    if(materials.size > 0) {
-      const result = mergeMeshes(meshes);
   
+    if (materials.size > 0) {
+      const result = mergeMeshes(meshes);
+    
       /* ---------- line ---------- */
       let lineGeometry = new THREE.BufferGeometry();
       buffer = new Float32Array();
@@ -201,16 +206,16 @@ const Loader = function (_scene) {
       // console.log(buffer);
       lineGeometry.setAttribute('position', new THREE.BufferAttribute(buffer, 3));
       const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
-  
-  
+    
+    
       sceneAddMesh(ret, result, line, loaderOption.shadow, [0]);
       console.log(materials);
       console.log(result);
     }
   
     /* ---------- group ---------- */
-    object.children.forEach((obj)=>{
-      if(obj.isGroup) ret.add(searchGroupedMesh(obj));
+    object.children.forEach((obj) => {
+      if (obj.isGroup) ret.add(searchGroupedMesh(obj));
     })
     return ret;
   }
@@ -251,8 +256,8 @@ const Loader = function (_scene) {
     });
     
     mergedGeometry.groupsNeedUpdate = true;
-    
-
+  
+  
     mergedMesh = new THREE.Mesh(mergedGeometry.toBufferGeometry(), materials);
     mergedMesh.geometry.computeFaceNormals();
     mergedMesh.geometry.computeVertexNormals();
@@ -261,7 +266,6 @@ const Loader = function (_scene) {
     
   }
   
-
   
   function Float32Concat(first, second) {
     let firstLength = first.length,
@@ -367,13 +371,13 @@ const Loader = function (_scene) {
     if (!window.LoaderOption.dialog) {
       // Do something
       console.log(loaderOption);
-      if(window.LoaderOption.load) {
+      if (window.LoaderOption.load) {
         loadModel(obj)
         refreshSelection(_scene);
       }
     } else {
       // Wait and when window.listNodes.length === 3:
-      setTimeout(()=>onOpen(obj), 500);
+      setTimeout(() => onOpen(obj), 500);
     }
   }
   
@@ -450,7 +454,7 @@ const Loader = function (_scene) {
     let filename = file.name;
     let extension = filename.split('.').pop().toLowerCase();
     let reader = new FileReader();
-    reader.addEventListener('loadstart', function(event) {
+    reader.addEventListener('loadstart', function (event) {
       console.log(event);
       switch (extension) {
         case 'jpeg':
@@ -461,7 +465,7 @@ const Loader = function (_scene) {
           window.LoaderOption.dialog = true;
       }
     })
-
+  
     reader.addEventListener('progress', function (event) {
       
       let size = '(' + Math.floor(event.total / 1000) + ' KB)';
@@ -481,7 +485,7 @@ const Loader = function (_scene) {
           let loader = new ColladaLoader(manager);
           let collada = loader.parse(contents);
   
-
+  
           onOpen(collada.scene);
           
         }, false);
@@ -579,23 +583,23 @@ const Loader = function (_scene) {
         reader.readAsArrayBuffer(file);
         
         break;
-        
+  
       case 'jpeg':
       case 'png':
       case 'jpg':
-        reader.addEventListener('load', function (event){
+        reader.addEventListener('load', function (event) {
           let contents = event.target.result;
           let loader = new THREE.ImageLoader();
-          loader.load(contents, function ( image ) {
-            
-            scope.dispatchEvent({type: 'load', object:image});
+          loader.load(contents, function (image) {
+      
+            scope.dispatchEvent({type: 'load', object: image});
             // alert(''+image.width + ' ' + image.height);
           });
         });
   
         reader.readAsDataURL(file);
         break;
-        
+  
       // case 'ifc':
       //   reader.addEventListener('load', function (event) {
       //     let contents = event.target.result;
@@ -627,7 +631,7 @@ const Loader = function (_scene) {
     fileInput.multiple = true;
     fileInput.type = 'file';
     fileInput.addEventListener('change', function () {
-
+  
       scope.loadFile(fileInput.files[0]);
       form.reset();
       

@@ -35,16 +35,16 @@ const ArchiJSON = function (_scene, _geoFty) {
   let scope = this;
   let lines = [];
   
-  this.sendArchiJSON = function (eventName, objects, properties={}) {
+  this.sendArchiJSON = function (eventName, objects, properties = {}) {
     let geometries = [];
     for (let obj of objects) {
       if (obj.exchange) {
         geometries.push(obj.toArchiJSON());
-        
+      
       }
     }
     console.log(geometries);
-    socket.emit(eventName, {geometryElements: geometries, properties:properties});
+    socket.emit(eventName, {geometryElements: geometries, properties: properties});
     console.log('emit: ' + eventName);
   }
   
@@ -54,18 +54,17 @@ const ArchiJSON = function (_scene, _geoFty) {
     
   });
   
-
   
-   this.parseGeometry = function(geometryElements) {
-     lines.forEach((line)=>{
-       line.parent.remove(line);
-     })
-     lines = [];
-      for(let e of geometryElements) {
-        const line = _geoFty.Line();
-        line.geometry.setAttribute('position', new THREE.Float32BufferAttribute( e.positions, e.size ));
-        lines.push(line);
-      }
+  this.parseGeometry = function (geometryElements) {
+    lines.forEach((line) => {
+      line.parent.remove(line);
+    })
+    lines = [];
+    for (let e of geometryElements) {
+      const line = _geoFty.Line();
+      line.geometry.setAttribute('position', new THREE.Float32BufferAttribute(e.positions, e.size));
+      lines.push(line);
+    }
   }
   
 }

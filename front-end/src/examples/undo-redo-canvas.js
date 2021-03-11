@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import * as ARCH from "@/archiweb"
 import * as UndoManager from "undo-manager";
+
 let scene, renderer, camera;
 const raycaster = new THREE.Raycaster();
 const xoy = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
@@ -14,15 +15,15 @@ const undoList = [];
 const redoList = [];
 
 function createCircle(pt) {
-  undoList.push(gb.Cylinder([pt.x, pt.y, pt.z], [Math.random()*100+50, Math.random()*5+1], mf.Flat(Math.random()*0xffffff), true));
+  undoList.push(gb.Cylinder([pt.x, pt.y, pt.z], [Math.random() * 100 + 50, Math.random() * 5 + 1], mf.Flat(Math.random() * 0xffffff), true));
   
   undoManager.add({
-    undo: function() {
+    undo: function () {
       const item = undoList.pop();
       scene.remove(item);
       redoList.push(item);
     },
-    redo: function() {
+    redo: function () {
       const item = redoList.pop();
       scene.add(item);
       undoList.push(item);
@@ -63,11 +64,10 @@ function onClick(event) {
     -(event.clientY / window.innerHeight) * 2 + 1
   )
   raycaster.setFromCamera(mouse, camera);
-  let pt = raycaster.ray.intersectPlane(xoy , new THREE.Vector3());
+  let pt = raycaster.ray.intersectPlane(xoy, new THREE.Vector3());
   console.log(pt)
   createCircle(pt);
 }
-
 
 
 /* ---------- main entry ---------- */

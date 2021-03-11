@@ -6,24 +6,24 @@ let geoFty, matFty;
 let archijson;
 let lastRandom = 1;
 
-function random(seed){
+function random(seed) {
   seed = seed || lastRandom;
-  return lastRandom = ('0.'+Math.sin(seed).toString().substr(6));
+  return lastRandom = ('0.' + Math.sin(seed).toString().substr(6));
 }
 
 /* ---------- GUI setup ---------- */
 const control = {
-  seed:1,
-  num:10,
-  nx:500,
-  ny:300,
-  sendToJava: function() {
+  seed: 1,
+  num: 10,
+  nx: 500,
+  ny: 300,
+  sendToJava: function () {
     archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
   }
 }
 
 const property = {
-  d:1,
+  d: 1,
 }
 
 function update() {
@@ -36,12 +36,20 @@ function update() {
 
 function initGUI() {
   
-  gui.add(control, 'seed', 0, 1).onChange(() => {update()});
-  gui.add(control, 'num', 5, 1000, 1).onChange(()=>{update()});
-  gui.add(control, 'nx', 100, 1000, 1).onChange(()=>{update()});
-  gui.add(control, 'ny', 100, 1000, 1).onChange(()=>{update()});
+  gui.add(control, 'seed', 0, 1).onChange(() => {
+    update()
+  });
+  gui.add(control, 'num', 5, 1000, 1).onChange(() => {
+    update()
+  });
+  gui.add(control, 'nx', 100, 1000, 1).onChange(() => {
+    update()
+  });
+  gui.add(control, 'ny', 100, 1000, 1).onChange(() => {
+    update()
+  });
   
-  gui.add(property, 'd', 0.5, 20).onChange(()=>{
+  gui.add(property, 'd', 0.5, 20).onChange(() => {
     archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
   });
   
@@ -51,6 +59,7 @@ function initGUI() {
 
 /* ---------- create your scene object ---------- */
 let positions, colors, points, border;
+
 function initScene() {
   geoFty = new ARCH.GeometryFactory(scene);
   matFty = new ARCH.MaterialFactory();
@@ -58,7 +67,7 @@ function initScene() {
   archijson = new ARCH.ArchiJSON(scene, geoFty);
   
   const geometry = new THREE.BufferGeometry();
-  const material = new THREE.PointsMaterial( { size: 10, vertexColors: true } );
+  const material = new THREE.PointsMaterial({size: 10, vertexColors: true});
   points = new THREE.Points(geometry, material);
   scene.add(points);
   
@@ -66,9 +75,11 @@ function initScene() {
   points.exchange = true;
   points.toArchiJSON = function () {
     const position = points.geometry.getAttribute('position');
-    return {type: 'Vertices',matrix: points.matrix.elements,
+    return {
+      type: 'Vertices', matrix: points.matrix.elements,
       uuid: points.uuid, size: position.itemSize,
-      count:position.count, position:Array.from(position.array)};
+      count: position.count, position: Array.from(position.array)
+    };
   }
   
   generatePoints(control.num, control.nx, control.ny);
@@ -83,22 +94,21 @@ function initScene() {
   archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
 }
 
-function generatePoints(num, nx, ny){
+function generatePoints(num, nx, ny) {
   positions = [];
   colors = [];
   random(control.seed);
-  for (let i = 0; i < num; ++ i) {
-    const x = random() * nx - nx/2;
-    const y = random() * ny - ny/2;
+  for (let i = 0; i < num; ++i) {
+    const x = random() * nx - nx / 2;
+    const y = random() * ny - ny / 2;
     positions.push(x, y, 0);
-    colors.push(x/nx+0.5, y/ny+0.5, 0);
+    colors.push(x / nx + 0.5, y / ny + 0.5, 0);
   }
   
-  points.geometry.setAttribute('position', new THREE.Float32BufferAttribute( positions, 3 ));
-  points.geometry.setAttribute('color', new THREE.Float32BufferAttribute( colors, 3 ));
+  points.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  points.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   points.geometry.computeBoundingSphere();
 }
-
 
 
 /* ---------- animate per frame ---------- */
@@ -117,7 +127,7 @@ function main() {
   initScene();
   
   viewport.draw = draw;
-
+  
 }
 
 export {

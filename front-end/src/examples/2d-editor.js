@@ -11,6 +11,7 @@ let count = 100;
 let tans = [];
 let cl = [];
 let left, right;
+
 function initScene() {
   
   const axes = new THREE.AxesHelper(50)
@@ -35,8 +36,8 @@ function initScene() {
     cl.push(gb.Cylinder(p, [1, 1],
       new THREE.MeshLambertMaterial({color: 0xff0000})));
   }
-
-  curve = new THREE.CatmullRomCurve3(cl.map( ( handle ) => handle.position ));
+  
+  curve = new THREE.CatmullRomCurve3(cl.map((handle) => handle.position));
   curve.curveType = "centripetal";
   
   const points = curve.getPoints(50);
@@ -62,28 +63,28 @@ function initDrag() {
   drag.addEventListener('hoveron', function (event) {
     // console.log(event)
     let o = event.object;
-    if(o.type === 'Cylinder') o.toInfoCard();
+    if (o.type === 'Cylinder') o.toInfoCard();
     controller.enabled = false;
   });
   drag.addEventListener('hoveroff', function () {
     controller.enabled = true;
   });
-
+  
   drag.addEventListener('dragend', function (event) {
     let o = event.object;
-    if(o.type === 'Cylinder') o.toInfoCard();
+    if (o.type === 'Cylinder') o.toInfoCard();
   });
   drag.addEventListener('drag', function () {
     const points = curve.getPoints(500);
     line.geometry.setFromPoints(points);
     updateCurve();
-
+  
   })
 }
 
 function updateCurve() {
-  for (let i = 0; i < count; ++ i) {
-    const t = i*(1./count);
+  for (let i = 0; i < count; ++i) {
+    const t = i * (1. / count);
     let point = curve.getPointAt(t);
     let tangent = curve.getTangentAt(t);
     
@@ -95,7 +96,7 @@ function updateCurve() {
   }
   const l = [];
   const r = [];
-  for (let i = 0; i < count; ++ i) {
+  for (let i = 0; i < count; ++i) {
     let normal = tans[i].geometry.clone();
     normal.applyMatrix4(tans[i].matrix);
     let position = normal.attributes.position;
@@ -131,7 +132,7 @@ function main() {
   
   initScene();
   initDrag();
-
+  
   viewport.draw = draw;
 }
 

@@ -23,11 +23,11 @@ function loadTextures() {
   ];
   const cubeTextureLoader = new THREE.CubeTextureLoader();
   
-  reflectionCube = cubeTextureLoader.load( urls );
-  refractionCube = cubeTextureLoader.load( urls );
+  reflectionCube = cubeTextureLoader.load(urls);
+  refractionCube = cubeTextureLoader.load(urls);
   refractionCube.mapping = THREE.CubeRefractionMapping;
   
-  texture = new THREE.TextureLoader().load( "textures/uv_grid_opengl.jpg" );
+  texture = new THREE.TextureLoader().load("textures/uv_grid_opengl.jpg");
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
 }
@@ -39,41 +39,41 @@ function initScene() {
   material = materialFactory.Doubled(0xffffff);
   resolution = effectController.resolution;
   
-  effect = new MarchingCubes( resolution, material, true, true );
-  effect.position.set( 0, 0, 0 );
-  effect.rotateX(Math.PI/2);
-  effect.scale.set( 700, 700, 700 );
+  effect = new MarchingCubes(resolution, material, true, true);
+  effect.position.set(0, 0, 0);
+  effect.rotateX(Math.PI / 2);
+  effect.scale.set(700, 700, 700);
   
   effect.enableUvs = false;
   effect.enableColors = false;
   
-  scene.add( effect );
+  scene.add(effect);
   
-
+  
 }
 
-function updateCubes( object, time, numblobs, wally, wallx, wallz ) {
-
+function updateCubes(object, time, numblobs, wally, wallx, wallz) {
+  
   object.reset();
-
+  
   const subtract = 12;
-  const strength = 1.2 / ( ( Math.sqrt( numblobs ) - 1 ) / 4 + 1 );
-
-  for ( let i = 0; i < numblobs; i ++ ) {
-
-    const ballx = Math.sin( i + 1.26 * time * ( 1.03 + 0.5 * Math.cos( 0.21 * i ) ) ) * 0.27 + 0.5;
-    const bally = Math.abs( Math.cos( i + 1.12 * time * Math.cos( 1.22 + 0.1424 * i ) ) ) * 0.77; // dip into the floor
-    const ballz = Math.cos( i + 1.32 * time * 0.1 * Math.sin( ( 0.92 + 0.53 * i ) ) ) * 0.27 + 0.5;
-
-
-      object.addBall( ballx, bally, ballz, strength, subtract );
-
+  const strength = 1.2 / ((Math.sqrt(numblobs) - 1) / 4 + 1);
+  
+  for (let i = 0; i < numblobs; i++) {
+    
+    const ballx = Math.sin(i + 1.26 * time * (1.03 + 0.5 * Math.cos(0.21 * i))) * 0.27 + 0.5;
+    const bally = Math.abs(Math.cos(i + 1.12 * time * Math.cos(1.22 + 0.1424 * i))) * 0.77; // dip into the floor
+    const ballz = Math.cos(i + 1.32 * time * 0.1 * Math.sin((0.92 + 0.53 * i))) * 0.27 + 0.5;
+    
+    
+    object.addBall(ballx, bally, ballz, strength, subtract);
+    
   }
-
-  if ( wally ) object.addPlaneY( 2, 12 );
-  if ( wallz ) object.addPlaneZ( 2, 12 );
-  if ( wallx ) object.addPlaneX( 2, 12 );
-
+  
+  if (wally) object.addPlaneY(2, 12);
+  if (wallz) object.addPlaneZ(2, 12);
+  if (wallx) object.addPlaneX(2, 12);
+  
 }
 
 const effectController = {
@@ -104,7 +104,7 @@ function initGUI() {
   h.add(effectController, "wallz");
   h.open();
   const m = gui.addFolder("Material");
-  m.add(effectController, "material", Object.keys(materialFactory)).onChange(()=>{
+  m.add(effectController, "material", Object.keys(materialFactory)).onChange(() => {
     let mat;
     console.log(effectController.material)
     effect.enableUvs = false;
@@ -112,33 +112,33 @@ function initGUI() {
       case "Liquid":
         mat = new materialFactory[effectController.material](effectController.color, refractionCube);
         break;
-        
+      
       case "Chrome" :
       case "Shiny":
         mat = new materialFactory[effectController.material](effectController.color, reflectionCube);
         break;
-  
+      
       case "Textured":
         effect.enableUvs = true;
         mat = new materialFactory[effectController.material](effectController.color, texture);
         break;
-        
+      
       case "Dotted":
       case "Hatching":
       case "Toon":
         mat = new materialFactory[effectController.material](effectController.color, directLight, ambientLight);
         break;
-        
+      
       default:
         mat = new materialFactory[effectController.material](effectController.color);
     }
     effect.material = mat;
-
+    
   });
-  m.addColor( effectController, "color").onChange(()=>{
+  m.addColor(effectController, "color").onChange(() => {
     ARCH.setMaterialColor(effect.material, effectController.color);
   });
-
+  
   m.open();
 }
 
@@ -148,16 +148,16 @@ function draw() {
   time += delta * effectController.speed * 0.5;
   
   // marching cubes
-  if ( effectController.resolution !== resolution ) {
+  if (effectController.resolution !== resolution) {
     resolution = effectController.resolution;
-    effect.init( Math.floor( resolution ) );
+    effect.init(Math.floor(resolution));
   }
   
-  if ( effectController.isolation !== effect.isolation ) {
+  if (effectController.isolation !== effect.isolation) {
     effect.isolation = effectController.isolation;
   }
   
-  updateCubes( effect, time, effectController.numBlobs, effectController.wally, effectController.wallx, effectController.wallz );
+  updateCubes(effect, time, effectController.numBlobs, effectController.wally, effectController.wallx, effectController.wallz);
   
 }
 
@@ -178,7 +178,7 @@ function main() {
   sceneBasic.floor.visible = false;
   directLight = sceneBasic.directLight;
   ambientLight = sceneBasic.ambientLight;
-
+  
 }
 
 export {

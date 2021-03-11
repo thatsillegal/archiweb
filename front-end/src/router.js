@@ -10,17 +10,19 @@ const examples = [
   'archijson-geometry'
 ]
 const routes = [];
-examples.forEach((item)=>{
+examples.forEach((item) => {
   let res = item.split('-');
-  for(let i = 0; i < res.length; ++ i) {
+  for (let i = 0; i < res.length; ++i) {
     res[i] = res[i].replace(/^\S/, s => s.toUpperCase());
   }
   let title = res.join(' ');
   routes.push({
-    path: '/'+item,
+    path: '/' + item,
     name: item,
     component: Viewer,
-    props: ()=>{window.currentApp = item},
+    props: () => {
+      window.currentApp = item
+    },
     meta: {title: 'ArchiWeb ' + title}
   })
 })

@@ -7,11 +7,14 @@ let archijson;
 let reconstructed = [];
 let cl = []
 let l1, f1;
+
 /* ---------- GUI setup ---------- */
 function initGUI() {
   const control = {
-    send: function() {
-      reconstructed.forEach((it)=> {it.parent.remove(it);})
+    send: function () {
+      reconstructed.forEach((it) => {
+        it.parent.remove(it);
+      })
       reconstructed = [];
       archijson.sendArchiJSON('bts:sendGeometry', window.objects);
     }
@@ -20,10 +23,10 @@ function initGUI() {
 }
 
 function parseGeometry(geometryElements) {
-  for(let e of geometryElements) {
+  for (let e of geometryElements) {
     let b = scene.getObjectByProperty('uuid', e.uuid);
-  
-    if(!b) {
+    
+    if (!b) {
       b = geoFty[e.type]();
       reconstructed.push(b);
     }
@@ -40,17 +43,17 @@ function initScene() {
   matFty = new ARCH.MaterialFactory();
   archijson = new ARCH.ArchiJSON(scene, geoFty);
   
-  const b1 = geoFty.Cuboid([100, 100, 0],[200, 200, 300], matFty.Matte(0xff0000));
+  const b1 = geoFty.Cuboid([100, 100, 0], [200, 200, 300], matFty.Matte(0xff0000));
   
   const c1 = geoFty.Cylinder([400, 300, 0], [100, 400], matFty.Matte(0xffff00), true);
   
   const p1 = geoFty.Plane([-600, 300, 5], [600, 600], matFty.Matte(0xff00ff), true)
   
   const points = [[-190, 730, 6], [320, 940, 6], [520, 640, 6], [240, 410, 6], [50, 500, 6], [-110, 460, 6]]
-  points.forEach((p)=>cl.push(geoFty.Sphere(p, 10, matFty.Flat(0xff0000))));
+  points.forEach((p) => cl.push(geoFty.Sphere(p, 10, matFty.Flat(0xff0000))));
   
-  l1 = geoFty.Segments(cl.map((handle)=>handle.position), true);
-  cl.forEach((c)=>c.parent=l1);
+  l1 = geoFty.Segments(cl.map((handle) => handle.position), true);
+  cl.forEach((c) => c.parent = l1);
   
   f1 = geoFty.Prism(l1,
     matFty.Matte(0x0000ff), 5, 1)
@@ -65,7 +68,7 @@ function initScene() {
   archijson.parseGeometry = parseGeometry;
 }
 
-window.searchSceneByUUID = function(uuid) {
+window.searchSceneByUUID = function (uuid) {
   return scene.getObjectByProperty('uuid', uuid);
 }
 

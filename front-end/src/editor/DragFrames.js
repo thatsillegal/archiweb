@@ -218,7 +218,7 @@ const DragFrames = function (_renderer, _scene, _camera) {
       console.error('THREE.SelectionBox: Unsupported camera type.');
       return;
     }
-
+  
     const tmpPoint = new THREE.Vector3();
     
     const vecNear = new THREE.Vector3();
@@ -274,14 +274,14 @@ const DragFrames = function (_renderer, _scene, _camera) {
   }
   
   function searchChildInFrustum(frustum, object) {
-    if (object.isMesh || object.isLine || object.isPoints ) {
-      
+    if (object.isMesh || object.isLine || object.isPoints) {
+    
       if (object.material !== undefined) {
-        
+      
         if (object.geometry.boundingSphere === null) object.geometry.computeBoundingSphere();
-        
+      
         const center = new THREE.Vector3();
-        
+      
         center.copy(object.geometry.boundingSphere.center);
         center.applyMatrix4(object.matrixWorld);
         
@@ -292,20 +292,20 @@ const DragFrames = function (_renderer, _scene, _camera) {
       }
       
     }
-    
-    if(object.isGroup) {
+  
+    if (object.isGroup) {
       const box3 = new THREE.Box3().setFromObject(object);
       const center = new THREE.Vector3();
-      
+    
       box3.getCenter(center);
       center.applyMatrix4(object.matrixWorld);
-      
-      if(frustum.containsPoint(center)) {
+    
+      if (frustum.containsPoint(center)) {
         _selected.push(object);
       }
     }
-    
-
+  
+  
     for (let x = 0; x < object.length; x++) {
       searchChildInFrustum(frustum, object[x]);
     }
@@ -333,4 +333,4 @@ const DragFrames = function (_renderer, _scene, _camera) {
 
 DragFrames.prototype = Object.create(THREE.EventDispatcher.prototype);
 
-export  {DragFrames}
+export {DragFrames}

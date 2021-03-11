@@ -2,9 +2,7 @@ import * as THREE from 'three';
 import * as gui from '@/gui'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
-import {AssetManager, MultiCamera} from "@/archiweb";
-import {DragFrames} from "@/archiweb";
-import {Transformer} from "@/archiweb";
+import {AssetManager, DragFrames, MultiCamera, Transformer} from "@/archiweb";
 
 const Viewport = function () {
   
@@ -58,7 +56,7 @@ const Viewport = function () {
   
   function onSelectUp(event) {
     window.highlighted = false;
-    if(event.object.length > 1000) {
+    if (event.object.length > 1000) {
       assetManager.unHighlightList(event.object);
       alert('too much selected');
     } else {
@@ -85,16 +83,18 @@ const Viewport = function () {
    * @returns {DragFrames}
    */
   function enableDragFrames() {
-    if(assetManager === undefined) enableAssetManager();
+    if (assetManager === undefined) enableAssetManager();
   
     drag = new DragFrames(renderer, scene, camera.camera);
-    
-    drag.addEventListener('selectdown', () => {transformer.clear()});
+  
+    drag.addEventListener('selectdown', () => {
+      transformer.clear()
+    });
     drag.addEventListener('select', onSelectDown);
     drag.addEventListener('selectup', onSelectUp);
-    
+  
     camera.setDrag(drag);
-    
+  
     return drag;
   }
   
@@ -104,7 +104,7 @@ const Viewport = function () {
    * @returns {Transformer}
    */
   function enableTransformer() {
-    if(assetManager === undefined) enableAssetManager();
+    if (assetManager === undefined) enableAssetManager();
     
     transformer = new Transformer(scene, renderer, camera.camera);
     camera.setTransformer(transformer);
@@ -139,8 +139,8 @@ const Viewport = function () {
   }
   
   function windowResize(w, h) {
-    
-    if(drag) drag.onWindowResize(w, h);
+  
+    if (drag) drag.onWindowResize(w, h);
     camera.onWindowResize(w, h);
     renderer.setSize(w, h);
     render();
@@ -153,7 +153,7 @@ const Viewport = function () {
         break;
       case 73: // I
         window.InfoCard.hideInfoCard(!window.InfoCard.show);
-        
+  
     }
   }
   
@@ -172,17 +172,17 @@ const Viewport = function () {
       if (obj.toCamera) {
         let v = new THREE.Vector3().subVectors(camera.camera.position, obj.position);
         let theta = -Math.atan2(v.x, v.y);
-        
+  
         obj.quaternion.set(0, 0, 0, 1);
         obj.rotateZ(theta);
       }
     });
-    
+  
     renderer.clear();
     renderer.render(scene, camera.camera);
-    
-    if(drag) drag.render();
-    if(scope.draw) scope.draw();
+  
+    if (drag) drag.render();
+    if (scope.draw) scope.draw();
   }
   
   /**
@@ -224,7 +224,7 @@ const Viewport = function () {
    * Viewport controls, toggle rotate, pan and zoom
    * Working with {@link addGUI}
    */
-  const controls = new function (){
+  const controls = new function () {
     this.rotate = true;
     this.pan = false;
     this.zoom = true;
@@ -245,16 +245,16 @@ const Viewport = function () {
   this.to3D = to3D;
   
   /* ---------- GUI ---------- */
-
+  
   function addGUI(gui) {
     let viewport = gui.addFolder('Viewport');
-    viewport.add(controls, 'rotate').listen().onChange(()=>{
+    viewport.add(controls, 'rotate').listen().onChange(() => {
       controller.enableRotate = !controller.enableRotate;
     });
-    viewport.add(controls, 'pan').listen().onChange(()=>{
+    viewport.add(controls, 'pan').listen().onChange(() => {
       controller.enablePan = !controller.enablePan;
     });
-    viewport.add(controls, 'zoom').listen().onChange(()=>{
+    viewport.add(controls, 'zoom').listen().onChange(() => {
       controller.enableZoom = !controller.enableZoom;
     });
   }

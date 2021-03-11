@@ -39,13 +39,13 @@ const GeometryFactory = function (_scene) {
   const cylinderGeometry = new THREE.CylinderBufferGeometry(1, 1, 1, 32)
   cylinderGeometry.rotateX(Math.PI / 2);
   cylinderGeometry.translate(0, 0, 0.5);
-
+  
   const planeGeometry = new THREE.PlaneBufferGeometry(1, 1);
   const sphereGeometry = new THREE.SphereGeometry(1, 16, 16);
   
   // const scope = this;
   // API
-  this.Plane = function ([x, y, z]=[0, 0, 0], [w, d]=[1, 1], material, showEdge = true) {
+  this.Plane = function ([x, y, z] = [0, 0, 0], [w, d] = [1, 1], material, showEdge = true) {
     let mesh = new THREE.Mesh(planeGeometry, material);
     sceneAddMesh(_scene, mesh, showEdge);
     
@@ -57,8 +57,8 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
-  this.Cuboid = function ([x, y, z]=[0,0,0], [w, d, h]=[1,1,1], material, showEdge=true) {
-    if(!material) material = new THREE.MeshPhongMaterial( { color: 0xdddddd, specular: 0x111111, shininess: 1 } );
+  this.Cuboid = function ([x, y, z] = [0, 0, 0], [w, d, h] = [1, 1, 1], material, showEdge = true) {
+    if (!material) material = new THREE.MeshPhongMaterial({color: 0xdddddd, specular: 0x111111, shininess: 1});
     let mesh = new THREE.Mesh(boxGeometry, material);
     sceneAddMesh(_scene, mesh, showEdge)
     
@@ -71,8 +71,8 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
-  this.Sphere = function([x, y, z]=[0, 0, 0], r=1,material) {
-    if(!material) material = new THREE.MeshPhongMaterial( { color: 0xdddddd, specular: 0x111111, shininess: 1 } );
+  this.Sphere = function ([x, y, z] = [0, 0, 0], r = 1, material) {
+    if (!material) material = new THREE.MeshPhongMaterial({color: 0xdddddd, specular: 0x111111, shininess: 1});
     let mesh = new THREE.Mesh(sphereGeometry, material);
     sceneAddMesh(_scene, mesh, false);
     
@@ -84,8 +84,8 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
-  this.Cylinder = function ([x, y, z]=[0,0,0], [r, h]=[1,1], material, showEdge = false) {
-    if(!material) material = new THREE.MeshPhongMaterial( { color: 0xdddddd, specular: 0x111111, shininess: 1 } );
+  this.Cylinder = function ([x, y, z] = [0, 0, 0], [r, h] = [1, 1], material, showEdge = false) {
+    if (!material) material = new THREE.MeshPhongMaterial({color: 0xdddddd, specular: 0x111111, shininess: 1});
     let mesh = new THREE.Mesh(cylinderGeometry, material);
     sceneAddMesh(_scene, mesh, showEdge);
     
@@ -97,9 +97,9 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
-  this.Segments = function (points, closed=false, color=0x000, selectable=false) {
+  this.Segments = function (points, closed = false, color = 0x000, selectable = false) {
     let segments;
-    if(closed) {
+    if (closed) {
       segments = new THREE.LineLoop(
         new THREE.BufferGeometry(),
         new THREE.LineBasicMaterial({color: color})
@@ -111,11 +111,11 @@ const GeometryFactory = function (_scene) {
         new THREE.LineBasicMaterial({color: color})
       );
     }
-    if(selectable)
+    if (selectable)
       sceneAddMesh(_scene, segments, false);
     else
       sceneAddMesh(_scene, segments, false, false, []);
-  
+    
     segments.type = 'Segments';
     segments.closed = closed;
     if (points) {
@@ -165,10 +165,9 @@ const GeometryFactory = function (_scene) {
   }
   
   
-  
   function getPointsCenter(points) {
     const v = new THREE.Vector2();
-    points.forEach((pt)=>{
+    points.forEach((pt) => {
       v.add(pt);
     })
     v.divideScalar(points.length);
@@ -176,7 +175,7 @@ const GeometryFactory = function (_scene) {
   }
   
   
-  function updateModel (self, modelParam) {
+  function updateModel(self, modelParam) {
     switch (self.type) {
       case 'Plane':
         self.scale.x = modelParam['w'];
@@ -206,12 +205,12 @@ const GeometryFactory = function (_scene) {
         self.scale.z = modelParam['extruded'];
         self.children[0] = createMeshWireframe(self, 0xffff00, 0.005)
         self.children[0].visible = false;
-    
+  
         self.center = getPointsCenter(self.shape.getPoints());
         self.geometry.translate(-self.center.x, -self.center.y, 0);
         self.position.x = self.center.x;
         self.position.y = self.center.y;
-    
+  
         break;
       case 'Segments':
         self.size = modelParam['size'];
@@ -224,7 +223,7 @@ const GeometryFactory = function (_scene) {
     }
   }
   
-  function modelParam (self) {
+  function modelParam(self) {
     switch (self.type) {
       case 'Segments':
         return {size: self.size, coordinates: self.geometry.getAttribute('position').array, closed: self.closed};
@@ -246,7 +245,7 @@ const GeometryFactory = function (_scene) {
   
   function fromArchiJSON(self, element) {
     let m, scale, position, quaternion;
-
+  
     switch (element.type) {
       case 'Cuboid':
       case 'Cylinder':
@@ -263,11 +262,11 @@ const GeometryFactory = function (_scene) {
         self.scale.copy(scale);
         break;
       case 'Segments':
-  
+    
     }
   }
   
-  function publicProperties (mesh) {
+  function publicProperties(mesh) {
     
     mesh.updateModel = updateModel;
     mesh.modelParam = modelParam;
@@ -281,10 +280,10 @@ const GeometryFactory = function (_scene) {
           uuid: mesh.uuid,
           position: mesh.position
         },
-    
+        
         mesh.modelParam(mesh));
     }
-  
+    
     mesh.toInfoCard = function () {
       let o = mesh;
       window.InfoCard.info.uuid = o.uuid;
@@ -318,7 +317,7 @@ const GeometryFactory = function (_scene) {
 
 
 function createMeshEdge(mesh, color = 0x000000) {
-  if(!mesh.geometry) return;
+  if (!mesh.geometry) return;
   
   setPolygonOffsetMaterial(mesh.material);
   
@@ -339,7 +338,7 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
   setPolygonOffsetMaterial(mesh.material);
   
   const matLine = new LineMaterial({color: color, linewidth: linewidth});
-
+  
   const geoLine = new WireframeGeometry2(mesh.geometry);
   const wireframe = new Wireframe(geoLine, matLine);
   wireframe.computeLineDistances();
@@ -347,21 +346,21 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
   return wireframe;
 }
 
-function sceneMesh(object, shadow=true, doubleSide=false, layer=[0]) {
-  object.traverseVisible((mesh)=>{
+function sceneMesh(object, shadow = true, doubleSide = false, layer = [0]) {
+  object.traverseVisible((mesh) => {
     mesh.layer = layer;
     console.log(mesh)
-    if(shadow) {
+    if (shadow) {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
     }
-    if(mesh.isMesh) {
-      if(doubleSide) {
+    if (mesh.isMesh) {
+      if (doubleSide) {
         setMaterialDoubleSide(mesh.material);
       }
       mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
       mesh.children[0].visible = false;
-      mesh.layer=[0];
+      mesh.layer = [0];
     }
   });
 }
@@ -370,25 +369,25 @@ function sceneMesh(object, shadow=true, doubleSide=false, layer=[0]) {
  * add a new mesh to a object3D (scene, group)
  * @param object
  * @param mesh
- * @param edge 
+ * @param edge
  * @param shadow
  * @param layer
  */
-function sceneAddMesh (object, mesh, edge = true, shadow = true, layer=[0]) {
+function sceneAddMesh(object, mesh, edge = true, shadow = true, layer = [0]) {
   // show edge
-  if(mesh.isMesh) {
+  if (mesh.isMesh) {
     setPolygonOffsetMaterial(mesh.material);
     mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
     mesh.children[0].visible = false;
   }
   
-  if(edge.isLineSegments) {
+  if (edge.isLineSegments) {
     mesh.add(edge);
   } else if (edge === true) {
     mesh.add(createMeshEdge(mesh));
   }
   // show shadow
-  if(shadow) {
+  if (shadow) {
     mesh.castShadow = true;
     mesh.receiveShadow = true;
   }
@@ -397,6 +396,7 @@ function sceneAddMesh (object, mesh, edge = true, shadow = true, layer=[0]) {
   mesh.layer = layer;
   object.add(mesh);
 }
+
 export {
   GeometryFactory,
   sceneMesh,

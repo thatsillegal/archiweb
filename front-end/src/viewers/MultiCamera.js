@@ -48,8 +48,8 @@ const MultiCamera = function (domElement) {
   }
   
   function initOrthographicCamera(width, height) {
-    cameraOrtho = new THREE.OrthographicCamera(width / - 2, width / 2,
-      height / 2, height / - 2, scope.near, scope.far);
+    cameraOrtho = new THREE.OrthographicCamera(width / -2, width / 2,
+      height / 2, height / -2, scope.near, scope.far);
     cameraOrtho.position.set(scope.x, scope.y, scope.z);
     cameraOrtho.up = new THREE.Vector3(0, 0, 1);
   }
@@ -63,15 +63,14 @@ const MultiCamera = function (domElement) {
   function togglePerspective() {
     const position = scope.camera.position.clone();
     cameraPersp.position.copy(position);
-    
+  
     scope.camera = cameraPersp;
     scope.isometric = false;
-    
+  
     _controller.object = cameraPersp;
-    
-    if(_dragFrames) _dragFrames.activate();
-    // _dragFrames.enabled = true;
-    if(_transformer) _transformer.control.camera = cameraPersp;
+  
+    if (_dragFrames) _dragFrames.activate();
+    if (_transformer) _transformer.control.camera = cameraPersp;
   }
   
   function toggleOrthographic() {
@@ -82,18 +81,18 @@ const MultiCamera = function (domElement) {
     scope.isometric = true;
   
     _controller.object = cameraOrtho;
-    
+  
     // dragFrames enabled not work because of transformer enable it, so have to deactivate directly
-    if(_dragFrames) _dragFrames.deactivate();
-    if(_transformer) _transformer.control.camera = cameraOrtho;
+    if (_dragFrames) _dragFrames.deactivate();
+    if (_transformer) _transformer.control.camera = cameraOrtho;
   }
-
+  
   
   /* ---------- zoom to objects ---------- */
   function getBoundingBox(objects) {
     const box = new THREE.Box3();
-    if(objects instanceof Array) {
-      for(const object of objects)
+    if (objects instanceof Array) {
+      for (const object of objects)
         box.expandByObject(object);
     } else {
       box.setFromObject(objects);
@@ -101,38 +100,38 @@ const MultiCamera = function (domElement) {
     return box;
   }
   
-  function zoomToObjects(objects, offset=2) {
-  
+  function zoomToObjects(objects, offset = 2) {
+    
     const boundingBox = getBoundingBox(objects);
-  
-    const center = boundingBox.getCenter( new THREE.Vector3() );
-    const size = boundingBox.getSize( new THREE.Vector3() );
-
-  
-    const maxSize = Math.max( size.x, size.y, size.z );
-    const fitHeightDistance = maxSize / ( 2 * Math.atan( Math.PI * cameraPersp.fov / 360 ) );
+    
+    const center = boundingBox.getCenter(new THREE.Vector3());
+    const size = boundingBox.getSize(new THREE.Vector3());
+    
+    
+    const maxSize = Math.max(size.x, size.y, size.z);
+    const fitHeightDistance = maxSize / (2 * Math.atan(Math.PI * cameraPersp.fov / 360));
     const fitWidthDistance = fitHeightDistance / cameraPersp.aspect;
-    const distance = offset * Math.max( fitHeightDistance, fitWidthDistance );
-  
+    const distance = offset * Math.max(fitHeightDistance, fitWidthDistance);
+    
     
     const direction = _controller.target.clone()
-      .sub( scope.camera.position )
+      .sub(scope.camera.position)
       .normalize()
-      .multiplyScalar( distance );
+      .multiplyScalar(distance);
     
     
     cameraPersp.maxDistance = distance * 10;
-    scope.camera.lookAt( center );
-  
+    scope.camera.lookAt(center);
+    
     scope.camera.near = distance / 100;
     scope.camera.far = distance * 100;
     scope.camera.updateProjectionMatrix();
-  
-    scope.camera.position.copy( _controller.target ).sub(direction);
-  
+    
+    scope.camera.position.copy(_controller.target).sub(direction);
+    
     _controller.target = center;
     _controller.update();
-
+    
   }
   
   
@@ -212,10 +211,10 @@ const MultiCamera = function (domElement) {
     switch (event.keyCode) {
       
       case 67: // C
-        if(scope.camera.isPerspectiveCamera) toggleOrthographic();
+        if (scope.camera.isPerspectiveCamera) toggleOrthographic();
         else togglePerspective();
         break;
-
+  
       case 97:
       case 49: // 1
         viewFrontLeft();
@@ -319,7 +318,7 @@ const MultiCamera = function (domElement) {
   }
   
   this.zoomAll = function () {
-    if(window.highlightObject.length === 0) {
+    if (window.highlightObject.length === 0) {
       alert("⚠️ No object selected, use ARCH.refreshSelection(scene) or enable AssetManager in viewport.")
       return;
     }
@@ -331,7 +330,7 @@ const MultiCamera = function (domElement) {
     camera.add(scope, 'zoomAll').name('zoom');
     camera.add(scope, 'isometric')
       .listen().onChange(function () {
-      if(scope.isometric) toggleOrthographic();
+      if (scope.isometric) toggleOrthographic();
       else togglePerspective();
     });
     
@@ -379,12 +378,12 @@ const MultiCamera = function (domElement) {
   
       scope.camera.updateProjectionMatrix();
     });
-    
-    detail.add(scope, 'near',0.1, 100)
+  
+    detail.add(scope, 'near', 0.1, 100)
       .listen().onChange(function () {
       cameraOrtho.near = scope.near;
       cameraPersp.near = scope.near;
-  
+    
       scope.camera.updateProjectionMatrix();
     })
   
@@ -392,7 +391,7 @@ const MultiCamera = function (domElement) {
       .listen().onChange(function () {
       cameraOrtho.far = scope.far;
       cameraPersp.far = scope.far;
-  
+    
       scope.camera.updateProjectionMatrix();
     })
   }

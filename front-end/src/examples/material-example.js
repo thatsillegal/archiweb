@@ -22,45 +22,45 @@ function loadTextures() {
   ];
   const cubeTextureLoader = new THREE.CubeTextureLoader();
   
-  reflectionCube = cubeTextureLoader.load( urls );
-  refractionCube = cubeTextureLoader.load( urls );
+  reflectionCube = cubeTextureLoader.load(urls);
+  refractionCube = cubeTextureLoader.load(urls);
   refractionCube.mapping = THREE.CubeRefractionMapping;
   
-  texture = new THREE.TextureLoader().load( "textures/uv_grid_opengl.jpg" );
+  texture = new THREE.TextureLoader().load("textures/uv_grid_opengl.jpg");
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
 }
 
 function initGUI() {
-  gui.add(effectController, 'material', Object.keys(materialFactory)).onChange(()=> {
-    scene.traverse((obj)=>{
+  gui.add(effectController, 'material', Object.keys(materialFactory)).onChange(() => {
+    scene.traverse((obj) => {
       let mat;
-      if(obj.isMesh) {
+      if (obj.isMesh) {
         switch (effectController.material) {
           case "Liquid":
             mat = new materialFactory[effectController.material](effectController.color, refractionCube);
             break;
-    
+          
           case "Chrome" :
           case "Shiny":
             mat = new materialFactory[effectController.material](effectController.color, reflectionCube);
             break;
-    
+          
           case "Textured":
             mat = new materialFactory[effectController.material](effectController.color, texture);
             break;
-    
+          
           case "Dotted":
           case "Hatching":
           case "Toon":
             mat = new materialFactory[effectController.material](effectController.color, directLight, ambientLight);
             break;
-    
+          
           default:
             mat = new materialFactory[effectController.material](effectController.color);
         }
       }
-      li.forEach((mesh)=>{
+      li.forEach((mesh) => {
         mesh.material = mat;
       });
     });
