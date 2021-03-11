@@ -3,9 +3,9 @@ package main;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import converter.WB_Converter;
-import data.ArchiJSON;
-import data.Segments;
+import geometry.Segments;
 import processing.core.PApplet;
+import sun.rmi.runtime.Log;
 import wblut.geom.*;
 import wblut.processing.WB_Render3D;
 

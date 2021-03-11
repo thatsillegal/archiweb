@@ -27,6 +27,7 @@ import {Wireframe} from "three/examples/jsm/lines/Wireframe";
  * Author: Yichen Mo
  */
 import {setMaterialDoubleSide, setPolygonOffsetMaterial} from "@/creator/MaterialFactory";
+import {BufferGeometry, ShapeUtils} from "three";
 
 const GeometryFactory = function (_scene) {
   
@@ -88,10 +89,26 @@ const GeometryFactory = function (_scene) {
     if (!material) material = new THREE.MeshPhongMaterial({color: 0xdddddd, specular: 0x111111, shininess: 1});
     let mesh = new THREE.Mesh(cylinderGeometry, material);
     sceneAddMesh(_scene, mesh, showEdge);
-    
+  
     mesh.type = 'Cylinder';
     mesh.scale.set(r, r, h);
     mesh.position.set(x, y, z);
+  
+    publicProperties(mesh);
+    return mesh;
+  }
+  
+  this.Vertices = function (points, size = 10) {
+    const pointsMaterial = new THREE.PointsMaterial({color: 0xff0000, size: size,});
+    let mesh = new THREE.Points(new BufferGeometry(), pointsMaterial);
+    sceneAddMesh(_scene, mesh, false, false)
+    
+    mesh.type = 'Vertices';
+    if (points) {
+      mesh.geometry.setFromPoints(points);
+      mesh.size = mesh.geometry.getAttribute('position').itemSize;
+      mesh.coordinates = Array.from(mesh.geometry.getAttribute('position').array);
+    }
     
     publicProperties(mesh);
     return mesh;
@@ -120,7 +137,8 @@ const GeometryFactory = function (_scene) {
     segments.closed = closed;
     if (points) {
       segments.geometry.setFromPoints(points);
-      segments.size = points.length
+      segments.size = segments.geometry.getAttribute('position').itemSize;
+      segments.coordinates = Array.from(segments.geometry.getAttribute('position').array);
       segments.points = points;
     }
     publicProperties(segments);
@@ -199,7 +217,7 @@ const GeometryFactory = function (_scene) {
       case 'Prism':
         self.segments = modelParam['segments'];
         self.shape = new THREE.Shape().setFromPoints(
-          coordinateToPoint(self.segments.coordinates, self.segments.size));
+          coordinatesToPoints(self.segments.coordinates, self.segments.size));
         self.geometry = new THREE.ExtrudeGeometry(self.shape, {depth: 1., bevelEnabled: false});
         self.position.z = modelParam['height'];
         self.scale.z = modelParam['extruded'];
@@ -214,7 +232,7 @@ const GeometryFactory = function (_scene) {
         break;
       case 'Segments':
         self.size = modelParam['size'];
-        self.points = coordinateToPoint(modelParam['coordinates'], self.size);
+        self.points = coordinatesToPoints(modelParam['coordinates'], self.size);
         self.closed = modelParam['closed'];
         self.geometry.setFromPoints(self.points);
         break;
@@ -225,8 +243,14 @@ const GeometryFactory = function (_scene) {
   
   function modelParam(self) {
     switch (self.type) {
+      case 'Vertices':
+        self.size = self.geometry.getAttribute('position').itemSize
+        self.coordinates = Array.from(self.geometry.getAttribute('position').array)
+        return {size: self.size, coordinates: self.coordinates}
       case 'Segments':
-        return {size: self.size, coordinates: self.geometry.getAttribute('position').array, closed: self.closed};
+        self.size = self.geometry.getAttribute('position').itemSize
+        self.coordinates = Array.from(self.geometry.getAttribute('position').array)
+        return {size: self.size, coordinates: self.coordinates, closed: self.closed};
       case 'Plane':
         return {w: self.scale.x, h: self.scale.y};
       case 'Cuboid':
@@ -303,15 +327,55 @@ const GeometryFactory = function (_scene) {
   }
   
   /* ---------- Geometry Operator ---------- */
-  function coordinateToPoint(array, size) {
+  function coordinatesToPoints(array, size) {
     const points = []
-    for (let i = 0; i < size; ++i) {
-      points.push(new THREE.Vector3(array[i * 3], array[i * 3 + 1], array[i * 3 + 2]))
+    const cnt = array.length / size;
+    if (size === 2) {
+      for (let i = 0; i < cnt; ++i) {
+        points.push(new THREE.Vector2(array[i * 2], array[i * 2 + 1]))
+      }
+      
+    } else if (size === 3) {
+      for (let i = 0; i < cnt; ++i) {
+        points.push(new THREE.Vector3(array[i * 3], array[i * 3 + 1], array[i * 3 + 2]))
+      }
     }
     return points;
   }
   
-  // this.coordinateToPoint = coordinateToPoint;
+  
+  function pointsInsideSegments(segments, area) {
+    let face = ShapeUtils.triangulateShape(segments.points, [])
+    const ret = []
+    for (let f of face) {
+      let tri = [];
+      for (let i = 0; i < 3; ++i) {
+        tri.push(segments.points[f[i]])
+      }
+      let totArea = ShapeUtils.area(tri);
+      pointsInsideTriangle(tri, parseInt(totArea / area), ret)
+    }
+    return ret;
+  }
+  
+  function pointsInsideTriangle(triangle, num, pts) {
+    for (let k = 0; k < num; ++k) {
+      let coeff = []
+      coeff.push(Math.random());
+      coeff.push(Math.random() * (1 - coeff[0]));
+      coeff.push(1 - coeff[0] - coeff[1])
+      let pt = new THREE.Vector3();
+      for (let i = 0; i < 3; ++i) {
+        let v = new THREE.Vector3().copy(triangle[i]).multiplyScalar(coeff[i])
+        pt.add(v)
+      }
+      pts.push(pt);
+    }
+  }
+  
+  // this.coordinatesToPoints = coordinatesToPoints;
+  this.pointsInsideSegments = pointsInsideSegments;
+  this.pointsInsideTriangle = pointsInsideTriangle;
   
 }
 

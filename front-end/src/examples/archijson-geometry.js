@@ -7,6 +7,7 @@ let archijson;
 let reconstructed = [];
 let cl = []
 let l1, f1;
+let pts;
 
 /* ---------- GUI setup ---------- */
 function initGUI() {
@@ -57,13 +58,14 @@ function initScene() {
   
   f1 = geoFty.Prism(l1,
     matFty.Matte(0x0000ff), 5, 1)
-  console.log(l1.modelParam(l1))
+  
+  pts = geoFty.Vertices(geoFty.pointsInsideSegments(l1, 5000), 6)
+  
   // refresh global objects
   ARCH.refreshSelection(scene);
   astMgr.addSelection(cl, 2)
-  astMgr.addSelection([b1, c1, p1, f1], 1);
-  astMgr.setCurrentID(2);
-  
+  astMgr.addSelection([b1, c1, p1, l1, pts], 1);
+  astMgr.setCurrentID(1);
   /* ---------- handle returned object ---------- */
   archijson.parseGeometry = parseGeometry;
 }
@@ -73,12 +75,14 @@ window.searchSceneByUUID = function (uuid) {
 }
 
 
+
 function draw() {
   if (l1 && l1.dragging) {
     
     l1.geometry.setFromPoints((cl.map((handle) => handle.position)))
     f1.updateModel(f1, {segments: l1.modelParam(l1), height: 5, extruded: 1});
-    
+  
+    pts.geometry.setFromPoints(geoFty.pointsInsideSegments(l1, 5000))
   }
   
 }

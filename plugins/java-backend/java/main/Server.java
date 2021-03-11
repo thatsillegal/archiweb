@@ -2,9 +2,8 @@ package main;
 
 import com.google.gson.Gson;
 import converter.WB_Converter;
-import data.ArchiJSON;
-import data.Plane;
-import data.Vertices;
+import geometry.Plane;
+import geometry.Vertices;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 

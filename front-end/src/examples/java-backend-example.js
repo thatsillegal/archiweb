@@ -66,22 +66,8 @@ function initScene() {
   //
   archijson = new ARCH.ArchiJSON(scene, geoFty);
   
-  const geometry = new THREE.BufferGeometry();
-  const material = new THREE.PointsMaterial({size: 10, vertexColors: true});
-  points = new THREE.Points(geometry, material);
-  scene.add(points);
-  
-  points.layer = [0];
-  points.exchange = true;
-  points.toArchiJSON = function () {
-    const position = points.geometry.getAttribute('position');
-    return {
-      type: 'Vertices', matrix: points.matrix.elements,
-      uuid: points.uuid, size: position.itemSize,
-      count: position.count, position: Array.from(position.array)
-    };
-  }
-  
+  points = geoFty.Vertices();
+  points.material.vertexColors = true;
   generatePoints(control.num, control.nx, control.ny);
   
   
@@ -105,6 +91,7 @@ function generatePoints(num, nx, ny) {
     colors.push(x / nx + 0.5, y / ny + 0.5, 0);
   }
   
+  points.size = num;
   points.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   points.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   points.geometry.computeBoundingSphere();

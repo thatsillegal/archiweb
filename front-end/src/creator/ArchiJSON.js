@@ -43,9 +43,7 @@ const ArchiJSON = function (_scene, _geoFty) {
       
       }
     }
-    console.log(geometries);
     socket.emit(eventName, {geometryElements: geometries, properties: properties});
-    console.log('emit: ' + eventName);
   }
   
   socket.on('stb:receiveGeometry', async function (message) {
@@ -61,8 +59,8 @@ const ArchiJSON = function (_scene, _geoFty) {
     })
     lines = [];
     for (let e of geometryElements) {
-      const line = _geoFty.Line();
-      line.geometry.setAttribute('position', new THREE.Float32BufferAttribute(e.positions, e.size));
+      const line = _geoFty.Segments();
+      line.geometry.setAttribute('position', new THREE.Float32BufferAttribute(e.coordinates, e.size));
       lines.push(line);
     }
   }
