@@ -1,7 +1,10 @@
 import * as THREE from 'three'
+import {BufferGeometry, ShapeUtils} from 'three'
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
 import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 import {Wireframe} from "three/examples/jsm/lines/Wireframe";
+import {Geometry, Face3} from "three/examples/jsm/deprecated/Geometry"
+
 
 /**
  *      ___           ___           ___           ___                       ___           ___           ___
@@ -27,7 +30,6 @@ import {Wireframe} from "three/examples/jsm/lines/Wireframe";
  * Author: Yichen Mo
  */
 import {setMaterialDoubleSide, setPolygonOffsetMaterial} from "@/creator/MaterialFactory";
-import {BufferGeometry, ShapeUtils} from "three";
 
 const GeometryFactory = function (_scene) {
   
@@ -114,24 +116,28 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
-  this.Segments = function (points, closed = false, color = 0x000, selectable = false) {
+  this.Segments = function (points, closed = false, color = 0x000, filled = false) {
     let segments;
-    if (closed) {
-      segments = new THREE.LineLoop(
-        new THREE.BufferGeometry(),
-        new THREE.LineBasicMaterial({color: color})
-      );
-      
-    } else {
-      segments = new THREE.Line(
-        new THREE.BufferGeometry(),
-        new THREE.LineBasicMaterial({color: color})
-      );
-    }
-    if (selectable)
+    
+    if (filled && closed) {
+      const shape = new THREE.ShapeGeometry(new THREE.Shape().setFromPoints(points));
+      segments = new THREE.Mesh(shape, new THREE.MeshPhongMaterial({color: color, specular: 0x111111, shininess: 1}))
       sceneAddMesh(_scene, segments, false);
-    else
+    } else {
+      if (closed) {
+        segments = new THREE.LineLoop(
+          new THREE.BufferGeometry(),
+          new THREE.LineBasicMaterial({color: color})
+        );
+        
+      } else {
+        segments = new THREE.Line(
+          new THREE.BufferGeometry(),
+          new THREE.LineBasicMaterial({color: color})
+        );
+      }
       sceneAddMesh(_scene, segments, false, false, []);
+    }
     
     segments.type = 'Segments';
     segments.closed = closed;
@@ -177,14 +183,41 @@ const GeometryFactory = function (_scene) {
     mesh.position.z = height;
     mesh.scale.z = extruded;
     sceneAddMesh(_scene, mesh, showEdge)
+  
+    publicProperties(mesh);
+    return mesh;
+  }
+  
+  this.Mesh = function (vertices, faces, material) {
+    if (!material) material = new THREE.MeshPhongMaterial({color: 0xdddddd, side: THREE.DoubleSide});
+    const geometry = new Geometry();
     
+    geometry.vertices = coordinatesToPoints(vertices.coordinates, vertices.size);
+    
+    for (let i = 0; i < faces.count[0]; ++i) {
+      geometry.faces.push(new Face3(faces.index[i * 3], faces.index[i * 3 + 1], faces.index[i * 3 + 2]));
+    }
+    
+    geometry.computeBoundingBox();
+    geometry.computeFaceNormals();
+    geometry.normalsNeedUpdate = true;
+    
+    const mesh = new THREE.Mesh(geometry.toBufferGeometry(), material);
+    mesh.type = 'Mesh';
+    
+    mesh.center = getPointsCenter(coordinatesToPoints(vertices.coordinates, vertices.size));
+    mesh.geometry.translate(-mesh.center.x, -mesh.center.y, 0);
+    mesh.position.x = mesh.center.x;
+    mesh.position.y = mesh.center.y;
+    
+    sceneAddMesh(_scene, mesh);
     publicProperties(mesh);
     return mesh;
   }
   
   
   function getPointsCenter(points) {
-    const v = new THREE.Vector2();
+    const v = new THREE.Vector3();
     points.forEach((pt) => {
       v.add(pt);
     })

@@ -37,12 +37,10 @@ const ArchiJSON = function (_scene, _geoFty) {
   
   this.sendArchiJSON = function (eventName, objects, properties = {}) {
     let geometries = [];
-    for (let obj of objects) {
-      if (obj.exchange) {
-        geometries.push(obj.toArchiJSON());
-      
-      }
+    for (let obj of objects) if (obj.exchange) {
+      geometries.push(obj.toArchiJSON());
     }
+  
     socket.emit(eventName, {geometryElements: geometries, properties: properties});
   }
   
