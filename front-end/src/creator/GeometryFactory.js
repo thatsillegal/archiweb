@@ -1,9 +1,8 @@
 import * as THREE from 'three'
-import {BufferGeometry, ShapeUtils} from 'three'
+import {BufferGeometry, Float32BufferAttribute, ShapeUtils} from 'three'
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
 import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 import {Wireframe} from "three/examples/jsm/lines/Wireframe";
-import {Geometry, Face3} from "three/examples/jsm/deprecated/Geometry"
 
 
 /**
@@ -189,28 +188,28 @@ const GeometryFactory = function (_scene) {
   }
   
   this.Mesh = function (vertices, faces, material) {
-    if (!material) material = new THREE.MeshPhongMaterial({color: 0xdddddd, side: THREE.DoubleSide});
-    const geometry = new Geometry();
-    
-    geometry.vertices = coordinatesToPoints(vertices.coordinates, vertices.size);
-    
-    for (let i = 0; i < faces.count[0]; ++i) {
-      geometry.faces.push(new Face3(faces.index[i * 3], faces.index[i * 3 + 1], faces.index[i * 3 + 2]));
-    }
-    
+    if (!material) material = new THREE.MeshPhongMaterial({color: 0xdddddd, side: THREE.DoubleSide, flatShading: true});
+    const geometry = new THREE.BufferGeometry();
+  
+    geometry.setAttribute('position', new Float32BufferAttribute(vertices.coordinates, vertices.size))
+    geometry.setIndex(faces.index)
+  
     geometry.computeBoundingBox();
-    geometry.computeFaceNormals();
+    geometry.computeVertexNormals();
     geometry.normalsNeedUpdate = true;
-    
-    const mesh = new THREE.Mesh(geometry.toBufferGeometry(), material);
+  
+    const mesh = new THREE.Mesh(geometry, material);
     mesh.type = 'Mesh';
-    
+  
     mesh.center = getPointsCenter(coordinatesToPoints(vertices.coordinates, vertices.size));
     mesh.geometry.translate(-mesh.center.x, -mesh.center.y, 0);
     mesh.position.x = mesh.center.x;
     mesh.position.y = mesh.center.y;
-    
+  
     sceneAddMesh(_scene, mesh);
+  
+    mesh.vertices = vertices;
+    mesh.faces = faces;
     publicProperties(mesh);
     return mesh;
   }
@@ -294,6 +293,15 @@ const GeometryFactory = function (_scene) {
         return {segments: modelParam(self.segments), height: self.position.z, extrude: self.scale.z};
       case 'Sphere':
         return {r: self.scale.x};
+      case 'Mesh':
+        return {
+          vertices: self.vertices, faces: {
+            type: 'Faces',
+            count: [self.faces.index.length / 3],
+            size: [3],
+            index: self.faces.index
+          }
+        }
       default:
         return {};
     }

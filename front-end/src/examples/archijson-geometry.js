@@ -1,4 +1,5 @@
 import * as ARCH from "@/archiweb"
+import {building} from "@/assets/models/csg";
 // import * as THREE from "three";
 
 let scene, renderer, gui;
@@ -8,6 +9,7 @@ let reconstructed = [];
 let balls = []
 let segments, prism;
 let vertices;
+let mesh;
 
 /* ---------- GUI setup ---------- */
 function initGUI() {
@@ -72,10 +74,14 @@ function initScene() {
   /* ---------- generate points each 5000 area ---------- */
   vertices = geoFty.Vertices(geoFty.pointsInsideSegments(segments, 5000), 6)
   
+  
+  /* ---------- generate mesh ---------- */
+  mesh = geoFty.Mesh({coordinates: building.verts.flat(), size: 3}, {index: building.faces.flat()}, matFty.Flat())
+  
   /* ---------- refresh global objects ---------- */
   ARCH.refreshSelection(scene);
   astMgr.addSelection(balls, 2)
-  astMgr.addSelection([cuboid, cylinder, plane, segments, vertices], 1);
+  astMgr.addSelection([cuboid, cylinder, plane, segments, vertices, mesh], 1);
   astMgr.setCurrentID(1);
   
   

@@ -30,7 +30,7 @@ const MaterialFactory = function () {
   }
   
   this.Flat = function (color = 0xdddddd) {
-    return new THREE.MeshLambertMaterial({color: color})
+    return new THREE.MeshPhongMaterial({color: color, flatShading: true})
   }
   
   this.Plastic = function (color = 0xdddddd) {
