@@ -414,7 +414,7 @@ const GeometryFactory = function (_scene) {
     }
   }
   
-  // this.coordinatesToPoints = coordinatesToPoints;
+  this.coordinatesToPoints = coordinatesToPoints;
   this.pointsInsideSegments = pointsInsideSegments;
   this.pointsInsideTriangle = pointsInsideTriangle;
   
