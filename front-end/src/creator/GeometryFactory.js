@@ -437,10 +437,14 @@ const GeometryFactory = function (_scene) {
     let pts = coordinatesToPoints(coordinates, 3);
     let n = pts.length;
     let id = 0;
-    for (let i = 0; i < n; ++i) if (pts[i].y > pts[id].y) {
-      id = i;
+    for (let i = 0; i < n; ++i) {
+      if (pts[i].y > pts[id].y) {
+        id = i;
+      } else if (Math.abs(pts[i].y - pts[id].y) < 1e-6 && pts[i].z > pts[id].z) {
+        id = i;
+      }
     }
-    
+  
     const v0 = new THREE.Vector3().subVectors(pts[(id - 1 + n) % n], pts[id]);
     const v1 = new THREE.Vector3().subVectors(pts[(id + 1) % n], pts[id]);
     const normal = v0.cross(v1).normalize();
