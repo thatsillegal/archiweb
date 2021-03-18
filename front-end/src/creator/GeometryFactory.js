@@ -132,6 +132,9 @@ const GeometryFactory = function (_scene) {
       segments.center = getPointsCenter(points);
       segments.geometry.translate(-segments.center.x, -segments.center.y, -segments.center.z);
       segments.position.copy(segments.center);
+      segments.points = points;
+      segments.size = segments.geometry.getAttribute('position').itemSize;
+      segments.coordinates = Array.from(segments.geometry.getAttribute('position').array);
   
       sceneAddMesh(_scene, segments, true);
     } else {
@@ -151,14 +154,14 @@ const GeometryFactory = function (_scene) {
   
       if (points) {
         segments.geometry.setFromPoints(points);
+        segments.points = points;
+        segments.size = segments.geometry.getAttribute('position').itemSize;
+        segments.coordinates = Array.from(segments.geometry.getAttribute('position').array);
       }
     }
   
     segments.type = 'Segments';
     segments.closed = closed;
-    segments.points = points;
-    segments.size = segments.geometry.getAttribute('position').itemSize;
-    segments.coordinates = Array.from(segments.geometry.getAttribute('position').array);
   
     publicProperties(segments);
     return segments;

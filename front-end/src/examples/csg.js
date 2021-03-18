@@ -49,8 +49,9 @@ function initScene() {
   geoFty.Segments(geoFty.coordinatesToPoints(dddd.flat(), 3), true, 0xeeeeee, true);
   
   
-  geoFty.Mesh(polygonmesh.vertices, polygonmesh.faces, matFty.Flat());
+  let polymesh = geoFty.Mesh(polygonmesh.vertices, polygonmesh.faces, matFty.Flat());
   
+  //
   ARCH.refreshSelection(scene);
 }
 
