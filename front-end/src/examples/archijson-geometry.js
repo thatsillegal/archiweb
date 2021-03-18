@@ -62,12 +62,21 @@ function initScene() {
   
   const plane = geoFty.Plane([-600, 300, 5], [600, 600], matFty.Matte(0xff00ff), true)
   
-  const points = [[-190, 730, 6], [320, 940, 6], [520, 640, 6], [240, 410, 6], [50, 500, 6], [-110, 460, 6]]
+  // let points = [[-190, 730, 6], [320, 940, 6], [520, 640, 6], [240, 410, 6], [50, 500, 6], [-110, 460, 6]]
+  let points = [
+    [-110, 460, 6],
+    [50, 500, 6],
+    [240, 410, 6],
+    [520, 640, 6],
+    [320, 940, 6],
+    [-190, 730, 6]
+  ]
+  // points = points.reverse();
   points.forEach((p) => balls.push(geoFty.Sphere(p, 10, matFty.Flat(0xff0000))));
   
   segments = geoFty.Segments(balls.map((handle) => handle.position), true);
   balls.forEach((c) => c.parent = segments);
-  
+  //
   prism = geoFty.Prism(segments,
     matFty.Matte(0x0000ff), 5, 1)
   
@@ -76,7 +85,8 @@ function initScene() {
   
   
   /* ---------- generate mesh ---------- */
-  mesh = geoFty.Mesh({coordinates: building.verts.flat(), size: 3}, {index: building.faces.flat()}, matFty.Flat())
+  mesh = geoFty.Mesh({coordinates: building.verts.flat(), size: 3}, {index: building.faces.flat()}, matFty.Flat());
+  // mesh = geoFty.Mesh(polygonmesh.vertices, polygonmesh.faces, matFty.Flat())
   
   /* ---------- refresh global objects ---------- */
   ARCH.refreshSelection(scene);

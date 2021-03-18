@@ -3,6 +3,7 @@ import {BufferGeometry, Float32BufferAttribute, ShapeUtils} from 'three'
 import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
 import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 import {Wireframe} from "three/examples/jsm/lines/Wireframe";
+import * as earcut from "earcut";
 
 
 /**
@@ -119,16 +120,27 @@ const GeometryFactory = function (_scene) {
     let segments;
     
     if (filled && closed) {
-      const shape = new THREE.ShapeGeometry(new THREE.Shape().setFromPoints(points));
-      segments = new THREE.Mesh(shape, new THREE.MeshPhongMaterial({color: color, specular: 0x111111, shininess: 1}))
-      sceneAddMesh(_scene, segments, false);
+      const fill = new THREE.BufferGeometry();
+      const coords = pointsToCoordinates(points);
+      fill.setAttribute('position', new Float32BufferAttribute(coords, 3));
+      fill.setIndex(triangulatePolygon(coords));
+      fill.computeVertexNormals();
+  
+      segments = new THREE.Mesh(fill, new THREE.MeshPhongMaterial({color: color}));
+  
+      /* ---------- translate ---------- */
+      segments.center = getPointsCenter(points);
+      segments.geometry.translate(-segments.center.x, -segments.center.y, -segments.center.z);
+      segments.position.copy(segments.center);
+  
+      sceneAddMesh(_scene, segments, true);
     } else {
       if (closed) {
         segments = new THREE.LineLoop(
           new THREE.BufferGeometry(),
           new THREE.LineBasicMaterial({color: color})
         );
-        
+  
       } else {
         segments = new THREE.Line(
           new THREE.BufferGeometry(),
@@ -136,16 +148,18 @@ const GeometryFactory = function (_scene) {
         );
       }
       sceneAddMesh(_scene, segments, false, false, []);
+  
+      if (points) {
+        segments.geometry.setFromPoints(points);
+      }
     }
-    
+  
     segments.type = 'Segments';
     segments.closed = closed;
-    if (points) {
-      segments.geometry.setFromPoints(points);
-      segments.size = segments.geometry.getAttribute('position').itemSize;
-      segments.coordinates = Array.from(segments.geometry.getAttribute('position').array);
-      segments.points = points;
-    }
+    segments.points = points;
+    segments.size = segments.geometry.getAttribute('position').itemSize;
+    segments.coordinates = Array.from(segments.geometry.getAttribute('position').array);
+  
     publicProperties(segments);
     return segments;
   }
@@ -192,7 +206,7 @@ const GeometryFactory = function (_scene) {
     const geometry = new THREE.BufferGeometry();
   
     geometry.setAttribute('position', new Float32BufferAttribute(vertices.coordinates, vertices.size))
-    geometry.setIndex(faces.index)
+    geometry.setIndex(triangulateFace(coordinatesToPoints(vertices.coordinates, vertices.size), faces))
   
     geometry.computeBoundingBox();
     geometry.computeVertexNormals();
@@ -295,12 +309,7 @@ const GeometryFactory = function (_scene) {
         return {r: self.scale.x};
       case 'Mesh':
         return {
-          vertices: self.vertices, faces: {
-            type: 'Faces',
-            count: [self.faces.index.length / 3],
-            size: [3],
-            index: self.faces.index
-          }
+          vertices: self.vertices, faces: self.faces
         }
       default:
         return {};
@@ -368,6 +377,12 @@ const GeometryFactory = function (_scene) {
   }
   
   /* ---------- Geometry Operator ---------- */
+  function pointsToCoordinates(points) {
+    const coords = []
+    points.forEach((p) => coords.push(p.x, p.y, p.z));
+    return coords;
+  }
+  
   function coordinatesToPoints(array, size) {
     const points = []
     const cnt = array.length / size;
@@ -384,16 +399,76 @@ const GeometryFactory = function (_scene) {
     return points;
   }
   
+  function triangulateFace(points, faces) {
+    const index = [];
+    if (!faces.size) faces.size = [3];
+    if (!faces.count) faces.count = [faces.index.length / 3];
+    
+    let cur = 0;
+    for (let k in faces.count) {
+      let cnt = faces.count[k];
+      let size = faces.size[k];
+      for (let i = 0; i < cnt; ++i) {
+        const pts = [];
+        const idx = [];
+        for (let j = 0; j < size; ++j) {
+          const id = faces.index[cur + i * size + j];
+          idx.push(id)
+          pts.push(points[id])
+        }
+        // index.push(triangulatePolygon(pointsTocoordinates(pts)));
+        const fs = triangulatePolygon(pointsToCoordinates(pts));
+        fs.forEach((f) => index.push(idx[f]));
+      }
+      cur += cnt * size;
+    }
+    return index;
+  }
+  
+  /**
+   *
+   * @param coordinates
+   * @returns index a list of face
+   */
+  function triangulatePolygon(coordinates) {
+    // let index = earcut(coordinates, null, 3);
+    // if(index.length === 0) {
+    // console.log(JSON.parse(JSON.stringify(coordinates)))
+    let pts = coordinatesToPoints(coordinates, 3);
+    let n = pts.length;
+    let id = 0;
+    for (let i = 0; i < n; ++i) if (pts[i].y > pts[id].y) {
+      id = i;
+    }
+    
+    const v0 = new THREE.Vector3().subVectors(pts[(id - 1 + n) % n], pts[id]);
+    const v1 = new THREE.Vector3().subVectors(pts[(id + 1) % n], pts[id]);
+    const normal = v0.cross(v1).normalize();
+    const z = new THREE.Vector3(0, 0, 1);
+    const axis = new THREE.Vector3().crossVectors(normal, z);
+    const theta = normal.angleTo(z);
+    // console.log(normal, axis, theta)
+    let m;
+    if (axis.length() < 1e-6)
+      m = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), Math.PI - theta);
+    else m = new THREE.Matrix4().makeRotationAxis(axis, -theta);
+    pts.forEach((pt) => pt.applyMatrix4(m));
+    // console.log(pts)
+    const index = earcut(pointsToCoordinates(pts), null, 3);
+    return index.flat();
+  }
+  
   
   function pointsInsideSegments(segments, area) {
-    let face = ShapeUtils.triangulateShape(segments.points, [])
+    const face = triangulatePolygon(pointsToCoordinates(segments.points));
     const ret = []
-    for (let f of face) {
+    let cnt = face.length / 3;
+    for (let i = 0; i < cnt; ++i) {
       let tri = [];
-      for (let i = 0; i < 3; ++i) {
-        tri.push(segments.points[f[i]])
+      for (let j = 0; j < 3; ++j) {
+        tri.push(segments.points[face[i * 3 + j]]);
       }
-      let totArea = ShapeUtils.area(tri);
+      let totArea = Math.abs(ShapeUtils.area(tri));
       pointsInsideTriangle(tri, parseInt(totArea / area), ret)
     }
     return ret;

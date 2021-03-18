@@ -2,9 +2,7 @@
 
 import * as ARCH from "@/archiweb"
 import * as THREE from "three"
-import {building} from "@/assets/models/csg";
-import {ShapeUtils} from "three";
-import * as earcut from "earcut";
+import {building, polygonmesh} from "@/assets/models/csg";
 
 let scene, renderer, gui, camera;
 let geoFty, matFty;
@@ -16,9 +14,6 @@ function initScene() {
   geoFty = new ARCH.GeometryFactory(scene);
   matFty = new ARCH.MaterialFactory();
   const geometry = new THREE.BufferGeometry();
-// create a simple square shape. We duplicate the top left and bottom right
-// vertices because each vertex needs to appear once per triangle.
-  
   
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(building.verts.flat(), 3))
   geometry.setIndex(building.faces.flat())
@@ -28,26 +23,33 @@ function initScene() {
   const material = new THREE.MeshPhongMaterial({color: 0xdddddd, flatShading: true});
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.x = -600;
-  
-  const position = [-200, 0, 0, 0, 0, -100, 200, 0, 0, 0, 0, 100];
-  // 200, 0, 0];
-  // const position = [-200, 0, 0, 0, -100, 0, 200, 0, 0, 0, 100, 0];
-  // const position = [10,0,1, 0,50,2, 60,60,3, 70,10,4];
-  console.log(geoFty.coordinatesToPoints(position, 3))
-  const ix = earcut(position, null, 3);
-  console.log(ix)
-  const plane = new THREE.PlaneGeometry(100, 100);
-  const index = [0, 1, 3, 1, 2, 3]
-  plane.setAttribute('position', new THREE.Float32BufferAttribute(position, 3))
-  plane.setIndex(index)
-  // plane.vertices = geoFty.coordinatesToPoints(position, 3);
-  plane.computeFaceNormals()
-  plane.computeVertexNormals()
-  
-  ARCH.sceneAddMesh(scene, new THREE.Mesh(plane, matFty.Doubled()))
-  
-  scene.add(new THREE.Mesh(plane, matFty.Flat()));
   ARCH.sceneAddMesh(scene, mesh)
+  
+  const position = [
+    -50, 0, 0,
+    50, 0, 0,
+    50, 0, 100,
+    200, 0, 100,
+    200, 0, 300,
+    -50, 0, 300
+  ];
+  let pts = geoFty.coordinatesToPoints(position, 3);
+  
+  let segs = geoFty.Segments(pts, true, 0xdddddd, true);
+  segs.position.y = -600;
+  let dddd = [
+    [-110, 460, 6],
+    [50, 500, 6],
+    [240, 410, 6],
+    [520, 640, 6],
+    [320, 940, 6],
+    [-190, 730, 6]
+  ]
+  
+  geoFty.Segments(geoFty.coordinatesToPoints(dddd.flat(), 3), true, 0xeeeeee, true);
+  
+  
+  geoFty.Mesh(polygonmesh.vertices, polygonmesh.faces, matFty.Flat());
   
   ARCH.refreshSelection(scene);
 }
