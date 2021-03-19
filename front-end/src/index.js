@@ -22,11 +22,9 @@ function initScene() {
   
   const b3 = gb.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
   
-  const b4 = gb.Cylinder([330, 430, 0], [50, 100], mt.Matte(), true);
-  
 
   assetManager.refreshSelection(scene);
-  assetManager.addSelection([b1, b2, b3, b4], 1);
+  assetManager.addSelection([b1, b2, b3], 1);
   assetManager.setCurrentID(1);
   
 }
