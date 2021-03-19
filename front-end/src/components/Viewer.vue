@@ -39,8 +39,13 @@ export default {
   components: {ViewSelectCard, InfoCard},
   data: () => ({}),
   mounted() {
-    const test = require('@/examples' + this.$route.path + '.js');
-    test.main();
+    if(this.$route.path === '/') {
+      const index = require('@/index.js');
+      index.main();
+    } else {
+      const examples = require('@/examples' + this.$route.path + '.js');
+      examples.main();
+    }
   },
   
 }
