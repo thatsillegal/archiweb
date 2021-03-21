@@ -44,6 +44,6 @@
     <orderEntry type="library" name="Maven: com.squareup.okio:okio:1.13.0" level="project" />
     <orderEntry type="library" name="Maven: org.json:json:20090211" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.6" level="project" />
-    <orderEntry type="library" name="Maven: inst.aaa:archijson:0.1.0" level="project" />
+    <orderEntry type="module" module-name="archijson" />
   </component>
 </module>
