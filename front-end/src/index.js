@@ -2,6 +2,7 @@
 "use strict";
 import * as THREE from 'three'
 import * as ARCH from "@/archiweb"
+import * as PriorityQueue from "priorityqueuejs"
 
 let renderer, scene, gui;
 
@@ -9,15 +10,19 @@ let camera;
 const xoy = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 const raycaster = new THREE.Raycaster();
 let mouse;
+const balls = [];
+let segs = [];
 
 let gf, am, tr, mt;
 
 const param = {
-  color: 0xdddddd
+  color: 0xdddddd,
+  size: 10
 }
 
 function initGUI() {
-  gui.gui.addColor(param, 'color').listen().onChange(() => {
+  gui.gui.add(param, 'size').name('ball size')
+  gui.gui.addColor(param, 'color').name('ball color').listen().onChange(() => {
     if (currentObj)
       currentObj.material.color = new THREE.Color(param.color);
     
@@ -31,27 +36,74 @@ function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
-  const b1 = gf.Cuboid([150, 150, 0], [300, 300, 300], mt.Matte());
   
-  const b2 = gf.Cuboid([-300, -300, 0], [300, 300, 100], mt.Matte());
+  let points = [
+    [-110, 460, 6],
+    [50, 500, 6],
+    [240, 410, 6],
+    [520, 640, 6],
+    [320, 940, 6],
+    [-190, 730, 6]
+  ]
+  // points = points.reverse();
+  points.forEach((p) => balls.push(gf.Sphere(p, 10, mt.Flat(0xff0000))));
   
-  const b3 = gf.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
   
+  spanningTree(balls.map((c) => c.position));
   
   am.refreshSelection(scene);
-  am.addSelection([b1, b2, b3], 1);
+  am.addSelection(balls, 1);
   am.setCurrentID(1);
   
 }
 
 let currentObj = undefined;
 
+function spanningTree(positions) {
+  const pq = new PriorityQueue(function (a, b) {
+    return b.dist - a.dist;
+  });
+  const mn = new Array(positions.length).fill(0x3f3f3f3f);
+  const vis = new Array(positions.length).fill(0);
+  mn[0] = 0;
+  pq.enq({dist: 0, node: 0})
+  const edge = []
+  while (pq.size() > 0) {
+    let p = pq.deq();
+    let u = p.node;
+    if (vis[u] === 0 && p._from !== undefined) {
+      edge.push({u: p._from, v: u, dist: p.dist});
+    }
+    vis[u] = 1;
+    for (let v = 0; v < positions.length; ++v) {
+      if (v === u) continue;
+      let w = positions[u].distanceTo(positions[v]);
+      if (mn[v] > w) {
+        mn[v] = w;
+        pq.enq({dist: w, node: v, _from: u});
+      }
+    }
+  }
+  segs.forEach((e) => e.parent.remove(e));
+  segs = [];
+  for (let e of edge) {
+    segs.push(
+      gf.Segments([positions[e.u], positions[e.v]])
+    )
+  }
+}
 
 function objectChanged(o) {
   currentObj = o;
   am.highlightCurrent();
-  if (o) {
+  if (o && !o.isGroup) {
     param.color = o.material.color.getHex();
+  }
+}
+
+function draggingChanged(o, event) {
+  if (!event && balls.includes(o)) {
+    spanningTree(balls.map((c) => c.position));
   }
 }
 
@@ -72,11 +124,13 @@ function addMouseEvent() {
   }
 }
 
-function addBox() {
+function addSphere() {
   raycaster.setFromCamera(mouse, camera);
   let p = raycaster.ray.intersectPlane(xoy, new THREE.Vector3());
-  let h = Math.round(Math.random() * 1000);
-  let b = gf.Cuboid([p.x, p.y, p.z], [300, 300, h], mt.Matte())
+  let b = gf.Sphere([p.x, p.y, 6], 10, mt.Flat(0xff0000));
+  balls.push(b);
+  spanningTree(balls.map((c) => c.position));
+  
   am.addSelection([b], 1);
   am.refreshSelection(scene);
 }
@@ -89,7 +143,7 @@ function addKeyEvent() {
   function onDocumentKeyDown(event) {
     switch (event.keyCode) {
       case 65:
-        addBox();
+        addSphere();
         console.log('a down')
       
     }
@@ -123,6 +177,8 @@ function main() {
   viewport.enableDragFrames();
   tr = viewport.enableTransformer();
   tr.objectChanged = objectChanged;
+  tr.draggingChanged = draggingChanged;
+  
   
   initScene();
   
