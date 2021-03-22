@@ -7,7 +7,7 @@ const examples = [
   '2d-editor', '3d-editor', 'camera-viewer',
   'marching-cubes', 'material-example', 'shape-2d',
   'undo-redo-canvas', 'image-3d', 'java-backend-example',
-  'archijson-geometry', 'csg'
+  'archijson-geometry', 'csg', 'interactive-spanning-tree'
 ]
 const routes = [];
 examples.forEach((item) => {
