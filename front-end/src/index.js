@@ -4,33 +4,41 @@ import * as THREE from 'three'
 import * as ARCH from "@/archiweb"
 import * as PriorityQueue from "priorityqueuejs"
 
-let renderer, scene, gui;
+let renderer, scene, gui, camera, mouse;
 
-let camera;
 const xoy = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 const raycaster = new THREE.Raycaster();
-let mouse;
+
 const balls = [];
-let segs = [];
+let segs = [], bg;
 
 let gf, am, tr, mt;
 
 const param = {
+  changing: false,
   color: 0xdddddd,
   size: 10
 }
 
 function initGUI() {
-  gui.gui.add(param, 'size').name('ball size')
-  gui.gui.addColor(param, 'color').name('ball color').listen().onChange(() => {
+  gui.gui.add(param, 'size', 10, 50).listen().onChange(() => {
+    if (currentObj) {
+      currentObj.scale.x = param.size;
+      currentObj.scale.y = param.size;
+    }
+  })
+  gui.gui.addColor(param, 'color').listen().onChange(() => {
     if (currentObj)
       currentObj.material.color = new THREE.Color(param.color);
-    
   });
+  gui.gui.add(param, 'changing').name('keep changing');
 }
 
 function initScene() {
   scene.background = new THREE.Color(0xfafafa);
+  const light = new THREE.SpotLight(0xffffff, 1.5);
+  light.position.set(0, 0, 1000);
+  scene.add(light);
   
   
   gf = new ARCH.GeometryFactory(scene);
@@ -38,16 +46,18 @@ function initScene() {
   
   
   let points = [
-    [-110, 460, 6],
-    [50, 500, 6],
-    [240, 410, 6],
-    [520, 640, 6],
-    [320, 940, 6],
-    [-190, 730, 6]
+    [-110, 460, 0],
+    [50, 500, 0],
+    [240, 410, 0],
+    [520, 640, 0],
+    [320, 940, 0],
+    [-190, 730, 0]
   ]
   // points = points.reverse();
-  points.forEach((p) => balls.push(gf.Sphere(p, 10, mt.Flat(0xff0000))));
-  
+  points.forEach((p) => balls.push(gf.Cylinder(p, [10, 10], mt.Flat(0xff0000), true)));
+  bg = gf.Cuboid();
+  bg.visible = false;
+  balls.forEach((c) => c.parent = bg);
   
   spanningTree(balls.map((c) => c.position));
   
@@ -98,6 +108,7 @@ function objectChanged(o) {
   am.highlightCurrent();
   if (o && !o.isGroup) {
     param.color = o.material.color.getHex();
+    param.size = o.scale.x;
   }
 }
 
@@ -107,16 +118,25 @@ function draggingChanged(o, event) {
   }
 }
 
+function deleteChanged(o) {
+  console.log('delete changed')
+  let index = balls.indexOf(o);
+  if (index > -1) {
+    balls.splice(index, 1);
+    spanningTree(balls.map((c) => c.position));
+  }
+}
+
 function updateObject(uuid, model) {
   const o = scene.getObjectByProperty('uuid', uuid);
   o.updateModel(o, model);
+  spanningTree(balls.map((c) => c.position))
 }
 
 function addMouseEvent() {
   renderer.domElement.addEventListener('mousemove', onMove, false);
   
   function onMove(event) {
-    // console.log(event)
     mouse = new THREE.Vector2(
       (event.clientX / window.innerWidth) * 2 - 1,
       -(event.clientY / window.innerHeight) * 2 + 1
@@ -127,7 +147,8 @@ function addMouseEvent() {
 function addSphere() {
   raycaster.setFromCamera(mouse, camera);
   let p = raycaster.ray.intersectPlane(xoy, new THREE.Vector3());
-  let b = gf.Sphere([p.x, p.y, 6], 10, mt.Flat(0xff0000));
+  let b = gf.Cylinder([p.x, p.y, 0], [10, 10], mt.Flat(0xff0000), true);
+  b.parent = bg;
   balls.push(b);
   spanningTree(balls.map((c) => c.position));
   
@@ -151,41 +172,37 @@ function addKeyEvent() {
   
   function onDocumentKeyUp(event) {
     switch (event.keyCode) {
-      // case 16: // Shift
-      //   controller.enablePan = false;
-      //   break;
       case 65:
-        
         console.log('a up')
-      
-      
     }
   }
 }
 
+function draw() {
+  if (param.changing && bg.dragging) {
+    spanningTree(balls.map((c) => c.position));
+  }
+}
 
 function main() {
   const viewport = new ARCH.Viewport();
   scene = viewport.scene;
   renderer = viewport.renderer;
   gui = viewport.gui;
-  camera = viewport.camera;
+  camera = viewport.to2D();
   
-  // viewport.draw = draw;
+  viewport.draw = draw;
   
   am = viewport.enableAssetManager();
-  viewport.enableDragFrames();
   tr = viewport.enableTransformer();
+  tr.control.showZ = false;
   tr.objectChanged = objectChanged;
   tr.draggingChanged = draggingChanged;
+  tr.deleteChanged = deleteChanged;
   
   
   initScene();
   
-  const sceneBasic = new ARCH.SceneBasic(scene, renderer);
-  sceneBasic.addGUI(gui.gui);
-  sceneBasic.floorColor = '#ffffff';
-  sceneBasic.floor.material.color.set(sceneBasic.floorColor);
   initGUI();
   addKeyEvent();
   addMouseEvent();

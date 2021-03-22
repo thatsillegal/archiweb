@@ -102,6 +102,11 @@ const Transformer = function (_scene, _renderer, _camera) {
     // console.log(o);
   }
   
+  // eslint-disable-next-line no-unused-vars
+  function deleteChanged(o) {
+  
+  }
+  
   function init() {
     control = new TransformControls(_camera, _renderer.domElement);
     
@@ -317,7 +322,7 @@ const Transformer = function (_scene, _renderer, _camera) {
         scope._dragFrames.enabled = false;
     }
   }
-  
+
   
   function deleteObject(object) {
     if (object === undefined) return;
@@ -325,6 +330,14 @@ const Transformer = function (_scene, _renderer, _camera) {
     if (!object.isGroup) {
       console.log(object)
       object.parent.remove(object);
+      // console.log(_scene.getObjectById(parseInt(object.uuid)))
+      // if(_scene.getObjectById(object.uuid) !== undefined)
+      try {
+        _scene.remove(object)
+      } catch (e) {
+        console.log(e)
+      }
+      scope.deleteChanged(object);
     } else {
       while (object.children.length > 0) {
         object.children.forEach((item) => {
@@ -431,7 +444,7 @@ const Transformer = function (_scene, _renderer, _camera) {
         control.setMode("translate");
         scope.mode = 0;
         break;
-      
+  
       case 69: // E
         control.setMode("rotate");
         scope.mode = 1;
@@ -465,21 +478,22 @@ const Transformer = function (_scene, _renderer, _camera) {
       case 109: // -, _, num-
         control.setSize(Math.max(control.size - 0.1, 0.1));
         break;
-      
+  
       case 18: // alt
         copy = !copy;
         break;
-      
+  
       case 32: // space bar
         clear();
-        
+    
         break;
-      
+  
+      case 68: // D
       case 46: // delete
         deleteSelected();
-  
+    
         break;
-      
+  
       case 16: // shift
         shiftDown = true;
     }
@@ -573,6 +587,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   this.highlightCurrent = highlightCurrent;
   this.objectChanged = objectChanged;
   this.draggingChanged = draggingChanged;
+  this.deleteChanged = deleteChanged;
   
   this.translateionSnap = 100;
   this.rotationSnap = 15;
