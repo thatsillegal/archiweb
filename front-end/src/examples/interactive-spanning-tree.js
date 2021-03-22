@@ -8,10 +8,11 @@ let renderer, scene, gui, camera, mouse;
 const xoy = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 const raycaster = new THREE.Raycaster();
 
-const balls = [];
+let balls = [];
 let segs = [], bg;
 
 let gf, am, tr, mt;
+let currentObj = undefined;
 
 const param = {
   changing: false,
@@ -35,7 +36,7 @@ function initGUI() {
 
 function initScene() {
   scene.background = new THREE.Color(0xfafafa);
-  const light = new THREE.SpotLight(0xffffff, 1.5);
+  const light = new THREE.SpotLight(0xffffff, 0.931);
   light.position.set(0, 0, 1000);
   scene.add(light);
   
@@ -44,6 +45,7 @@ function initScene() {
   mt = new ARCH.MaterialFactory();
   
   
+  balls = [];
   for (let i = 0; i < 10; ++i) {
     let p = [Math.random() * 1200 - 600, Math.random() * 800 - 400];
     balls.push(gf.Cylinder(p, [10, 10], mt.Flat(Math.random() * 0xffffff), true))
@@ -60,7 +62,18 @@ function initScene() {
   
 }
 
-let currentObj = undefined;
+function addSphere() {
+  raycaster.setFromCamera(mouse, camera);
+  let p = raycaster.ray.intersectPlane(xoy, new THREE.Vector3());
+  let b = gf.Cylinder([p.x, p.y, 0], [10, 10], mt.Flat(Math.random() * 0xffffff), true);
+  b.parent = bg;
+  balls.push(b);
+  spanningTree(balls.map((c) => c.position));
+  
+  am.addSelection([b], 1);
+  am.refreshSelection(scene);
+}
+
 
 function spanningTree(positions) {
   const pq = new PriorityQueue(function (a, b) {
@@ -137,17 +150,7 @@ function addMouseEvent() {
   }
 }
 
-function addSphere() {
-  raycaster.setFromCamera(mouse, camera);
-  let p = raycaster.ray.intersectPlane(xoy, new THREE.Vector3());
-  let b = gf.Cylinder([p.x, p.y, 0], [10, 10], mt.Flat(Math.random() * 0xffffff), true);
-  b.parent = bg;
-  balls.push(b);
-  spanningTree(balls.map((c) => c.position));
-  
-  am.addSelection([b], 1);
-  am.refreshSelection(scene);
-}
+
 
 
 function addKeyEvent() {
@@ -159,7 +162,7 @@ function addKeyEvent() {
       case 65:
         addSphere();
         console.log('a down')
-      
+  
     }
   }
   
@@ -169,6 +172,15 @@ function addKeyEvent() {
         console.log('a up')
     }
   }
+}
+
+function initOptionCard() {
+  window.OptionCard.dialog = true;
+  window.OptionCard.title = "Interactive Spanning Tree";
+  window.OptionCard.info = "<br> This example is a <i>Prim</i> implementation of <i>minimal spanning tree</i>. <br> " +
+    "Click on node to <b>drag</b> and <b>remove</b> node, or change the <b>size</b> and <b>color</b> of node. <br> " +
+    "Toggle on button <b>keeping change</b> will change the tree structure per frame. <br>"
+  window.OptionCard.manual.push("A:Add node", "D/Del: Delete")
 }
 
 function draw() {
@@ -193,9 +205,8 @@ function main() {
   tr.draggingChanged = draggingChanged;
   tr.deleteChanged = deleteChanged;
   
-  
+  initOptionCard();
   initScene();
-  
   initGUI();
   addKeyEvent();
   addMouseEvent();
