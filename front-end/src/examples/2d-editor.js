@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import * as ARCH from "@/archiweb"
 
-
 import {DragControls} from "three/examples/jsm/controls/DragControls";
 
 let scene, renderer, gui, camera;
@@ -50,12 +49,12 @@ function initScene() {
   }
   left = gb.Segments(null, false, 0xff0000);
   right = gb.Segments(null, false, 0x0000ff);
-  updateCurve();
   
   line = gb.Segments(points)
   
   ARCH.refreshSelection(scene);
   
+  updateCurve();
 }
 
 function initDrag() {
@@ -117,6 +116,7 @@ function updateObject(uuid, position) {
 }
 
 function draw() {
+  // console.log(camera.zoom)
 
 }
 
@@ -129,6 +129,8 @@ function main() {
   controller = viewport.controller;
   
   camera = viewport.to2D();
+  camera.zoom = 7;
+  camera.updateProjectionMatrix();
   
   initScene();
   initDrag();
