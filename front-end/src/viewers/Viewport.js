@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as gui from '@/gui'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
+import * as ARCH from "@/archiweb";
 import {AssetManager, DragFrames, MultiCamera, Transformer} from "@/archiweb";
 
 const Viewport = function () {
@@ -18,6 +19,8 @@ const Viewport = function () {
   
   let scope = this;
   
+  this.csm;
+  
   function init() {
     window.layer = 0;
     window.objects = [];
@@ -29,18 +32,18 @@ const Viewport = function () {
     renderer.autoClear = false;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-  
+    
     /* ---------- dom ---------- */
     addToDOM();
-  
+    
     /* ---------- gui ---------- */
     gui.initGUI();
     addGUI(gui.gui);
-  
+    
     /* ---------- camera ---------- */
     camera.addGUI(gui.gui);
     camera.setController(controller);
-  
+    
     /* ---------- control ---------- */
     controller.enableKeys = false;
     controller.mouseButtons = {
@@ -71,10 +74,12 @@ const Viewport = function () {
    * Enable group/ungroup and highlight/unhighlight object with AssetManager
    * @returns {AssetManager}
    */
-  function enableAssetManager() {
+  function enableAssetManager(enableGUI = true) {
     assetManager = new AssetManager(scene);
-    assetManager.addGUI(gui.util);
-  
+    if (enableGUI) {
+      assetManager.addGUI(gui.util);
+    }
+    
     return assetManager;
   }
   
@@ -105,18 +110,35 @@ const Viewport = function () {
    * be careful to enable while it rewrite click event
    * @returns {Transformer}
    */
-  function enableTransformer() {
+  function enableTransformer(enableGUI = true) {
     if (assetManager === undefined) enableAssetManager();
     
     transformer = new Transformer(scene, renderer, camera.camera);
     camera.setTransformer(transformer);
     
-    transformer.addGUI(gui.gui);
     transformer._dragFrames = drag;
     transformer._assetManager = assetManager;
     assetManager.setTransformer(transformer);
     
+    if (enableGUI) {
+      transformer.addGUI(gui.gui);
+    }
     return transformer;
+  }
+  
+  function enableSceneBasic(enableGUI = true, enableCSM = false) {
+    let sceneBasic;
+    if (enableCSM) {
+      sceneBasic = new ARCH.SceneBasic(scene, renderer, camera.camera);
+      scope.csm = sceneBasic.csm;
+    } else {
+      sceneBasic = new ARCH.SceneBasic(scene, renderer);
+    }
+    
+    if (enableGUI) {
+      sceneBasic.addGUI(gui.gui)
+    }
+    return sceneBasic;
   }
   
   function animate() {
@@ -183,6 +205,7 @@ const Viewport = function () {
   
     renderer.clear();
     renderer.render(scene, camera.camera);
+    if (scope.csm) scope.csm.update();
   
     if (drag) drag.render();
     if (scope.draw) scope.draw();
@@ -219,8 +242,16 @@ const Viewport = function () {
     }
     controller.enablePan = false;
     controls.pan = false;
-    
+  
     return camera.camera;
+  }
+  
+  function setCameraPosition(position, lookat) {
+    if (position.length > 0) position = new THREE.Vector3(position[0], position[1], position[2]);
+    if (lookat.length > 0) lookat = new THREE.Vector3(lookat[0], lookat[1], lookat[2]);
+    controller.target.copy(lookat);
+    camera.camera.position.copy(position);
+    camera.camera.updateProjectionMatrix();
   }
   
   /**
@@ -243,9 +274,12 @@ const Viewport = function () {
   this.enableDragFrames = enableDragFrames;
   this.enableTransformer = enableTransformer;
   this.enableAssetManager = enableAssetManager;
+  this.enableSceneBasic = enableSceneBasic;
   
   this.to2D = to2D;
   this.to3D = to3D;
+  
+  this.setCameraPosition = setCameraPosition;
   
   /* ---------- GUI ---------- */
   

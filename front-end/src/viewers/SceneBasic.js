@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import * as THREE from 'three'
-// import * as CSM from 'three-csm';
+import CSM from 'three-csm';
 // THREE.CSM = CSM;
 
 /**
@@ -27,17 +27,19 @@ import * as THREE from 'three'
  * Author: Yichen Mo
  */
 
-const SceneBasic = function (_scene, _renderer) {
+const SceneBasic = function (_scene, _renderer, _camera) {
   let scope = this;
+  this.csm;
   this._transformer;
   this.skyColor = '#c4ced6';
   this.floorColor = '#80807a';
   this.sunColor = '#ffffff';
   this.ambientColor = '#444445'
-  this.x = 1500;
-  this.y = -2400;
-  this.z = 2500;
+  this.x = 0.4;
+  this.y = -0.6;
+  this.z = 0.6;
   
+  const scale = new THREE.Vector3(1500, 1500, 1500);
   const matFloor = new THREE.MeshPhongMaterial({color: scope.floorColor, depthWrite: false});
   const geoFloor = new THREE.PlaneBufferGeometry(50000, 50000);
   const mshFloor = new THREE.Mesh(geoFloor, matFloor);
@@ -48,45 +50,62 @@ const SceneBasic = function (_scene, _renderer) {
   let axesHelper = new THREE.AxesHelper(5000);
   
   let _basic = new THREE.Group();
-  // TODO: fix csm
-  // let csm;
   
   
   function init() {
+    _renderer.outputEncoding = THREE.sRGBEncoding;
+    _renderer.shadowMap.enabled = true;
+    _renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  
+  
     _scene.add(_basic);
     matFloor.polygonOffset = true;
     matFloor.polygonOffsetFactor = 1.0;
     matFloor.polygonOffsetUnits = 1.0;
-    
+  
     mshFloor.receiveShadow = true;
     mshFloor.position.set(0, 0, -0.5);
     _basic.add(mshFloor);
-    
-    
+  
+  
     _scene.background = new THREE.Color(scope.skyColor);
     _scene.fog = new THREE.FogExp2(scope.skyColor, 0.00018);
-    
+  
     _basic.add(ambientLight);
+  
+    if (_camera) {
+      scope.csm = new CSM({
+        maxFar: 50000,
+        lightIntensity: 1,
+        lightFar: 10000,
+        lightNear: 0.01,
+        cascades: 6,
+        parent: _scene,
+        shadowMapSize: 4096,
+        lightDirection: new THREE.Vector3(scope.x, scope.y, scope.z).normalize(),
+        camera: _camera
+      });
+      scope.csm.fade = true;
+      scope.csm.setupMaterial(matFloor)
     
     
-    dirLight.position.set(scope.x, scope.y, scope.z);
-    dirLight.castShadow = true;
-    dirLight.shadow.camera.top = 10000;
-    dirLight.shadow.camera.bottom = -5000;
-    dirLight.shadow.camera.left = -5000;
-    dirLight.shadow.camera.right = 5000;
-    dirLight.shadow.camera.near = 10;
-    dirLight.shadow.camera.far = 10000;
-    dirLight.shadow.mapSize.set(4096, 4096);
-    dirLight.shadow.bias = -0.0001;
-    _basic.add(dirLight);
+    } else {
+      dirLight.position.set(scale.x * scope.x, scale.y * scope.y, scale.z * scope.z);
     
+      dirLight.castShadow = true;
+      dirLight.shadow.camera.top = 10000;
+      dirLight.shadow.camera.bottom = -5000;
+      dirLight.shadow.camera.left = -5000;
+      dirLight.shadow.camera.right = 5000;
+      dirLight.shadow.camera.near = 10;
+      dirLight.shadow.camera.far = 10000;
+      dirLight.shadow.mapSize.set(4096, 4096);
+      dirLight.shadow.bias = -0.0001;
+      _basic.add(dirLight);
+    }
     // _scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
     // _scene.add( new THREE.DirectionalLightHelper(dirLight));
-    
-    _renderer.outputEncoding = THREE.sRGBEncoding;
-    _renderer.shadowMap.enabled = true;
-    _renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  
   
     gridUpdate();
     axesUpdate();
@@ -122,14 +141,24 @@ const SceneBasic = function (_scene, _renderer) {
     skyColorUpdate(scope.fog);
     gridUpdate(scope.grid);
     mshFloor.material.color.set(scope.floorColor);
-  
-    dirLight.castShadow = scope.shadow;
-    dirLight.position.x = scope.x;
-    dirLight.position.y = scope.y;
-    dirLight.position.z = scope.z;
-    
-    dirLight.color.set(scope.sunColor);
     ambientLight.color.set(scope.ambientColor);
+  
+    if (_camera) {
+      scope.csm.lightDirection.x = scope.x;
+      scope.csm.lightDirection.y = scope.y;
+      scope.csm.lightDirection.z = scope.z;
+    
+    } else {
+      dirLight.castShadow = scope.shadow;
+      dirLight.position.x = scope.x * scale.x;
+      dirLight.position.y = scope.y * scale.y;
+      dirLight.position.z = scope.z * scale.z;
+    
+    
+      dirLight.color.set(scope.sunColor);
+    
+    }
+  
   
   }
   
@@ -145,10 +174,13 @@ const SceneBasic = function (_scene, _renderer) {
       }
     );
   
-    sceneBasic.add(scope, 'shadow')
-      .listen().onChange(function () {
-      dirLight.castShadow = scope.shadow;
-    });
+    if (_camera === undefined) {
+      sceneBasic.add(scope, 'shadow')
+        .listen().onChange(function () {
+        dirLight.castShadow = scope.shadow;
+      });
+    
+    }
     sceneBasic.add(scope, 'fog')
       .listen().onChange(function () {
       skyColorUpdate(scope.fog);
@@ -179,19 +211,36 @@ const SceneBasic = function (_scene, _renderer) {
       mshFloor.material.color.set(scope.floorColor);
     });
     let sun = sceneBasic.addFolder('Sun Position')
-    sun.add(scope, 'x').min(-5000).max(5000).step(10).onChange(function () {
-      dirLight.position.x = scope.x;
+    sun.add(scope, 'x').min(-1).max(1).onChange(function () {
+      if (_camera) {
+        scope.csm.lightDirection.x = scope.x;
+      } else {
+        dirLight.position.x = scope.x * scale.x;
+      }
+    
     });
-    sun.add(scope, 'y').min(-5000).max(200).step(10).onChange(function () {
-      dirLight.position.y = scope.y;
+    sun.add(scope, 'y').min(-1).max(1).onChange(function () {
+      if (_camera) {
+        scope.csm.lightDirection.y = scope.y;
+      } else {
+        dirLight.position.y = scope.y * scale.y;
+      }
+    
     });
-    sun.add(scope, 'z').min(1000).max(5000).step(10).onChange(function () {
-      dirLight.position.z = scope.z;
+    sun.add(scope, 'z').min(-1).max(1).onChange(function () {
+      if (_camera) {
+        scope.csm.lightDirection.z = scope.z;
+      } else {
+        dirLight.position.z = scope.z * scale.z;
+      }
+    
     });
-    sun.addColor(scope, 'sunColor').name('sun')
-      .listen().onChange(() => {
-      dirLight.color.set(scope.sunColor);
-    })
+    if (_camera === undefined) {
+      sun.addColor(scope, 'sunColor').name('sun')
+        .listen().onChange(() => {
+        dirLight.color.set(scope.sunColor);
+      })
+    }
     sun.addColor(scope, 'ambientColor').name('ambient')
       .listen().onChange(() => {
       ambientLight.color.set(scope.ambientColor);
@@ -210,7 +259,7 @@ const SceneBasic = function (_scene, _renderer) {
   this.addGUI = addGUI;
   this.update = update;
   
-  this.directLight = dirLight;
+  // this.directLight = dirLight;
   this.ambientLight = ambientLight;
   
 };
