@@ -22,7 +22,12 @@ const MaterialFactory = function () {
   }
   
   this.Doubled = function (color = 0xdddddd) {
-    return new THREE.MeshPhongMaterial({color: color, side: THREE.DoubleSide, shadowSide: THREE.BackSide});
+    return new THREE.MeshPhongMaterial({
+      color: color,
+      side: THREE.DoubleSide,
+      shadowSide: THREE.BackSide,
+      flatShading: true
+    });
   }
   
   this.Matte = function (color = 0xdddddd) {

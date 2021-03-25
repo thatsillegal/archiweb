@@ -325,8 +325,13 @@ const MultiCamera = function (domElement) {
     zoomToObjects(window.highlightObject);
   }
   
+  this.currentView = function () {
+    alert('Current camera and look at' + JSON.stringify(scope.camera.position) + ' ' + JSON.stringify(_controller.target));
+  }
+  
   this.addGUI = function (gui) {
     const camera = gui.addFolder("Camera");
+    camera.add(scope, 'currentView').name('current');
     camera.add(scope, 'zoomAll').name('zoom');
     camera.add(scope, 'isometric')
       .listen().onChange(function () {
@@ -394,6 +399,7 @@ const MultiCamera = function (domElement) {
     
       scope.camera.updateProjectionMatrix();
     })
+    
   }
   
 };

@@ -8,7 +8,7 @@ const examples = [
   'marching-cubes', 'material-example', 'shape-2d',
   'undo-redo-canvas', 'image-3d', 'java-backend-example',
   'archijson-geometry', 'csg', 'interactive-spanning-tree',
-  'cascaded-shadow-maps'
+  'cascaded-shadow-maps', 'python-backend-example'
 ]
 const routes = [];
 examples.forEach((item) => {
