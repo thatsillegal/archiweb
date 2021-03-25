@@ -20,27 +20,27 @@
       <h1 class="text-center display-2 hidden-xs-only pt-10"> Gallery </h1>
       <h1 class="text-center display-1 hidden-sm-and-up py-5"> Gallery </h1>
     </v-container>
-    <v-row class="py-10 mb-10">
+    <v-row class="py-10 ma-10">
       <v-col
         v-for="(theme,id) in themes"
         :key="id"
         class="elevation-0 col-12 col-md-6 col-lg-4 col-xl-3"
       >
-      
+    
         <v-hover v-slot:default="{ hover }">
           <v-card
             :class="{ 'on-hover': hover }"
             :elevation="hover ? 10 : 4"
             :to="theme"
             class="mx-auto mb-5"
-            max-height="380"
+            max-height="300"
             min-height="30"
-            max-width="360"
+            max-width="400"
             min-width="320"
           >
           
             <v-col>
-              <v-img :src="'/images/'+theme+'.jpg'">
+              <v-img :src="'/images/gallery/'+theme+'.jpeg'">
               </v-img>
               <v-row class="justify-center align-center ma-0">
                 <h3 class="my-3"> {{ theme }}</h3>
