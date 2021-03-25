@@ -14,7 +14,6 @@ let date = new Date();
 
 
 const http = require('http').createServer(app.callback());
-const io = require('socket.io')(http);
 
 function static(dir) {
   return async (ctx, next) => {
@@ -46,7 +45,13 @@ app.use(static(__dirname));
 app.use(router.routes());
 
 
-io.on('connection', socket => {
+const io = require("socket.io")(http, {
+  cors: {
+    origin: "http://localhost:8080",
+    methods: ["GET", "POST"]
+  }
+});
+io.on('connection', (socket) => {
   console.info(date.toLocaleString(), `Client connected [id=${socket.id}]`);
   socket.on('disconnect', async function () {
     console.info(date.toLocaleString(), `Client [id=${socket.id}] disconnect :)`);

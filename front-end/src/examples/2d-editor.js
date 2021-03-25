@@ -12,6 +12,8 @@ let cl = [];
 let left, right;
 
 function initScene() {
+  tans = []
+  cl = []
   
   const axes = new THREE.AxesHelper(50)
   scene.add(axes);

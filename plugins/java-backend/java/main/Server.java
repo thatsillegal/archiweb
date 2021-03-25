@@ -28,7 +28,7 @@ public class Server {
                 this.setup();
                 System.out.println("Socket connected to " + args[0]);
             } else {
-                String uri = "http://127.0.0.1:" + PORT;
+                String uri = "http://localhost:" + PORT;
                 socket = IO.socket(uri);
                 this.setup();
                 System.out.println("Socket connected to " + uri);
