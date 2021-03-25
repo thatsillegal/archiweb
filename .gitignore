@@ -27,3 +27,6 @@ pnpm-debug.log*
 
 /merge-main.ps1
 test
+
+__pycache__
+*test*
