@@ -20,7 +20,7 @@ const control = {
     reconstructed = [];
     
     astMgr.setCurrentID(1);
-    archijson.sendArchiJSON('bts:sendGeometry', window.objects);
+    archijson.sendArchiJSON('bts:sendGeometry', 'archijson', window.objects);
   },
   dragChanging: false
 }

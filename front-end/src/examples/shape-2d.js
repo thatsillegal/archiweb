@@ -64,6 +64,8 @@ function onClick(event) {
 }
 
 function initScene() {
+  scene.background = new THREE.Color('0xffffff');
+  
   mf = new ARCH.MaterialFactory();
   gb = new ARCH.GeometryFactory(scene);
   b = gb.Cuboid([2, 2, 0], [2, 2, 2]);

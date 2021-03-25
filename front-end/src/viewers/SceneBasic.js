@@ -259,7 +259,7 @@ const SceneBasic = function (_scene, _renderer, _camera) {
   this.addGUI = addGUI;
   this.update = update;
   
-  // this.directLight = dirLight;
+  this.directLight = dirLight;
   this.ambientLight = ambientLight;
   
 };

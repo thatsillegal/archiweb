@@ -419,7 +419,7 @@ const GeometryFactory = function (_scene) {
           idx.push(id)
           pts.push(points[id])
         }
-        console.log(pts)
+        // console.log(pts)
         // index.push(triangulatePolygon(pointsTocoordinates(pts)));
         const fs = triangulatePolygon(pointsToCoordinates(pts));
         fs.forEach((f) => index.push(idx[f]));

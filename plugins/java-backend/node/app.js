@@ -60,9 +60,10 @@ io.on('connection', (socket) => {
   socket.on('bts:sendGeometry', async function (data) {
     console.log(date.toLocaleString(), 'bts:sendGeometry: ' + data);
     data.id = socket.id;
-    
-    io.emit('bts:receiveGeometry', data);
-    
+  
+    console.log('bts:' + data.app + 'ReceiveGeometry')
+    io.emit('bts:' + data.app + 'ReceiveGeometry', data);
+  
   });
   
   socket.on('stb:sendGeometry', async function (data) {

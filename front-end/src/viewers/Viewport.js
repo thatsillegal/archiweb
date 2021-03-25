@@ -27,6 +27,7 @@ const Viewport = function () {
     window.searchSceneByUUID = function (uuid) {
       return scene.getObjectByProperty('uuid', uuid);
     }
+    window.saveAsImage = saveAsImage;
     /* ---------- renderer ---------- */
     renderer.domElement.tabIndex = 0;
     renderer.autoClear = false;
@@ -39,6 +40,7 @@ const Viewport = function () {
     /* ---------- gui ---------- */
     gui.initGUI();
     addGUI(gui.gui);
+    gui.util.add(window, 'saveAsImage').name('save image');
     
     /* ---------- camera ---------- */
     camera.addGUI(gui.gui);
@@ -254,6 +256,45 @@ const Viewport = function () {
     camera.camera.updateProjectionMatrix();
   }
   
+  
+  function saveAsImage() {
+    let imgData;
+    
+    try {
+      imgData = renderer.domElement.toDataURL("image/jpeg");
+      console.log(imgData);
+      saveFile(imgData, new Date().valueOf() + ".jpeg");
+    } catch (e) {
+      console.log(e);
+    }
+    
+  }
+  
+  function saveFile(strData, filename) {
+    const link = document.createElement('a');
+    if (typeof link.download === 'string') {
+      //Firefox requires the link to be in the body
+      document.body.appendChild(link);
+      link.download = filename;
+      
+      link.href = strData;
+      link.click();
+      //remove the link when done
+      document.body.removeChild(link);
+    } else {
+      // location.replace(uri);
+    }
+  }
+  
+  /* ---------- check device is pc or not ---------- */
+  function isPC() {
+    const agents = ["Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"];
+    for (let i = 0; i < agents.length; ++i) {
+      if (navigator.userAgent.indexOf(agents[i]) > 0) return false;
+    }
+    return true;
+  }
+  
   /**
    * Viewport controls, toggle rotate, pan and zoom
    * Working with {@link addGUI}
@@ -278,6 +319,8 @@ const Viewport = function () {
   
   this.to2D = to2D;
   this.to3D = to3D;
+  
+  this.isPC = isPC;
   
   this.setCameraPosition = setCameraPosition;
   

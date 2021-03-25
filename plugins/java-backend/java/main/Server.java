@@ -47,14 +47,14 @@ public class Server {
 
         socket.connect();
 
-        socket.on("bts:receiveGeometry", args -> {
+        socket.on("bts:exampleReceiveGeometry", args -> {
             // receive
             ArchiJSON archijson = gson.fromJson(args[0].toString(), ArchiJSON.class);
             archijson.parseGeometryElements(gson);
 
             // processing
-            generator.pts = WB_Converter.toWB_Point( (Vertices)archijson.getGeometries().get(0) );
-            generator.plane = WB_Converter.toWB_Polygon( (Plane) archijson.getGeometries().get(1) );
+            generator.pts = WB_Converter.toWB_Point((Vertices) archijson.getGeometries().get(0));
+            generator.plane = WB_Converter.toWB_Polygon((Plane) archijson.getGeometries().get(1));
             generator.calcVoronoi(archijson.getProperties().getD());
 
             // return

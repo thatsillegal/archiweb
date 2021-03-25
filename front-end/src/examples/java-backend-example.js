@@ -18,7 +18,7 @@ const control = {
   nx: 500,
   ny: 300,
   sendToJava: function () {
-    archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
+    archijson.sendArchiJSON('bts:sendGeometry', 'example', window.objects, property);
   }
 }
 
@@ -31,7 +31,7 @@ function update() {
   border.scale.x = control.nx;
   border.scale.y = control.ny;
   
-  archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
+  control.sendToJava();
 }
 
 function initGUI() {
@@ -50,7 +50,7 @@ function initGUI() {
   });
   
   gui.add(property, 'd', 0.5, 20).onChange(() => {
-    archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
+    control.sendToJava();
   });
   
   gui.add(control, 'sendToJava').name('Send Geometries');
@@ -61,6 +61,8 @@ function initGUI() {
 let positions, colors, points, border;
 
 function initScene() {
+  scene.background = new THREE.Color('0xffffff');
+  
   geoFty = new ARCH.GeometryFactory(scene);
   matFty = new ARCH.MaterialFactory();
   //
@@ -77,7 +79,7 @@ function initScene() {
   
   // refresh global objects
   ARCH.refreshSelection(scene);
-  archijson.sendArchiJSON('bts:sendGeometry', window.objects, property);
+  control.sendToJava();
 }
 
 function generatePoints(num, nx, ny) {
@@ -110,6 +112,7 @@ function main() {
   scene = viewport.scene;
   gui = viewport.gui.gui;
   
+  viewport.setCameraPosition([300, -400, 300], [0, 0, 0])
   initGUI();
   initScene();
   
