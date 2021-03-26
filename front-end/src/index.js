@@ -16,15 +16,15 @@ function initScene() {
   gb = new ARCH.GeometryFactory(scene);
   const mt = new ARCH.MaterialFactory();
   
-  const b1 = gb.Cuboid([150, 150, 0], [300, 300, 300], mt.Matte());
+  const s1 = gb.Cuboid([150, 150, 0], [300, 300, 300], mt.Matte());
   
-  const b2 = gb.Cuboid([-300, -300, 0], [300, 300, 100], mt.Matte());
+  const s2 = gb.Cuboid([-300, -300, 0], [300, 300, 100], mt.Matte());
   
-  const b3 = gb.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
+  const s3 = gb.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
   
   
   assetManager.refreshSelection(scene);
-  assetManager.addSelection([b1, b2, b3], 1);
+  assetManager.addSelection([s1, s2, s3], 1);
   assetManager.setCurrentID(1);
   
 }
