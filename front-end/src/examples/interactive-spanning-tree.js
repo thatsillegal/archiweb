@@ -46,7 +46,7 @@ function initScene() {
   
   
   balls = [];
-  for (let i = 0; i < 10; ++i) {
+  for (let i = 0; i < 50; ++i) {
     let p = [Math.random() * 1200 - 600, Math.random() * 800 - 400];
     balls.push(gf.Cylinder(p, [10, 10], mt.Flat(Math.random() * 0xffffff), true))
   }

@@ -3,6 +3,7 @@
     dark
     fixed
     padless
+    absolute
   >
     <v-card
       class="flex"

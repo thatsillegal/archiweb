@@ -5,7 +5,7 @@ import {DragControls} from "three/examples/jsm/controls/DragControls";
 
 let scene, renderer, gui, camera;
 let drag, controller;
-let curve, gb, line;
+let curve, gf, line;
 let count = 100;
 let tans = [];
 let cl = [];
@@ -17,7 +17,7 @@ function initScene() {
   
   const axes = new THREE.AxesHelper(50)
   scene.add(axes);
-  gb = new ARCH.GeometryFactory(scene);
+  gf = new ARCH.GeometryFactory(scene);
   let controls = {
     color: 0xfafafa
   };
@@ -34,7 +34,7 @@ function initScene() {
   
   let pos = [[-10, 30], [0, 10], [30, -10], [40, -30], [50, -50]];
   for (let p of pos) {
-    cl.push(gb.Cylinder(p, [1, 1],
+    cl.push(gf.Cylinder(p, [1, 1],
       new THREE.MeshLambertMaterial({color: 0xff0000})));
   }
   
@@ -45,14 +45,14 @@ function initScene() {
   
   
   for (let i = 0; i < count; ++i) {
-    tans.push(gb.Segments(null, false, 0xff000));
+    tans.push(gf.Segments(null, false, 0xff000));
     tans[i].rotation.z = Math.PI / 2;
     scene.add(tans[i]);
   }
-  left = gb.Segments(null, false, 0xff0000);
-  right = gb.Segments(null, false, 0x0000ff);
+  left = gf.Segments(null, false, 0xff0000);
+  right = gf.Segments(null, false, 0x0000ff);
   
-  line = gb.Segments(points)
+  line = gf.Segments(points)
   
   ARCH.refreshSelection(scene);
   
@@ -77,7 +77,7 @@ function initDrag() {
   });
   drag.addEventListener('drag', function () {
     const points = curve.getPoints(500);
-    line.geometry.setFromPoints(points);
+    line.setFromPoints(points);
     updateCurve();
   
   })
@@ -106,15 +106,15 @@ function updateCurve() {
   }
   
   let cv = new THREE.CatmullRomCurve3(l);
-  left.geometry.setFromPoints(cv.getPoints(100))
+  left.setFromPoints(cv.getPoints(100))
   cv = new THREE.CatmullRomCurve3(r);
-  right.geometry.setFromPoints(cv.getPoints(100))
+  right.setFromPoints(cv.getPoints(100))
 }
 
 function updateObject(uuid, position) {
   const o = scene.getObjectByProperty('uuid', uuid);
   o.position.copy(position);
-  gb.Curve(window.objects);
+  gf.Curve(window.objects);
 }
 
 function draw() {

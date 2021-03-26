@@ -78,7 +78,7 @@ function initScene() {
   points.forEach((p) => balls.push(geoFty.Sphere(p, 10, matFty.Flat(0xff0000))));
   
   segments = geoFty.Segments(balls.map((handle) => handle.position), true);
-  balls.forEach((c) => c.parent = segments);
+  // balls.forEach((c) => c.parent = segments);
   //
   prism = geoFty.Prism(segments,
     matFty.Matte(0x0000ff), 5, 1)
@@ -108,20 +108,27 @@ window.searchSceneByUUID = function (uuid) {
 
 
 function draw() {
-  if (control.dragChanging && segments && segments.dragging) {
-    segments.geometry.setFromPoints((balls.map((handle) => handle.position)))
-    prism.updateModel(prism, {segments: segments.modelParam(segments), height: 5, extruded: 1});
+  if (control.dragChanging && curO) {
+    segments.setFromPoints((balls.map((handle) => handle.position)))
+    // prism.updateModel(prism, {segments: segments.modelParam(segments), height: 5, extruded: 1});
+    prism.setFromSegments(segments);
     
     vertices.geometry.setFromPoints(geoFty.pointsInsideSegments(segments, 5000))
   }
 }
 
+let curO = undefined;
 
 function draggingChanged(o, event) {
+  if (event && balls.includes(o)) {
+    curO = o;
+  } else {
+    curO = undefined;
+  }
   if (!event && balls.includes(o)) {
     
-    segments.geometry.setFromPoints((balls.map((handle) => handle.position)))
-    prism.updateModel(prism, {segments: segments.modelParam(segments), height: 5, extruded: 1});
+    segments.setFromPoints((balls.map((handle) => handle.position)))
+    prism.setFromSegments(segments);
     
     vertices.geometry.setFromPoints(geoFty.pointsInsideSegments(segments, 5000))
   }
