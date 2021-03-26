@@ -2,7 +2,7 @@
   <section>
     <v-carousel
       cycle
-      height="725"
+      height="800"
       hide-delimiter-background
       show-arrows-on-hover
     >
@@ -20,13 +20,13 @@
       <h1 class="text-center display-2 hidden-xs-only pt-10"> Gallery </h1>
       <h1 class="text-center display-1 hidden-sm-and-up py-5"> Gallery </h1>
     </v-container>
-    <v-row class="py-10 ma-10">
+    <v-row class="py-10 mb-10 mx-10">
       <v-col
         v-for="(theme,id) in themes"
         :key="id"
         class="elevation-0 col-12 col-md-6 col-lg-4 col-xl-3"
       >
-    
+      
         <v-hover v-slot:default="{ hover }">
           <v-card
             :class="{ 'on-hover': hover }"

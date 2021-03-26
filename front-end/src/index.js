@@ -7,26 +7,66 @@ let renderer, scene, gui;
 
 let camera;
 
-let gb, assetManager;
+let gf, am, mt;
+let balls = [], segs;
+let cubes = [], segs2;
 
 function initScene() {
   scene.background = new THREE.Color(0xfafafa);
   
   
-  gb = new ARCH.GeometryFactory(scene);
-  const mt = new ARCH.MaterialFactory();
+  gf = new ARCH.GeometryFactory(scene);
+  mt = new ARCH.MaterialFactory();
   
-  const b1 = gb.Cuboid([150, 150, 0], [300, 300, 300], mt.Matte());
+  let points = [
+    [-110, 460, 6],
+    [50, 500, 6],
+    [240, 410, 6],
+    [520, 640, 6],
+    [320, 940, 6],
+    [-190, 730, 6]
+  ]
+  points.forEach((p) => balls.push(gf.Cylinder(p, [5, 2], mt.Flat(0xff0000), true)));
   
-  const b2 = gb.Cuboid([-300, -300, 0], [300, 300, 100], mt.Matte());
+  segs = gf.Segments(balls.map((handle) => handle.position), true, 0x993322, true);
   
-  const b3 = gb.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
+  points = [
+    [-100, -100, 6],
+    [100, -100, 6],
+    [100, 100, 6],
+    [0, 200, 6],
+    [-100, 100, 6]
+  ]
   
+  points.forEach((p) => cubes.push(gf.Cuboid(p, [10, 10, 2], mt.Flat(0x0000ff))));
+  segs2 = gf.Segments(cubes.map((handle) => handle.position), true, 0x223344, true);
   
-  assetManager.refreshSelection(scene);
-  assetManager.addSelection([b1, b2, b3], 1);
-  assetManager.setCurrentID(1);
+  am.addSelection(cubes, 1);
+  am.addSelection(balls, 1);
+  am.refreshSelection(scene);
+  am.setCurrentID(1);
   
+}
+
+let curO = undefined;
+
+function draw() {
+  if (curO !== undefined) {
+    if (balls.includes(curO))
+      segs.setFromPoints((balls.map((handle) => handle.position)))
+    if (cubes.includes(curO))
+      segs2.setFromPoints((cubes.map((handle) => handle.position)))
+    
+  }
+}
+
+
+function draggingChanged(o, event) {
+  if (event && (balls.includes(o) || cubes.includes(o))) {
+    curO = o;
+  } else {
+    curO = undefined;
+  }
 }
 
 function main() {
@@ -36,9 +76,13 @@ function main() {
   gui = viewport.gui;
   camera = viewport.camera;
   
-  assetManager = viewport.enableAssetManager();
+  am = viewport.enableAssetManager();
   viewport.enableDragFrames();
-  viewport.enableTransformer();
+  let tr = viewport.enableTransformer();
+  tr.draggingChanged = draggingChanged;
+  tr.control.showZ = false;
+  
+  viewport.draw = draw;
   
   initScene();
   
