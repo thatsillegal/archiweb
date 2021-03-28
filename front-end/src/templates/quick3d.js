@@ -39,14 +39,13 @@ function main() {
   astMgr = viewport.enableAssetManager();
   viewport.enableDragFrames();
   viewport.enableTransformer();
+  viewport.enableSceneBasic();
   
   initGUI();
   initScene();
   
   viewport.draw = draw;
   
-  const sceneBasic = new ARCH.SceneBasic(scene, renderer);
-  sceneBasic.addGUI(gui.gui);
 }
 
 export {

@@ -5,14 +5,13 @@ import * as THREE from "three"
 import {building, polygonmesh} from "@/assets/models/csg";
 
 let scene, renderer, gui, camera;
-let geoFty, matFty;
-let astMgr;
+let gf, mt, am;
 
 
 /* ---------- create your scene object ---------- */
 function initScene() {
-  geoFty = new ARCH.GeometryFactory(scene);
-  matFty = new ARCH.MaterialFactory();
+  gf = new ARCH.GeometryFactory(scene);
+  mt = new ARCH.MaterialFactory();
   const geometry = new THREE.BufferGeometry();
   
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(building.verts.flat(), 3))
@@ -33,9 +32,9 @@ function initScene() {
     200, 0, 300,
     -50, 0, 300
   ];
-  let pts = geoFty.coordinatesToPoints(position, 3);
+  let pts = gf.coordinatesToPoints(position, 3);
   
-  let segs = geoFty.Segments(pts, true, 0xdddddd, true);
+  let segs = gf.Segments(pts, true, 0xdddddd, true);
   segs.position.y = -600;
   let dddd = [
     [-110, 460, 6],
@@ -46,10 +45,10 @@ function initScene() {
     [-190, 730, 6]
   ]
   
-  geoFty.Segments(geoFty.coordinatesToPoints(dddd.flat(), 3), true, 0xeeeeee, true);
+  gf.Segments(gf.coordinatesToPoints(dddd.flat(), 3), true, 0xeeeeee, true);
   
   
-  let polymesh = geoFty.Mesh(polygonmesh.vertices, polygonmesh.faces, matFty.Flat());
+  let polymesh = gf.Mesh(polygonmesh.vertices, polygonmesh.faces, mt.Flat());
   
   //
   ARCH.refreshSelection(scene);
@@ -64,15 +63,14 @@ function main() {
   gui = viewport.gui;
   camera = viewport.camera;
   
-  astMgr = viewport.enableAssetManager();
+  am = viewport.enableAssetManager();
   viewport.enableDragFrames();
   viewport.enableTransformer();
+  viewport.enableSceneBasic();
   
   initScene();
   
   
-  const sceneBasic = new ARCH.SceneBasic(scene, renderer);
-  sceneBasic.addGUI(gui.gui);
 }
 
 export {

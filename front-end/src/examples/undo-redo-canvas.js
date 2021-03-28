@@ -7,7 +7,7 @@ import * as UndoManager from "undo-manager";
 let scene, renderer, camera;
 const raycaster = new THREE.Raycaster();
 const xoy = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-let gb, mf, gui;
+let gf, mt, gui;
 
 const undoManager = new UndoManager();
 
@@ -17,7 +17,7 @@ const redoList = [];
 function createCircle(pt) {
   let color = new THREE.Color().setHSL(Math.random(), 0.2, 0.6).getHex();
   console.log(color.toString(16))
-  undoList.push(gb.Cylinder([pt.x, pt.y, pt.z], [Math.random() * 100 + 50, Math.random() * 5 + 1], mf.Flat(color), true));
+  undoList.push(gf.Cylinder([pt.x, pt.y, pt.z], [Math.random() * 100 + 50, Math.random() * 5 + 1], mt.Flat(color), true));
   
   undoManager.add({
     undo: function () {
@@ -50,8 +50,8 @@ function initGUI() {
 function initScene() {
   scene.background = new THREE.Color('0xffffff');
   
-  gb = new ARCH.GeometryFactory(scene);
-  mf = new ARCH.MaterialFactory();
+  gf = new ARCH.GeometryFactory(scene);
+  mt = new ARCH.MaterialFactory();
   
   const light = new THREE.DirectionalLight(0xffffff, 1.0);
   light.position.set(0, 0, 1000);

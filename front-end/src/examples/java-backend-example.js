@@ -2,7 +2,7 @@ import * as THREE from "three";
 import * as ARCH from "@/archiweb"
 
 let scene, gui;
-let geoFty, matFty;
+let gf, mf;
 let archijson;
 let lastRandom = 1;
 
@@ -48,7 +48,6 @@ function initGUI() {
   gui.add(control, 'ny', 100, 1000, 1).onChange(() => {
     update()
   });
-  
   gui.add(property, 'd', 0.5, 20).onChange(() => {
     control.sendToJava();
   });
@@ -61,20 +60,20 @@ function initGUI() {
 let positions, colors, points, border;
 
 function initScene() {
-  scene.background = new THREE.Color('0xffffff');
+  scene.background = new THREE.Color('#ffffff');
   
-  geoFty = new ARCH.GeometryFactory(scene);
-  matFty = new ARCH.MaterialFactory();
+  gf = new ARCH.GeometryFactory(scene);
+  mf = new ARCH.MaterialFactory();
   //
-  archijson = new ARCH.ArchiJSON(scene, geoFty);
+  archijson = new ARCH.ArchiJSON(scene, gf);
   
-  points = geoFty.Vertices();
-  points.material.vertexColors = true;
+  points = gf.Vertices();
+  points.material = new THREE.PointsMaterial({size: 10, vertexColors: true})
   generatePoints(control.num, control.nx, control.ny);
   
   
-  border = geoFty.Plane([0, 0, 0], [control.nx, control.ny, 0.5],
-    matFty.Void(), true);
+  border = gf.Plane([0, 0, 0], [control.nx, control.ny, 0.5],
+    mf.Void(), true);
   
   
   // refresh global objects
@@ -90,7 +89,7 @@ function generatePoints(num, nx, ny) {
     const x = random() * nx - nx / 2;
     const y = random() * ny - ny / 2;
     positions.push(x, y, 0);
-    colors.push(x / nx + 0.5, y / ny + 0.5, 0);
+    colors.push(x / nx + 0.5, y / ny + 0.5, -x / nx + 0.5);
   }
   
   points.size = num;
