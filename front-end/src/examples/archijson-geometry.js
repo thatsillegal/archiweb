@@ -1,15 +1,13 @@
 import * as ARCH from "@/archiweb"
 import {building} from "@/assets/models/csg";
-// import * as THREE from "three";
 
-let scene, renderer, gui;
-let geoFty, matFty, astMgr;
+let scene, gui;
+let gf, mt, am;
 let archijson;
+
 let reconstructed = [];
 let balls = []
-let segments, prism;
-let vertices;
-let mesh;
+let segments, prism, vertices, mesh;
 
 /* ---------- GUI setup ---------- */
 const control = {
@@ -19,7 +17,7 @@ const control = {
     })
     reconstructed = [];
     
-    astMgr.setCurrentID(1);
+    am.setCurrentID(1);
     archijson.sendArchiJSON('bts:sendGeometry', 'archijson', window.objects);
   },
   dragChanging: false
@@ -38,11 +36,11 @@ function parseGeometry(geometryElements) {
     if (!b) {
       if (e.type === 'Mesh') {
         console.log(e)
-        b = geoFty.Mesh(e.vertices, e.faces);
+        b = gf.Mesh(e.vertices, e.faces);
         console.log(b)
     
       } else {
-        b = geoFty[e.type]();
+        b = gf[e.type]();
         reconstructed.push(b);
       }
     }
@@ -55,15 +53,15 @@ function parseGeometry(geometryElements) {
 
 /* ---------- create your scene object ---------- */
 function initScene() {
-  geoFty = new ARCH.GeometryFactory(scene);
-  matFty = new ARCH.MaterialFactory();
-  archijson = new ARCH.ArchiJSON(scene, geoFty);
+  gf = new ARCH.GeometryFactory(scene);
+  mt = new ARCH.MaterialFactory();
+  archijson = new ARCH.ArchiJSON(scene, gf);
   
-  const cuboid = geoFty.Cuboid([100, 100, 0], [200, 200, 300], matFty.Matte(0xff0000));
+  const cuboid = gf.Cuboid([100, 100, 0], [200, 200, 300], mt.Matte(0xff0000));
   
-  const cylinder = geoFty.Cylinder([400, 300, 0], [100, 400], matFty.Matte(0xffff00), true);
+  const cylinder = gf.Cylinder([400, 300, 0], [100, 400], mt.Matte(0xffff00), true);
   
-  const plane = geoFty.Plane([-600, 300, 5], [600, 600], matFty.Matte(0xff00ff), true)
+  const plane = gf.Plane([-600, 300, 5], [600, 600], mt.Matte(0xff00ff), true)
   
   // let points = [[-190, 730, 6], [320, 940, 6], [520, 640, 6], [240, 410, 6], [50, 500, 6], [-110, 460, 6]]
   let points = [
@@ -74,28 +72,26 @@ function initScene() {
     [320, 940, 6],
     [-190, 730, 6]
   ]
-  // points = points.reverse();
-  points.forEach((p) => balls.push(geoFty.Sphere(p, 10, matFty.Flat(0xff0000))));
+  points.forEach((p) => balls.push(gf.Sphere(p, 10, mt.Flat(0xff0000))));
   
-  segments = geoFty.Segments(balls.map((handle) => handle.position), true);
-  // balls.forEach((c) => c.parent = segments);
-  //
-  prism = geoFty.Prism(segments,
-    matFty.Matte(0x0000ff), 5, 1)
+  segments = gf.Segments(balls.map((handle) => handle.position), true);
+  
+  prism = gf.Prism(segments,
+    mt.Matte(0x0000ff), 5, 1)
   
   /* ---------- generate points each 5000 area ---------- */
-  vertices = geoFty.Vertices(geoFty.pointsInsideSegments(segments, 5000), 6)
+  vertices = gf.Vertices(gf.pointsInsideSegments(segments, 5000), 6)
   
   
   /* ---------- generate mesh ---------- */
-  mesh = geoFty.Mesh({coordinates: building.verts.flat(), size: 3}, {index: building.faces.flat()}, matFty.Flat());
+  mesh = gf.Mesh({coordinates: building.verts.flat(), size: 3}, {index: building.faces.flat()}, mt.Flat());
   // mesh = geoFty.Mesh(polygonmesh.vertices, polygonmesh.faces, matFty.Flat())
   
   /* ---------- refresh global objects ---------- */
   ARCH.refreshSelection(scene);
-  astMgr.addSelection(balls, 2)
-  astMgr.addSelection([cuboid, cylinder, plane, segments, vertices, mesh], 1);
-  astMgr.setCurrentID(1);
+  am.addSelection(balls, 2)
+  am.addSelection([cuboid, cylinder, plane, segments, vertices, mesh], 1);
+  am.setCurrentID(1);
   
   
   /* ---------- handle returned object ---------- */
@@ -110,10 +106,9 @@ window.searchSceneByUUID = function (uuid) {
 function draw() {
   if (control.dragChanging && curO) {
     segments.setFromPoints((balls.map((handle) => handle.position)))
-    // prism.updateModel(prism, {segments: segments.modelParam(segments), height: 5, extruded: 1});
     prism.setFromSegments(segments);
-    
-    vertices.geometry.setFromPoints(geoFty.pointsInsideSegments(segments, 5000))
+  
+    vertices.geometry.setFromPoints(gf.pointsInsideSegments(segments, 5000))
   }
 }
 
@@ -125,12 +120,13 @@ function draggingChanged(o, event) {
   } else {
     curO = undefined;
   }
+  
   if (!event && balls.includes(o)) {
     
     segments.setFromPoints((balls.map((handle) => handle.position)))
     prism.setFromSegments(segments);
     
-    vertices.geometry.setFromPoints(geoFty.pointsInsideSegments(segments, 5000))
+    vertices.geometry.setFromPoints(gf.pointsInsideSegments(segments, 5000))
   }
 }
 
@@ -142,11 +138,10 @@ function updateObject(uuid, model) {
 /* ---------- main entry ---------- */
 function main() {
   const viewport = new ARCH.Viewport();
-  renderer = viewport.renderer;
   scene = viewport.scene;
   gui = viewport.gui;
   
-  astMgr = viewport.enableAssetManager();
+  am = viewport.enableAssetManager();
   viewport.enableDragFrames();
   let tr = viewport.enableTransformer();
   tr.draggingChanged = draggingChanged;
@@ -155,10 +150,9 @@ function main() {
   initGUI();
   initScene();
   
-  const sceneBasic = new ARCH.SceneBasic(scene, renderer);
+  const sceneBasic = viewport.enableSceneBasic();
   sceneBasic.floorColor = '#ffffff';
-  sceneBasic.floor.material.color.set(sceneBasic.floorColor);
-  sceneBasic.addGUI(gui.gui);
+  sceneBasic.update();
 }
 
 export {

@@ -7,22 +7,22 @@ let renderer, scene, gui;
 
 let camera;
 
-let gb, assetManager;
+let gf, am;
 
 function initScene() {
   scene.background = new THREE.Color(0xfafafa);
   
   
-  gb = new ARCH.GeometryFactory(scene);
+  gf = new ARCH.GeometryFactory(scene);
   const mt = new ARCH.MaterialFactory();
   
-  const b1 = gb.Cuboid([150, 150, 0], [300, 300, 300], mt.Matte());
+  const b1 = gf.Cuboid([150, 150, 0], [300, 300, 300], mt.Matte());
   
-  const b2 = gb.Cuboid([-300, -300, 0], [300, 300, 100], mt.Matte());
+  const b2 = gf.Cuboid([-300, -300, 0], [300, 300, 100], mt.Matte());
   
-  const b3 = gb.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
+  const b3 = gf.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
   
-  const b4 = gb.Cylinder([330, 430, 0], [50, 100], mt.Matte(), true);
+  const b4 = gf.Cylinder([330, 430, 0], [50, 100], mt.Matte(), true);
   
   const loader = new ARCH.Loader(scene);
   loader.addGUI(gui.util);
@@ -32,7 +32,7 @@ function initScene() {
     ARCH.setMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x99A083, transparent: true, opacity: 0.8}))
     ARCH.setPolygonOffsetMaterial(mesh.material);
     mesh.toCamera = true;
-    assetManager.refreshSelection(scene);
+    am.refreshSelection(scene);
   });
   
   loader.loadModel('http://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
@@ -41,7 +41,7 @@ function initScene() {
     ARCH.setPolygonOffsetMaterial(mesh.material);
     ARCH.setMaterialOpacity(mesh, 0.6);
     mesh.toCamera = true;
-    assetManager.refreshSelection(scene);
+    am.refreshSelection(scene);
   });
   const points = [
     new THREE.Vector2(100, 100),
@@ -55,13 +55,13 @@ function initScene() {
   points.forEach((pt) => {
     pt.add(v);
   })
-  const segs = gb.Segments(points, true)
+  const segs = gf.Segments(points, true)
   segs.visible = false;
-  const s1 = gb.Prism(segs, mt.Matte(), 100, 10, true);
+  const s1 = gf.Prism(segs, mt.Matte(), 100, 10, true);
   
-  assetManager.refreshSelection(scene);
-  assetManager.addSelection([b1, b2, b3, b4, s1], 1);
-  assetManager.setCurrentID(1);
+  am.refreshSelection(scene);
+  am.addSelection([b1, b2, b3, b4, s1], 1);
+  am.setCurrentID(1);
   
 }
 
@@ -84,14 +84,13 @@ function main() {
   gui = viewport.gui;
   camera = viewport.camera;
   
-  assetManager = viewport.enableAssetManager();
+  am = viewport.enableAssetManager();
   viewport.enableDragFrames();
   viewport.enableTransformer();
   
   initScene();
   
-  const sceneBasic = new ARCH.SceneBasic(scene, renderer);
-  sceneBasic.addGUI(gui.gui);
+  viewport.enableSceneBasic();
   
 }
 

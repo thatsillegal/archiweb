@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import * as ARCH from "@/archiweb"
 
-let scene, renderer, gui;
-let geoFty, matFty;
+let scene, gui;
+let gf, mt;
 let image;
 let gb = [];
 
@@ -68,8 +68,8 @@ function paintGrid(imagedata, x, y, w, h) {
     let illum = getIllumination(pixel);
     let color = new THREE.Color(pixel.r, pixel.g, pixel.b);
     gb.push(
-      geoFty.Cuboid([x + w / 2 - imagedata.width / 2, -y - h / 2 + imagedata.height / 2, 0],
-        [w, h, illum * w], matFty.Matte(color), control.edge)
+      gf.Cuboid([x + w / 2 - imagedata.width / 2, -y - h / 2 + imagedata.height / 2, 0],
+        [w, h, illum * w], mt.Matte(color), control.edge)
     );
   }
   
@@ -101,8 +101,8 @@ function initGUI() {
 
 /* ---------- create your scene object ---------- */
 function initScene() {
-  geoFty = new ARCH.GeometryFactory(scene);
-  matFty = new ARCH.MaterialFactory();
+  gf = new ARCH.GeometryFactory(scene);
+  mt = new ARCH.MaterialFactory();
   
   const loader = new ARCH.Loader(scene);
   loader.addGUI(gui);
@@ -113,8 +113,6 @@ function initScene() {
     generateGrid(image);
   });
   
-  
-  // refresh global objects
 }
 
 function clear() {
@@ -134,66 +132,28 @@ const control = {
     generateGrid(image);
   },
   save: function () {
-    saveAsImage();
-  }
-}
-
-function saveAsImage() {
-  let imgData;
   
-  try {
-    imgData = renderer.domElement.toDataURL("image/jpeg");
-    console.log(imgData);
-    saveFile(imgData, new Date().valueOf() + ".jpeg");
-  } catch (e) {
-    console.log(e);
-  }
-  
-}
-
-function saveFile(strData, filename) {
-  const link = document.createElement('a');
-  if (typeof link.download === 'string') {
-    //Firefox requires the link to be in the body
-    document.body.appendChild(link);
-    link.download = filename;
-    
-    link.href = strData;
-    link.click();
-    //remove the link when done
-    document.body.removeChild(link);
-  } else {
-    // location.replace(uri);
+    window.saveAsImage();
   }
 }
 
-/* ---------- check device is pc or not ---------- */
-function isPC() {
-  const agents = ["Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"];
-  for (let i = 0; i < agents.length; ++i) {
-    if (navigator.userAgent.indexOf(agents[i]) > 0) return false;
-  }
-  return true;
-}
 
 /* ---------- main entry ---------- */
 function main() {
   const viewport = new ARCH.Viewport();
-  renderer = viewport.renderer;
   scene = viewport.scene;
   gui = viewport.gui.gui;
   
-  if (isPC()) {
+  if (viewport.isPC()) {
     viewport.enableDragFrames();
     viewport.enableTransformer();
   } else {
     viewport.controller.enablePan = true;
   }
   
-  const sceneBasic = new ARCH.SceneBasic(scene, renderer);
-  sceneBasic.addGUI(gui);
+  const sceneBasic = viewport.enableSceneBasic();
   sceneBasic.floorColor = '#ffffff';
-  sceneBasic.y = -3000;
+  sceneBasic.y = 0;
   sceneBasic.axes = false;
   sceneBasic.shadow = false;
   sceneBasic.update();

@@ -1,28 +1,23 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
+"use strict";
+import * as THREE from 'three'
+import * as ARCH from "@/archiweb"
 
-import * as ARCH from "@/archiweb";
-import * as THREE from "three";
+let renderer, scene, gui;
 
-let scene, renderer, gui, camera;
-let gf, mt;
-let am;
+let camera;
 
-/* ---------- GUI setup ---------- */
-function initGUI() {
+let gf, am, mt;
+let balls = [], segs;
+let cubes = [], segs2;
 
-}
-
-
-/* ---------- create your scene object ---------- */
 function initScene() {
+  scene.background = new THREE.Color(0xfafafa);
+  
+  
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
-  const s1 = gb.Cuboid([150, 150, 0], [300, 300, 300], mt.Matte());
-  
-  const s2 = gb.Cuboid([-300, -300, 0], [300, 300, 100], mt.Matte());
-  
-  const s3 = gb.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
   let points = [
     [-110, 460, 6],
     [50, 500, 6],
@@ -46,7 +41,6 @@ function initScene() {
   points.forEach((p) => cubes.push(gf.Cuboid(p, [10, 10, 2], mt.Flat(0x0000ff))));
   segs2 = gf.Segments(cubes.map((handle) => handle.position), true, 0x223344, true);
   
-  am.addSelection([s1, s2, s3], 1);
   am.addSelection(cubes, 1);
   am.addSelection(balls, 1);
   am.refreshSelection(scene);
@@ -54,30 +48,46 @@ function initScene() {
   
 }
 
+let curO = undefined;
 
-/* ---------- animate per frame ---------- */
 function draw() {
-
+  if (curO !== undefined) {
+    if (balls.includes(curO))
+      segs.setFromPoints((balls.map((handle) => handle.position)))
+    if (cubes.includes(curO))
+      segs2.setFromPoints((cubes.map((handle) => handle.position)))
+    
+  }
 }
 
 
-/* ---------- main entry ---------- */
+function draggingChanged(o, event) {
+  if (event && (balls.includes(o) || cubes.includes(o))) {
+    curO = o;
+  } else {
+    curO = undefined;
+  }
+}
+
 function main() {
   const viewport = new ARCH.Viewport();
-  renderer = viewport.renderer;
   scene = viewport.scene;
+  renderer = viewport.renderer;
   gui = viewport.gui;
   camera = viewport.camera;
   
   am = viewport.enableAssetManager();
   viewport.enableDragFrames();
-  viewport.enableTransformer();
-  viewport.enableSceneBasic();
-  
-  initGUI();
-  initScene();
+  let tr = viewport.enableTransformer();
+  tr.draggingChanged = draggingChanged;
+  tr.control.showZ = false;
   
   viewport.draw = draw;
+  
+  initScene();
+  
+  const sceneBasic = new ARCH.SceneBasic(scene, renderer);
+  sceneBasic.addGUI(gui.gui);
   
 }
 

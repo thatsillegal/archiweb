@@ -34,6 +34,10 @@ function initGUI() {
   gui.gui.add(param, 'changing').name('keep changing');
 }
 
+function randomColor() {
+  return new THREE.Color().setHSL(Math.random(), 0.4, 0.7).getHex();
+}
+
 function initScene() {
   scene.background = new THREE.Color(0xfafafa);
   const light = new THREE.SpotLight(0xffffff, 0.931);
@@ -46,9 +50,9 @@ function initScene() {
   
   
   balls = [];
-  for (let i = 0; i < 50; ++i) {
-    let p = [Math.random() * 1200 - 600, Math.random() * 800 - 400];
-    balls.push(gf.Cylinder(p, [10, 10], mt.Flat(Math.random() * 0xffffff), true))
+  for (let i = 0; i < 30; ++i) {
+    let p = [Math.random() * 1400 - 700, Math.random() * 800 - 400];
+    balls.push(gf.Cylinder(p, [Math.random() * 10 + 10, 10], mt.Flat(randomColor()), true))
   }
   bg = gf.Cuboid();
   bg.visible = false;
@@ -124,6 +128,7 @@ function draggingChanged(o, event) {
   }
 }
 
+
 function deleteChanged(o) {
   console.log('delete changed')
   let index = balls.indexOf(o);
@@ -147,6 +152,10 @@ function addMouseEvent() {
       (event.clientX / window.innerWidth) * 2 - 1,
       -(event.clientY / window.innerHeight) * 2 + 1
     )
+    raycaster.setFromCamera(mouse, camera);
+    let intersections = raycaster.intersectObjects(balls, false);
+    renderer.domElement.style.cursor = intersections.length === 0 ? 'auto' : 'pointer';
+  
   }
 }
 

@@ -6,8 +6,6 @@ import {io} from 'socket.io-client'
 const socket = io("ws://localhost:39481/")
 
 let scene, gui;
-
-
 let gf, am;
 
 let vs, fs, mesh;
