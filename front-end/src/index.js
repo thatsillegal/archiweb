@@ -2,30 +2,48 @@
 "use strict";
 import * as THREE from 'three'
 import * as ARCH from "@/archiweb"
-
+import socket from "@/socket";
+import {setPolygonOffsetMaterial} from "@/archiweb";
 let renderer, scene, gui;
+let gf, am, mt;
 
 let camera;
 
-let gb, assetManager;
+let roads = [], buildings = [];
+
+function clear(list) {
+  if(list !== undefined)
+    list.forEach((e)=>e.parent.remove(e));
+  list = [];
+}
+
+function initWS() {
+  socket.on('stb:loadFromDatabase', async function (geometryElements) {
+    clear(roads);
+    clear(buildings);
+    console.log('loading')
+    
+    for(let e of geometryElements) {
+      let points = gf.coordinatesToPoints(e.coordinates, e.size);
+      if(e.closed) {
+        let building = gf.Segments(points, e.closed, 0xaaaaaa, true);
+        building.material = mt.Doubled(0xaaaaaa);
+        setPolygonOffsetMaterial(building.material)
+        buildings.push(building);
+      } else {
+        roads.push(gf.Segments(points, e.closed));
+      }
+    }
+  });
+}
 
 function initScene() {
-  scene.background = new THREE.Color(0xfafafa);
   
   
-  gb = new ARCH.GeometryFactory(scene);
-  const mt = new ARCH.MaterialFactory();
+  gf = new ARCH.GeometryFactory(scene);
+  mt = new ARCH.MaterialFactory();
   
-  const b1 = gb.Cuboid([150, 150, 0], [300, 300, 300], mt.Matte());
-  
-  const b2 = gb.Cuboid([-300, -300, 0], [300, 300, 100], mt.Matte());
-  
-  const b3 = gb.Cuboid([300, -500, 0], [300, 300, 150], mt.Matte());
-  
-  
-  assetManager.refreshSelection(scene);
-  assetManager.addSelection([b1, b2, b3], 1);
-  assetManager.setCurrentID(1);
+  socket.emit('bts:initFromDatabase', {properties: {range:[16.370,48.21, 16.47,  48.27]}})
   
 }
 
@@ -36,14 +54,13 @@ function main() {
   gui = viewport.gui;
   camera = viewport.camera;
   
-  assetManager = viewport.enableAssetManager();
+  am = viewport.enableAssetManager();
   viewport.enableDragFrames();
   viewport.enableTransformer();
+  viewport.enableSceneBasic();
   
+  initWS();
   initScene();
-  
-  const sceneBasic = new ARCH.SceneBasic(scene, renderer);
-  sceneBasic.addGUI(gui.gui);
   
 }
 
