@@ -95,7 +95,7 @@ ArchiWeb provides user a dat.gui entry. It's very simple to use;
 - `gui.gui` is the root folder
 - `gui.util` is the **util folder** at the top of controllers
 ##### InfoCard:
-![](imgs\infocard.gif)
+![](imgs/infocard.gif)
 ##### Notification:
 comming soon...
 ##### OptionCard:
@@ -118,7 +118,7 @@ Multiselect tools
 #### MultiCamera
 Similar to SketchUp, you can use perspective camera and orthographic camera in the scene, and switch between them use hotkeys
 ##### multiple view
-press c to toggle between perspective and orthographic camera, view change hotkeys: 1-9
+press `C` to toggle between perspective and orthographic camera, view change hotkeys: `1-9`
 ![](imgs/multiview.gif)
 
 ##### zoom to object
