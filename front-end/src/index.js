@@ -2,6 +2,7 @@
 
 import * as ARCH from "@/archiweb";
 import * as THREE from "three";
+import {loaderOption} from "@/creator/Loader"
 
 let scene, renderer, gui, camera;
 let gf, mt;
@@ -17,6 +18,9 @@ function initGUI() {
 function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
+
+  loaderOption.status = "raw";
+  
   
   // refresh global objects
   ARCH.refreshSelection(scene);

@@ -19,29 +19,6 @@
 [![license](https://img.shields.io/github/license/Inst-AAA/archiweb)](LICENSE) 
 
 ArchiWeb is a front-end web application using [Vuetify](https://vuetifyjs.com/en/) and [three.js](https://threejs.org/). It's recommanded to start from the documentations of both.
-
-- [Usage](#usage)
-  - [As Template](#as-template)
-  - [Install](#install)
-  - [Tools](#tools)
-    - [GUI](#gui)
-    - [Transformer](#transformer)
-    - [SceneBasic](#scenebasic)
-    - [DragFrames](#dragframes)
-    - [MultiCamera](#multicamera)
-    - [GeometryFactory](#geometryfactory)
-    - [Loader](#loader)
-      - [Loader Option](#loader-option)
-    - [similar works](#similar-works)
-- [Extensions](#extensions)
-  - [java-backend](#java-backend)
-  - [webxr](#webxr)
-    - [similar framework](#similar-framework)
-  - [database](#database)
-    - [Similar to web GIS](#similar-to-web-gis)
-  - [ddg](#ddg)
-- [Issues](#issues)
-
 ## Usage
 ArchiWeb provides a template to create a web application from scratch, you can easily use [Vuetify UI components](https://vuetifyjs.com/en/components/buttons/) to generate a material design web, also with 3d rendering.
 
@@ -49,7 +26,7 @@ ArchiWeb provides a template to create a web application from scratch, you can e
 - Node 12.x
 - Java 8+
 
-### Install
+### Installation
 ``` bash
 git clone https://github.com/Inst-AAA/archiweb.git
 cd archiweb/front-end
@@ -61,16 +38,24 @@ npm install
 npm run serve
 ```
 
-### As Template
-Press `Use this template`
+### Template
+ArchiWeb is under developing, so it's recommanded to `Use this template` creating your own repository from ArchiWeb and receiving updates by merging the upstream.
 ``` bash
 # clone
 git clone git@github.com:Your/new-repo.git
 
+cd archiweb/front-end
+npm run serve
+
+
+# Update with upstream
 # add as remote 
 git remote add upstream git@github.com:Inst-AAA/archiweb.git
 git fetch upstream
 
+# Important: 
+# don't merge on your default branch (main or master)
+git checkout -b dev
 # merge
 git merge upstream/main --allow-unrelated-histories
 
@@ -78,144 +63,66 @@ git merge upstream/main --allow-unrelated-histories
 # first time
 git submodule update --init --recursive 
 # later
-git submodule update --remote --recursive
-
-# resolve conflicts
-git push origin main
+cd plugins/archijson
+git checkout main
+git pull origin main
 
 ```
-check out to specific branch, such as:
-``` bash
-git checkout -b java-backend
-```
-or you can just mannually organize and use those plugins.
+We also provide [archiweb-java-template](https://github.com/Inst-AAA/archiweb-java-template), which uses archiweb as a submodule.
 
+
+### Quick start example
+
+After `npm run serve`, ArchiWeb opens a viewer from `index.js`. 
+![](imgs/2021-04-01-16-45-38.png)
+``` javascript
+// file: front-end/src/index.js
+
+/* ---------- create your scene object ---------- */
+function initScene() {
+  gf = new ARCH.GeometryFactory(scene);
+  mt = new ARCH.MaterialFactory();
+  
+  // create a box with phong material
+  let b = gf.Cuboid([0, 0, 0], [100, 100, 100], mt.Matte());
+}
+```
+The example files are in the folder `src/examples`, you can access by clicking on ArchiWeb at top bar.
 ### Tools
 #### GUI
-ArchiWeb use `dat.gui` create simple interacts
-
-<details>
-  <summary> Here gives the minimal instructions of gui.dat, you can select to take a try.</summary>
-
-``` javascript
-const gui = require('@/viewers/3D/gui')
-gui.initGUI();
-
-// Add variable
-const controls = new function() {
-  this.variable = 0;
-  this.color = 0x666600;
-  this.select = 'aaa';
-  this.change = true;
-
-  this.button = function() {
-    // do something
-  }
-}
-
-// slider
-gui.gui.add(controls, 'variable', 0, 10, 1);
-
-// color picker
-gui.gui.addColor(controls, 'color');
-
-// select list
-gui.gui.add(control, 'select', ['aaa', 'bbb', 'ccc'])
-
-// button
-gui.gui.add(button);
-
-// Add your folder
-const folder = gui.gui.addFolder('Folder name');
-folder.add(controls, 'change');
-
-// onChange and listen
-gui.gui.add(controls, 'change').listen().onChange(function() {
-  // do something
-});
-```
-
-</details>
+##### dat.gui
+ArchiWeb provides user a dat.gui entry. It's very simple to use;
+- `gui.gui` is the root folder
+- `gui.util` is the **util folder** at the top of controllers
+##### InfoCard:
+![](imgs\infocard.gif)
+##### Notification:
+comming soon...
+##### OptionCard:
+You can write about the infomation and hotkeys of your application in the option card.
+The card can be open by clicking on the cog button.
+![](imgs/optioncard.gif)
 
 #### Transformer
-Transform tool derive from THREE.TransformControl, just like your familiar Rhino Gumball
-- init a transformer and add gui
-``` javascript
-transformer = new Transformer(scene, renderer, camera, objects, drag);
-transformer.addGUI(gui.gui);
-```
-this is all the required codes, if your want to work with [dragFrames](#dragframes), see later instructions.
+Transform tool derive from THREE.TransformControl, just like Rhino Gumball
+![](imgs/transformer.gif)
+
 #### SceneBasic
 SceneBasic creates a basic architectural design environment, with ground, sky and fog.
-- init and add gui
-``` javascript
-sceneBasic = new SceneBasic(scene, renderer, transformer);
-sceneBasic.addGUI(gui.gui);
-```
+![](imgs/sunpos.gif)
 
 #### DragFrames
 Multiselect tools
-- draw rectangle over current renderer
-```javascript
-dragFrames = new DragFrames(objects, camera, scene, renderer);
-
-// Disable autoClear
-renderer.autoClear = false;
-
-// Your render function
-function render() {
-renderer.clear();
-renderer.render(scene, camera);
-
-if (dragFrames !== undefined)
-  dragFrames.render();
-}
-
-```
-
-- highlight seleted objects
-``` javascript
-dragFrames.addEventListener('select', function (event) {
-  for (let i = 0; i < event.object.length; ++i) {
-    event.object[i].material.emissive.set(0x666600);
-    if (event.object[i].children.length > 0)
-      event.object[i].children[0].visible = true;
-  }
-});
-
-dragFrames.addEventListener('selectup', function (event) {
-  for (let i = 0; i < event.object.length; ++i) {
-    event.object[i].material.emissive.set(0x000000);
-    if (event.object[i].children.length > 0)
-      event.object[i].children[0].visible = false;
-  }
-});
-```
-- work with transformer
-``` javascript
-transformer.setDragFrames(dragFrames); //If not init with DragFrames
-
-dragFrames.addEventListener('selectdown', function(event) {
-  transformer.clear();
-});
-
-
-dragFrames.addEventListener('selectup', function (event) {
-
-  transformer.setSelected(event.object);
-});
-
-```
+![](imgs/multiselect.gif)
 
 #### MultiCamera
 Similar to SketchUp, you can use perspective camera and orthographic camera in the scene, and switch between them use hotkeys
-- init and add gui
-``` javascript
-multiCamera = new MultiCamera(scene, renderer);
-multiCamera.addGUI(gui.gui);
-```
+##### multiple view
+press c to toggle between perspective and orthographic camera, view change hotkeys: 1-9
+![](imgs/multiview.gif)
 
-
+##### zoom to object
+![](imgs/zoom.gif)
 #### GeometryFactory
 This function provides basic [BufferGeometry](https://threejs.org/docs/index.html#api/en/core/BufferGeometry) prefered by architectural usage.
 
@@ -229,44 +136,32 @@ Ruled by:
 - **publicProperties** returns the ArchiJSON format of the geometry.
 
 Current Supported:
-- Box
+- Cuboid
 - Cylinder
+- Plane
+- Sphere
+- Vertices
+- Segments
+- Prism
+- Mesh
 #### Loader
 The Loader works with page loading and gui buttons, with callback function link to the loaded assets.
-##### Loader Option
-|label| |物件可选|材质双面|朝向相机|映射Y至Z|阴影|边线|
-|:----|:----|:----|:----|:----|:----|:----|:----|
-| |value|selectable|doubleSide|toCamera|ZtoY|shadow|edge|
-|成组|grouped|✔|✔|❌|✔|✔|✔|
-|融合|merged|✔|✔|✔|✔|✔|✔|
-|原始|raw|✔|✔|❌|❌|✔|❌|
 
 Currently support:  
-`dae`, `obj`, `gltf`, `glb`, `3mf`, `fbx`
+`dae`, `obj`, `gltf`, `glb`, `2mf`, `fbx`
 
-- init and add gui
-``` javascript
-loader = new Loader(scene, objects);
-loader.addGUI(gui.gui);
-```
-- load models when loading 
-``` javascript
-loader.loadModel('/models/autumn-tree.dae', (mesh) => {
-  mesh.position.set(500, 0, 0);
-  mesh.scale.set(2, 2, 2);
-  setMaterialOpacity(mesh, 0.6);
-  mesh.toCamera = true;
-});
-```
 #### similar works
 - [THREE Editor](https://threejs.org/editor/)
 - [HomeIdea3D](https://homeidea3d.seanwasere.com/)
 ## Extensions
 ### java-backend
-Data exchange format is [ArchiJson](https://github.com/Inst-AAA/archijson).
+Data exchange format is [ArchiJSON](https://github.com/Inst-AAA/archijson).
 Current java-backend is using node.js as server, the examples in plugins folder give the minimal implementation of a java server.
 
 To avoid changing and merging conflicts of using this template, there are plans to design a universal interface.
+
+### python-backend
+Python backend uses [flask-socketio](https://flask-socketio.readthedocs.io), creating a light weighted server.
 ### webxr
 It's plan to support VR, which is a better display to architectural design.
 #### similar framework
