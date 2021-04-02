@@ -1,12 +1,9 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 
-import * as ARCH from "@/archiweb";
-import * as THREE from "three";
-import {loaderOption} from "@/creator/Loader"
+import * as ARCH from "@/archiweb"
 
 let scene, renderer, gui, camera;
-let gf, mt;
-let am;
+let gf, mt, am;
 
 /* ---------- GUI setup ---------- */
 function initGUI() {
@@ -18,12 +15,9 @@ function initGUI() {
 function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
-
-  loaderOption.status = "raw";
-  
   
   // refresh global objects
-  ARCH.refreshSelection(scene);
+  am.refreshSelection();
 }
 
 
