@@ -7,20 +7,6 @@ import * as earcut from "earcut";
 
 
 /**
- *      ___           ___           ___           ___                       ___           ___           ___
- *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
- *    /::\  \       /::\  \       /::\  \       /:/  /         /\  \      /:/ _/_       /::\  \       /::\  \
- *   /:/\:\  \     /:/\:\  \     /:/\:\  \     /:/__/          \:\  \    /:/ /\__\     /:/\:\  \     /:/\:\  \
- *  /::\~\:\  \   /::\~\:\  \   /:/  \:\  \   /::\  \ ___      /::\__\  /:/ /:/ _/_   /::\~\:\  \   /::\~\:\__\
- * /:/\:\ \:\__\ /:/\:\ \:\__\ /:/__/ \:\__\ /:/\:\  /\__\  __/:/\/__/ /:/_/:/ /\__\ /:/\:\ \:\__\ /:/\:\ \:|__|
- * \/__\:\/:/  / \/_|::\/:/  / \:\  \  \/__/ \/__\:\/:/  / /\/:/  /    \:\/:/ /:/  / \:\~\:\ \/__/ \:\~\:\/:/  /
- *      \::/  /     |:|::/  /   \:\  \            \::/  /  \::/__/      \::/_/:/  /   \:\ \:\__\    \:\ \::/  /
- *      /:/  /      |:|\/__/     \:\  \           /:/  /    \:\__\       \:\/:/  /     \:\ \/__/     \:\/:/  /
- *     /:/  /       |:|  |        \:\__\         /:/  /      \/__/        \::/  /       \:\__\        \::/__/
- *     \/__/         \|__|         \/__/         \/__/                     \/__/         \/__/         ~~
- *
- *
- *
  * Copyright (c) 2020-present, Inst.AAA.
  *
  * This source code is licensed under the MIT license found in the
@@ -120,44 +106,50 @@ const GeometryFactory = function (_scene) {
     let segments;
     
     if (filled && closed) {
-      const fill = new THREE.BufferGeometry();
-      const coords = pointsToCoordinates(points);
-      fill.setAttribute('position', new Float32BufferAttribute(coords, 3));
-      fill.setIndex(triangulatePolygon(coords));
-      fill.computeVertexNormals();
+      segments = new THREE.Mesh(new THREE.BufferGeometry(),
+        new THREE.MeshPhongMaterial({color: color}));
   
-      segments = new THREE.Mesh(fill, new THREE.MeshPhongMaterial({color: color}));
-  
-      /* ---------- translate ---------- */
-      segments.center = getPointsCenter(points);
-      segments.geometry.translate(-segments.center.x, -segments.center.y, -segments.center.z);
-      segments.position.copy(segments.center);
-      segments.points = points;
-      segments.size = segments.geometry.getAttribute('position').itemSize;
-      segments.coordinates = Array.from(segments.geometry.getAttribute('position').array);
-  
-      sceneAddMesh(_scene, segments, true);
+      sceneAddMesh(_scene, segments, false, false, [0]);
     } else {
       if (closed) {
         segments = new THREE.LineLoop(
           new THREE.BufferGeometry(),
-          new THREE.LineBasicMaterial({color: color})
-        );
-  
+          new THREE.LineBasicMaterial({color: color}));
       } else {
         segments = new THREE.Line(
           new THREE.BufferGeometry(),
-          new THREE.LineBasicMaterial({color: color})
-        );
+          new THREE.LineBasicMaterial({color: color}));
       }
       sceneAddMesh(_scene, segments, false, false, []);
+    }
   
-      if (points) {
+    segments.setFromPoints = function (points) {
+    
+      segments.center = getPointsCenter(points);
+      if (filled) {
+      
+        segments.parent.remove(segments);
+        segments.children = []
+        const coords = pointsToCoordinates(points);
+        segments.geometry.setAttribute('position', new Float32BufferAttribute(coords, 3));
+        segments.geometry.setIndex(triangulatePolygon(coords));
+        segments.geometry.computeVertexNormals();
+        segments.geometry.translate(-segments.center.x, -segments.center.y, -segments.center.z);
+      
+        sceneAddMesh(_scene, segments, true);
+      
+      } else {
         segments.geometry.setFromPoints(points);
-        segments.points = points;
-        segments.size = segments.geometry.getAttribute('position').itemSize;
-        segments.coordinates = Array.from(segments.geometry.getAttribute('position').array);
+        segments.geometry.translate(-segments.center.x, -segments.center.y, -segments.center.z);
       }
+      segments.position.copy(segments.center);
+      segments.points = points;
+      segments.size = segments.geometry.getAttribute('position').itemSize;
+      segments.coordinates = Array.from(segments.geometry.getAttribute('position').array);
+    }
+  
+    if (points) {
+      segments.setFromPoints(points);
     }
   
     segments.type = 'Segments';
@@ -180,25 +172,38 @@ const GeometryFactory = function (_scene) {
    * @constructor
    */
   this.Prism = function (segments, material, height = 0.0, extruded = 0.0, showEdge = false) {
-    const shape = new THREE.Shape().setFromPoints(segments.points)
-    
+  
     const mesh = new THREE.Mesh(
-      new THREE.ExtrudeGeometry(shape, {
-        depth: 1.,
-        bevelEnabled: false
-      }),
+      new BufferGeometry(),
       material
     );
-    
+  
     mesh.type = 'Prism';
-    mesh.segments = segments;
-    mesh.center = getPointsCenter(shape.getPoints());
-    mesh.geometry.translate(-mesh.center.x, -mesh.center.y, 0);
-    mesh.position.x = mesh.center.x;
-    mesh.position.y = mesh.center.y;
-    mesh.position.z = height;
-    mesh.scale.z = extruded;
-    sceneAddMesh(_scene, mesh, showEdge)
+    sceneAddMesh(_scene, mesh, false, false, [0]);
+  
+    mesh.setFromSegments = function (segments) {
+      mesh.parent.remove(mesh);
+      mesh.children = [];
+      mesh.shape = new THREE.Shape().setFromPoints(segments.points);
+      mesh.geometry = new THREE.ExtrudeGeometry(mesh.shape, {
+        depth: 1.,
+        bevelEnabled: false
+      });
+    
+      mesh.segments = segments;
+      mesh.center = getPointsCenter(mesh.shape.getPoints());
+      mesh.geometry.translate(-mesh.center.x, -mesh.center.y, 0);
+    
+      mesh.position.x = mesh.center.x;
+      mesh.position.y = mesh.center.y;
+      mesh.position.z = height;
+      mesh.scale.z = extruded;
+    
+      sceneAddMesh(_scene, mesh, showEdge)
+    }
+  
+    mesh.setFromSegments(segments);
+  
   
     publicProperties(mesh);
     return mesh;
@@ -263,28 +268,28 @@ const GeometryFactory = function (_scene) {
         self.scale.y = modelParam['r'];
         self.scale.z = modelParam['r'];
         break;
-      case 'Prism':
-        self.segments = modelParam['segments'];
-        self.shape = new THREE.Shape().setFromPoints(
-          coordinatesToPoints(self.segments.coordinates, self.segments.size));
-        self.geometry = new THREE.ExtrudeGeometry(self.shape, {depth: 1., bevelEnabled: false});
-        self.position.z = modelParam['height'];
-        self.scale.z = modelParam['extruded'];
-        self.children[0] = createMeshWireframe(self, 0xffff00, 0.005)
-        self.children[0].visible = false;
-  
-        self.center = getPointsCenter(self.shape.getPoints());
-        self.geometry.translate(-self.center.x, -self.center.y, 0);
-        self.position.x = self.center.x;
-        self.position.y = self.center.y;
-  
-        break;
-      case 'Segments':
-        self.size = modelParam['size'];
-        self.points = coordinatesToPoints(modelParam['coordinates'], self.size);
-        self.closed = modelParam['closed'];
-        self.geometry.setFromPoints(self.points);
-        break;
+      // case 'Prism':
+      //   self.segments = modelParam['segments'];
+      //   self.shape = new THREE.Shape().setFromPoints(
+      //     coordinatesToPoints(self.segments.coordinates, self.segments.size));
+      //   self.geometry = new THREE.ExtrudeGeometry(self.shape, {depth: 1., bevelEnabled: false});
+      //   self.position.z = modelParam['height'];
+      //   self.scale.z = modelParam['extruded'];
+      //   self.children[0] = createMeshWireframe(self, 0xffff00, 0.005)
+      //   self.children[0].visible = false;
+      //
+      //   self.center = getPointsCenter(self.shape.getPoints());
+      //   self.geometry.translate(-self.center.x, -self.center.y, 0);
+      //   self.position.x = self.center.x;
+      //   self.position.y = self.center.y;
+      //
+      //   break;
+      // case 'Segments':
+      //   self.size = modelParam['size'];
+      //   self.points = coordinatesToPoints(modelParam['coordinates'], self.size);
+      //   self.closed = modelParam['closed'];
+      //   self.geometry.setFromPoints(self.points);
+      //   break;
       default:
         break;
     }
@@ -507,12 +512,13 @@ const GeometryFactory = function (_scene) {
 
 function createMeshEdge(mesh, color = 0x000000) {
   if (!mesh.geometry) return;
-  
   setPolygonOffsetMaterial(mesh.material);
   
   const matLine = new THREE.LineBasicMaterial({color: color});
   const geoLine = new THREE.EdgesGeometry(mesh.geometry);
-  return new THREE.LineSegments(geoLine, matLine);
+  const lineSegs = new THREE.LineSegments(geoLine, matLine);
+  lineSegs.unselectable = true;
+  return lineSegs;
 }
 
 /**
@@ -532,6 +538,7 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
   const wireframe = new Wireframe(geoLine, matLine);
   wireframe.computeLineDistances();
   wireframe.scale.set(1, 1, 1);
+  wireframe.unselectable = true;
   return wireframe;
 }
 
@@ -564,7 +571,7 @@ function sceneMesh(object, shadow = true, doubleSide = false, layer = [0]) {
  */
 function sceneAddMesh(object, mesh, edge = true, shadow = true, layer = [0]) {
   // show edge
-  if (mesh.isMesh) {
+  if (mesh.isMesh && edge) {
     setPolygonOffsetMaterial(mesh.material);
     mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
     mesh.children[0].visible = false;

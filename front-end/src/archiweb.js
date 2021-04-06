@@ -6,7 +6,7 @@ export {DragFrames} from "@/editor/DragFrames";
 export {Transformer} from "@/editor/Transformer"
 
 
-export {Loader} from "@/creator/Loader";
+export {Loader, loaderOption} from "@/creator/Loader";
 export {AssetManager, refreshSelection} from "@/creator/AssetManager";
 export {GeometryFactory, sceneAddMesh, createMeshEdge, createMeshWireframe} from "@/creator/GeometryFactory";
 export {

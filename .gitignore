@@ -30,3 +30,5 @@ test
 
 __pycache__
 *test*
+/release/
+META-INF

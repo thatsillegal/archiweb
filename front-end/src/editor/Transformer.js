@@ -1,20 +1,6 @@
 import * as THREE from "three";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 /**
- *      ___           ___           ___           ___                       ___           ___           ___
- *     /\  \         /\  \         /\  \         /\__\          ___        /\__\         /\  \         /\  \
- *    /::\  \       /::\  \       /::\  \       /:/  /         /\  \      /:/ _/_       /::\  \       /::\  \
- *   /:/\:\  \     /:/\:\  \     /:/\:\  \     /:/__/          \:\  \    /:/ /\__\     /:/\:\  \     /:/\:\  \
- *  /::\~\:\  \   /::\~\:\  \   /:/  \:\  \   /::\  \ ___      /::\__\  /:/ /:/ _/_   /::\~\:\  \   /::\~\:\__\
- * /:/\:\ \:\__\ /:/\:\ \:\__\ /:/__/ \:\__\ /:/\:\  /\__\  __/:/\/__/ /:/_/:/ /\__\ /:/\:\ \:\__\ /:/\:\ \:|__|
- * \/__\:\/:/  / \/_|::\/:/  / \:\  \  \/__/ \/__\:\/:/  / /\/:/  /    \:\/:/ /:/  / \:\~\:\ \/__/ \:\~\:\/:/  /
- *      \::/  /     |:|::/  /   \:\  \            \::/  /  \::/__/      \::/_/:/  /   \:\ \:\__\    \:\ \::/  /
- *      /:/  /      |:|\/__/     \:\  \           /:/  /    \:\__\       \:\/:/  /     \:\ \/__/     \:\/:/  /
- *     /:/  /       |:|  |        \:\__\         /:/  /      \/__/        \::/  /       \:\__\        \::/__/
- *     \/__/         \|__|         \/__/         \/__/                     \/__/         \/__/         ~~
- *
- *
- *
  * Copyright (c) 2020-present, Inst.AAA.
  *
  * This source code is licensed under the MIT license found in the
@@ -38,7 +24,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   let grouped;
   let selected = [];
   let dragged = false;
-  let copy = false;
+  let copy = 0;
   let refresh = false;
   //
   let clonedObject = new THREE.Group();
@@ -51,11 +37,11 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   function addToInfoCard(o) {
     if (o !== undefined) {
-      
-      o.position.x = Math.round(o.position.x);
-      o.position.y = Math.round(o.position.y);
-      o.position.z = Math.round(o.position.z);
   
+      // o.position.x = Math.round(o.position.x);
+      // o.position.y = Math.round(o.position.y);
+      // o.position.z = Math.round(o.position.z);
+      //
       if (o.toInfoCard !== undefined) {
         o.toInfoCard();
         return;
@@ -128,27 +114,29 @@ const Transformer = function (_scene, _renderer, _camera) {
       addDraggingFlag(scope.object, event.value);
       dragged = !event.value;
   
-      scope.draggingChanged(scope.object, event.value);
   
       if (event.value === true) {
+        copy = 0;
         clonedObject = new THREE.Group();
         setCloneObject(control.object);
       } else {
     
         control.object.updateMatrix();
         addToInfoCard(control.object);
-    
-        if (copy) {
+  
+        if (copy % 2 === 1) {
           applyTransformGroup(clonedObject);
           while (clonedObject.children.length > 0) {
             clonedObject.children.forEach((item) => {
               _scene.attach(item)
             })
           }
-          copy = false;
           refresh = true;
         }
+        copy = 0;
       }
+  
+      scope.draggingChanged(scope.object, event.value);
     });
     
     grouped = new THREE.Group();
@@ -217,6 +205,7 @@ const Transformer = function (_scene, _renderer, _camera) {
     let mesh = undefined;
     for (let i = 0; i < intersections.length; ++i) {
       let item = intersections[i].object;
+      if (item.unselectable) continue;
       if (item.isMesh) {
         mesh = item;
         break;
@@ -468,19 +457,19 @@ const Transformer = function (_scene, _renderer, _camera) {
           control.setScaleSnap(scope.scaleSnap);
         }
         break;
-      
+  
       case 187:
       case 107: // +, =, num+
         control.setSize(control.size + 0.1);
         break;
-      
+  
       case 189:
       case 109: // -, _, num-
         control.setSize(Math.max(control.size - 0.1, 0.1));
         break;
   
-      case 18: // alt
-        copy = !copy;
+      case 18:// alt
+        copy++;
         break;
   
       case 32: // space bar

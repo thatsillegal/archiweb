@@ -3,11 +3,11 @@ import * as ARCH from "@/archiweb"
 
 let scene, csm;
 
-let gb, am;
+let gf, am;
 
 function initScene() {
   
-  gb = new ARCH.GeometryFactory(scene);
+  gf = new ARCH.GeometryFactory(scene);
   const mt = new ARCH.MaterialFactory();
   
   const matte = mt.Matte(0xffffff);
@@ -18,7 +18,7 @@ function initScene() {
   for (let i = 0; i < 6; ++i) {
     for (let j = 0; j < 18; ++j) {
       let height = Math.random() * 1000 + 300;
-      cubes.push(gb.Cuboid([900 * i - 3000, j * 600 - 1000, 0], [200, 200, height], matte))
+      cubes.push(gf.Cuboid([900 * i - 3000, j * 600 - 1000, 0], [200, 200, height], matte))
     }
   }
   

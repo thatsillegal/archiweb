@@ -4,6 +4,7 @@
       app
       color="transparent"
       flat
+      absolute
     >
       <div class="d-flex align-end">
         <a class="text-decoration-none" href="http://labaaa.org" style="color:#000000;" target="_blank">

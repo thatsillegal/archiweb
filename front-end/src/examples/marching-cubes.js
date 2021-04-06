@@ -10,7 +10,7 @@ let directLight, ambientLight;
 let material;
 let time = 0;
 
-const materialFactory = new ARCH.MaterialFactory();
+const mf = new ARCH.MaterialFactory();
 let reflectionCube, refractionCube, texture;
 
 function loadTextures() {
@@ -36,7 +36,7 @@ function initScene() {
   
   // scene.rotation.x = Math.PI/2;
   
-  material = materialFactory.Doubled(0xffffff);
+  material = mf.Doubled(0xffffff);
   resolution = effectController.resolution;
   
   effect = new MarchingCubes(resolution, material, true, true);
@@ -104,33 +104,33 @@ function initGUI() {
   h.add(effectController, "wallz");
   h.open();
   const m = gui.addFolder("Material");
-  m.add(effectController, "material", Object.keys(materialFactory)).onChange(() => {
+  m.add(effectController, "material", Object.keys(mf)).onChange(() => {
     let mat;
     console.log(effectController.material)
     effect.enableUvs = false;
     switch (effectController.material) {
       case "Liquid":
-        mat = new materialFactory[effectController.material](effectController.color, refractionCube);
+        mat = new mf[effectController.material](effectController.color, refractionCube);
         break;
       
       case "Chrome" :
       case "Shiny":
-        mat = new materialFactory[effectController.material](effectController.color, reflectionCube);
+        mat = new mf[effectController.material](effectController.color, reflectionCube);
         break;
       
       case "Textured":
         effect.enableUvs = true;
-        mat = new materialFactory[effectController.material](effectController.color, texture);
+        mat = new mf[effectController.material](effectController.color, texture);
         break;
       
       case "Dotted":
       case "Hatching":
       case "Toon":
-        mat = new materialFactory[effectController.material](effectController.color, directLight, ambientLight);
+        mat = new mf[effectController.material](effectController.color, directLight, ambientLight);
         break;
       
       default:
-        mat = new materialFactory[effectController.material](effectController.color);
+        mat = new mf[effectController.material](effectController.color);
     }
     effect.material = mat;
     
@@ -173,8 +173,7 @@ function main() {
   initScene();
   viewport.draw = draw;
   
-  const sceneBasic = new ARCH.SceneBasic(scene, viewport.renderer);
-  sceneBasic.addGUI(gui);
+  const sceneBasic = viewport.enableSceneBasic(true);
   sceneBasic.floor.visible = false;
   directLight = sceneBasic.directLight;
   ambientLight = sceneBasic.ambientLight;

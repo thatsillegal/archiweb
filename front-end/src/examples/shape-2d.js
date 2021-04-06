@@ -2,7 +2,7 @@ import * as ARCH from '@/archiweb'
 import * as THREE from 'three'
 
 let scene, gui, renderer;
-let camera, gb, mf;
+let camera, gf, mt;
 let DRAWMODE = false;
 const raycaster = new THREE.Raycaster();
 const xoy = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
@@ -23,9 +23,9 @@ const controls = new function () {
     if (DRAWMODE) arr = [];
   }
   this.shape = function () {
-    let segs = gb.Segments(path.getPoints());
+    let segs = gf.Segments(path.getPoints());
     lines.push(segs);
-    shapes.push(gb.Prism(segs, mf.Matte(), 0, getRandomInt(20), true))
+    shapes.push(gf.Prism(segs, mt.Matte(), 0, getRandomInt(20), true))
     arr = [];
   }
   this.clear = function () {
@@ -66,10 +66,10 @@ function onClick(event) {
 function initScene() {
   scene.background = new THREE.Color('0xffffff');
   
-  mf = new ARCH.MaterialFactory();
-  gb = new ARCH.GeometryFactory(scene);
-  b = gb.Cuboid([2, 2, 0], [2, 2, 2]);
-  p = gb.Segments(null, 0xaaaaaa);
+  mt = new ARCH.MaterialFactory();
+  gf = new ARCH.GeometryFactory(scene);
+  b = gf.Cuboid([2, 2, 0], [2, 2, 2]);
+  p = gf.Segments(null, 0xaaaaaa);
   
   /* ---------- light ---------- */
   const light = new THREE.SpotLight(0xffffff, 1.5);
