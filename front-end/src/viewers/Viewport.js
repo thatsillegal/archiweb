@@ -5,8 +5,8 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import * as ARCH from "@/archiweb";
 import {AssetManager, DragFrames, MultiCamera, Transformer} from "@/archiweb";
 
-const Viewport = function () {
-  
+const Viewport = function (width = window.innerWidth, height = window.innerHeight) {
+  const aspect = height / width;
   const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
   const scene = new THREE.Scene();
   
@@ -32,7 +32,7 @@ const Viewport = function () {
     renderer.domElement.tabIndex = 0;
     renderer.autoClear = false;
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(width, height);
     
     /* ---------- dom ---------- */
     addToDOM();
@@ -45,7 +45,7 @@ const Viewport = function () {
     /* ---------- camera ---------- */
     camera.addGUI(gui.gui);
     camera.setController(controller);
-  
+    
     /* ---------- control ---------- */
     controller.enableKeys = false;
     controller.mouseButtons = {
@@ -54,7 +54,7 @@ const Viewport = function () {
     }
     controller.update();
     animate();
-  
+    
     console.log(` %c      ___           ___           ___           ___                       ___           ___           ___\n      /\\  \\         /\\  \\         /\\  \\         /\\__\\          ___        /\\__\\         /\\  \\         /\\  \\\n     /::\\  \\       /::\\  \\       /::\\  \\       /:/  /         /\\  \\      /:/ _/_       /::\\  \\       /::\\  \\    \n    /:/\\:\\  \\     /:/\\:\\  \\     /:/\\:\\  \\     /:/__/          \\:\\  \\    /:/ /\\__\\     /:/\\:\\  \\     /:/\\:\\  \\ \n   /::\\~\\:\\  \\   /::\\~\\:\\  \\   /:/  \\:\\  \\   /::\\  \\ ___      /::\\__\\  /:/ /:/ _/_   /::\\~\\:\\  \\   /::\\~\\:\\__\\ \n  /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:\\__\\ /:/__/ \\:\\__\\ /:/\\:\\  /\\__\\  __/:/\\/__/ /:/_/:/ /\\__\\ /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:|__| \n  \\/__\\:\\/:/  / \\/_|::\\/:/  / \\:\\  \\  \\/__/ \\/__\\:\\/:/  / /\\/:/  /    \\:\\/:/ /:/  / \\:\\~\\:\\ \\/__/ \\:\\~\\:\\/:/  /  \n       \\::/  /     |:|::/  /   \\:\\  \\            \\::/  /  \\::/__/      \\::/_/:/  /   \\:\\ \\:\\__\\    \\:\\ \\::/  / \n       /:/  /      |:|\\/__/     \\:\\  \\           /:/  /    \\:\\__\\       \\:\\/:/  /     \\:\\ \\/__/     \\:\\/:/  / \n      /:/  /       |:|  |        \\:\\__\\         /:/  /      \\/__/        \\::/  /       \\:\\__\\        \\::/__/ \n      \\/__/         \\|__|         \\/__/         \\/__/                     \\/__/         \\/__/         ~~
       
                             Powered by ArchiWeb 0.1.0, Institute of Architectural Algorithms and Applications
@@ -98,17 +98,17 @@ const Viewport = function () {
    */
   function enableDragFrames() {
     if (assetManager === undefined) enableAssetManager();
-  
+    
     drag = new DragFrames(renderer, scene, camera.camera);
-  
+    
     drag.addEventListener('selectdown', () => {
       transformer.clear()
     });
     drag.addEventListener('select', onSelectDown);
     drag.addEventListener('selectup', onSelectUp);
-  
+    
     camera.setDrag(drag);
-  
+    
     return drag;
   }
   
@@ -163,14 +163,15 @@ const Viewport = function () {
     container.appendChild(renderer.domElement);
     
     window.onresize = function () {
-      windowResize(window.innerWidth, window.innerHeight);
+      const w = document.getElementById('container').clientWidth;
+      windowResize(w, w*aspect);
     };
     renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
     renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
   }
   
   function windowResize(w, h) {
-  
+    
     if (drag) drag.onWindowResize(w, h);
     camera.onWindowResize(w, h);
     renderer.setSize(w, h);
@@ -185,7 +186,7 @@ const Viewport = function () {
         break;
       case 73: // I
         window.InfoCard.hideInfoCard(!window.InfoCard.show);
-  
+      
     }
   }
   
@@ -204,16 +205,16 @@ const Viewport = function () {
       if (obj.toCamera) {
         let v = new THREE.Vector3().subVectors(camera.camera.position, obj.position);
         let theta = -Math.atan2(v.x, v.y);
-  
+        
         obj.quaternion.set(0, 0, 0, 1);
         obj.rotateZ(theta);
       }
     });
-  
+    
     renderer.clear();
     renderer.render(scene, camera.camera);
     if (scope.csm) scope.csm.update();
-  
+    
     if (drag) drag.render();
     if (scope.draw) scope.draw();
   }
@@ -234,7 +235,7 @@ const Viewport = function () {
     
     controller.enableRotate = false;
     controls.rotate = false;
-  
+    
     return camera.camera;
   }
   
@@ -249,7 +250,7 @@ const Viewport = function () {
     }
     controller.enablePan = false;
     controls.pan = false;
-  
+    
     return camera.camera;
   }
   

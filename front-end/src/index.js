@@ -48,19 +48,16 @@ function initScene() {
 }
 
 function main() {
-  const viewport = new ARCH.Viewport();
-  scene = viewport.scene;
+  const size = document.getElementById('container').clientWidth;
+  
+  const viewport = new ARCH.Viewport(size, size);
   renderer = viewport.renderer;
-  gui = viewport.gui;
-  camera = viewport.camera;
+  
+  scene = viewport.scene;
+  
+  camera = viewport.to2D();
   
   am = viewport.enableAssetManager();
-  // viewport.enableDragFrames();
-  // viewport.enableTransformer();
-  let sb = viewport.enableSceneBasic();
-  sb.shadow = false;
-  sb.ambientColor = '#ffffff';
-  sb.update();
   
   initWS();
   initScene();
