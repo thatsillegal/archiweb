@@ -43,7 +43,7 @@ function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
-  socket.emit('bts:initFromDatabase', {properties: {range:[16.370,48.21, 16.47,  48.27]}})
+  socket.emit('bts:initFromDatabase', {properties: {range:[16.38, 48.21, 16.42, 48.23]}})
   
 }
 
@@ -55,9 +55,12 @@ function main() {
   camera = viewport.camera;
   
   am = viewport.enableAssetManager();
-  viewport.enableDragFrames();
-  viewport.enableTransformer();
-  viewport.enableSceneBasic();
+  // viewport.enableDragFrames();
+  // viewport.enableTransformer();
+  let sb = viewport.enableSceneBasic();
+  sb.shadow = false;
+  sb.ambientColor = '#ffffff';
+  sb.update();
   
   initWS();
   initScene();
