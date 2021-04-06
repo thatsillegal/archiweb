@@ -50,7 +50,7 @@ let control = {
 }
 var modelOrigin = [16.371658895495273, 48.20703295326334];
 var modelAltitude = 0;
-var modelRotate = [Math.PI / 2, 0, 0];
+var modelRotate = [0, 0, 0];
 
 var modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
   modelOrigin,
@@ -94,18 +94,18 @@ function initGUI() {
               'interpolate',
               ['linear'],
               ['zoom'],
-              17,
+              16.99,
               0,
-              17.05,
+              17.04,
               ['get', 'height']
             ],
             'fill-extrusion-base': [
               'interpolate',
               ['linear'],
               ['zoom'],
-              17,
+              16.99,
               0,
-              17.05,
+              17.04,
               ['get', 'min_height']
             ],
             'fill-extrusion-opacity': 0.96
@@ -131,24 +131,29 @@ function initScene() {
     onAdd: function (map, gl) {
       this.camera = new THREE.Camera();
       this.scene = new THREE.Scene();
-      
-      const gf = new ARCH.GeometryFactory(this.scene);
-      const mt = new ARCH.MaterialFactory();
-      const directionalLight = new THREE.DirectionalLight(0xffffff);
-      directionalLight.position.set(0, -70, 100).normalize();
-      this.scene.add(directionalLight);
-      const box = gf.Cuboid([0, 0, 0], [1, 1, 1], mt.Matte(0xff0000));
-      this.scene.add(box);
-      
       this.map = map;
-      
       this.renderer = new THREE.WebGLRenderer({
         canvas: map.getCanvas(),
         context: gl,
         antialias: true
       });
       this.renderer.autoClear = false;
-      
+  
+  
+      const sb = new ARCH.SceneBasic(this.scene, this.renderer);
+      sb.lightOnly();
+      sb.addGUI(gui);
+      const gf = new ARCH.GeometryFactory(this.scene);
+      const mt = new ARCH.MaterialFactory();
+  
+      const box = gf.Cuboid([1, 1, 0], [0.6, 0.6, 1.8], mt.Matte(0xff0000));
+  
+      const loader = new ARCH.Loader(this.scene);
+      loader.loadModel('http://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
+        mesh.position.set(22, 22, 0)
+        mesh.scale.set(0.05, 0.05, 0.05);
+      })
+  
     },
     render: function (gl, matrix) {
       var rotationX = new THREE.Matrix4().makeRotationAxis(
@@ -183,7 +188,7 @@ function initScene() {
         .multiply(rotationZ);
       
       this.camera.projectionMatrix = m.multiply(l);
-      
+  
       this.renderer.resetState();
       this.renderer.render(this.scene, this.camera);
       this.map.triggerRepaint();
@@ -194,6 +199,11 @@ function initScene() {
     map.addLayer(modelLayer, 'waterway-label');
   });
   
+  window.onresize = function () {
+    modelLayer.renderer.setSize(window.innerWidth, window.innerHeight);
+    // model position is a little bit up
+    // camera resize is needed?
+  }
 }
 
 function mousePos(e) {

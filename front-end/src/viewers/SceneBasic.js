@@ -139,13 +139,18 @@ const SceneBasic = function (_scene, _renderer, _camera) {
       dirLight.position.x = scope.x * scale.x;
       dirLight.position.y = scope.y * scale.y;
       dirLight.position.z = scope.z * scale.z;
-    
-    
+  
+  
       dirLight.color.set(scope.sunColor);
-    
+  
     }
   
   
+  }
+  
+  function lightOnly() {
+    _basic.remove(mshFloor);
+    _scene.background = null;
   }
   
   
@@ -244,6 +249,7 @@ const SceneBasic = function (_scene, _renderer, _camera) {
   this.grid = 0;
   this.addGUI = addGUI;
   this.update = update;
+  this.lightOnly = lightOnly;
   
   this.directLight = dirLight;
   this.ambientLight = ambientLight;
