@@ -102,6 +102,7 @@ const GeometryFactory = function (_scene) {
     return mesh;
   }
   
+  
   this.Segments = function (points, closed = false, color = 0x000, filled = false) {
     let segments;
     

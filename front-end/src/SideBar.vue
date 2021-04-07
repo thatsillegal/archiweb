@@ -1,11 +1,10 @@
 <template>
   <v-card
-    class="pt-15"
+    class="pt-5"
     flat
   >
     <v-navigation-drawer
       width="1000px"
-      height="820px"
       permanent
       class="pt-5"
     >
@@ -56,9 +55,18 @@
           </v-slider>
 
         </v-col>
+        <v-card flat>
+          <template style="background:#ffffff;">
+            <div id="piechart" class="d-flex justify-sm-center">
+            </div>
+          </template>
+  
+        </v-card>
       </v-row>
+      
+
     </v-navigation-drawer>
-    
+  
 
   </v-card>
 </template>
@@ -68,17 +76,20 @@ export default {
   name: "SideBar",
   data: () => ({
     items: [
-      { label: 'color', val: 25, color: 'orange darken-3' },
-      { label: 'track-color', val: 75, color: 'green lighten-1' },
-      { label: 'thumb-color', val: 50, color: 'red' },
-      { label: 'b-color', val: 50, color: 'red' },
-      { label: 'c-color', val: 25, color: 'orange darken-3' },
+      { label: 'Shape', val: 25, color: 'orange darken-3' },
+      { label: 'Area', val: 25, color: 'orange darken-3' },
+      { label: 'Density', val: 75, color: 'green lighten-1' },
+      { label: 'Activity', val: 50, color: 'red' },
+      { label: 'Function', val: 50, color: 'red' },
     ],
     right: null,
   }),
   mounted() {
       const index = require('@/index.js');
       index.main();
+      
+      const pie = require('@/piechart.js');
+      pie.main();
   },
 }
 </script>

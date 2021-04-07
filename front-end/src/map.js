@@ -140,8 +140,8 @@ function highlightBuilding(feature, id = '') {
         'type': 'fill',
         'source': 'building-highlighted' + id,
         'paint': {
-          'fill-outline-color': '#733939',
-          'fill-color': '#733939',
+          'fill-outline-color': '#795547',
+          'fill-color': '#795547',
           'fill-opacity': 1,
         },
       }

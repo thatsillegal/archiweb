@@ -3,7 +3,7 @@
 
     <TopNav/>
     <v-row class="pa-0 ma-0">
-      <v-col class="col-3 pa-0">
+      <v-col class="col-2 pa-0">
         <SideBar></SideBar>
   
         <div class="text-center">
@@ -13,7 +13,7 @@
         </div>
 
       </v-col>
-      <v-col class="col-9 pa-0">
+      <v-col class="col-10 pa-0">
         <v-row class="pa-0 ma-0">
   
             <Result></Result>
@@ -42,3 +42,10 @@ export default {
   },
 }
 </script>
+
+<style>
+/*black outline of focus*/
+*,*:focus,*:hover{
+  outline:none;
+}
+</style>

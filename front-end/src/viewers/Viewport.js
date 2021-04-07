@@ -5,7 +5,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import * as ARCH from "@/archiweb";
 import {AssetManager, DragFrames, MultiCamera, Transformer} from "@/archiweb";
 
-const Viewport = function (width = window.innerWidth, height = window.innerHeight) {
+const Viewport = function (width = window.innerWidth, height = window.innerHeight, name = 'container') {
   const aspect = height / width;
   const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
   const scene = new THREE.Scene();
@@ -32,7 +32,6 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     renderer.domElement.tabIndex = 0;
     renderer.autoClear = false;
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(width, height);
     
     /* ---------- dom ---------- */
     addToDOM();
@@ -53,6 +52,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     controller.update();
     animate();
     
+    windowResize(width, height);
     console.log(` %c      ___           ___           ___           ___                       ___           ___           ___\n      /\\  \\         /\\  \\         /\\  \\         /\\__\\          ___        /\\__\\         /\\  \\         /\\  \\\n     /::\\  \\       /::\\  \\       /::\\  \\       /:/  /         /\\  \\      /:/ _/_       /::\\  \\       /::\\  \\    \n    /:/\\:\\  \\     /:/\\:\\  \\     /:/\\:\\  \\     /:/__/          \\:\\  \\    /:/ /\\__\\     /:/\\:\\  \\     /:/\\:\\  \\ \n   /::\\~\\:\\  \\   /::\\~\\:\\  \\   /:/  \\:\\  \\   /::\\  \\ ___      /::\\__\\  /:/ /:/ _/_   /::\\~\\:\\  \\   /::\\~\\:\\__\\ \n  /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:\\__\\ /:/__/ \\:\\__\\ /:/\\:\\  /\\__\\  __/:/\\/__/ /:/_/:/ /\\__\\ /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:|__| \n  \\/__\\:\\/:/  / \\/_|::\\/:/  / \\:\\  \\  \\/__/ \\/__\\:\\/:/  / /\\/:/  /    \\:\\/:/ /:/  / \\:\\~\\:\\ \\/__/ \\:\\~\\:\\/:/  /  \n       \\::/  /     |:|::/  /   \\:\\  \\            \\::/  /  \\::/__/      \\::/_/:/  /   \\:\\ \\:\\__\\    \\:\\ \\::/  / \n       /:/  /      |:|\\/__/     \\:\\  \\           /:/  /    \\:\\__\\       \\:\\/:/  /     \\:\\ \\/__/     \\:\\/:/  / \n      /:/  /       |:|  |        \\:\\__\\         /:/  /      \\/__/        \\::/  /       \\:\\__\\        \\::/__/ \n      \\/__/         \\|__|         \\/__/         \\/__/                     \\/__/         \\/__/         ~~
       
                             Powered by ArchiWeb 0.1.0, Institute of Architectural Algorithms and Applications
@@ -168,7 +168,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
   }
   
   function addToDOM() {
-    const container = document.getElementById('container');
+    const container = document.getElementById(name);
     const canvas = container.getElementsByTagName('canvas');
     if (canvas.length > 0) {
       container.removeChild(canvas[0]);

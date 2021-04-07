@@ -8,7 +8,7 @@
         <v-row dense>
           <v-col v-for="i in 2"
                  :key="i"
-                 class="col-12 col-lg-6"
+                 class="col-12 col-md-6"
           >
             <v-row dense>
               <v-col v-for="j in 4"
@@ -88,16 +88,16 @@ body {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 75%;
-  height: 75%;
+  width: 83.3%;
+  height: 73%;
   outline: 1px solid #E0E0E0;
 }
 
 #result {
   position: absolute;
-  top: 75%;
-  height: 25%;
-  width: 75%;
+  top: 73%;
+  height: 30%;
+  width: 83.3%;
   outline: 1px solid #E0E0E0;
   background: #FFFFFF;
   
