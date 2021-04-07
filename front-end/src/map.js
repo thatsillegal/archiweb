@@ -106,6 +106,13 @@ let control = {
 function mousePos(e) {
   let canvas = map.getCanvasContainer();
   let rect = canvas.getBoundingClientRect();
+  
+  // e.x = Math.max(0, e.x);
+  // e.y = Math.max(0, e.y);
+  // e.x = Math.min(rect.width + rect.left + canvas.clientLeft + canvas.clientWidth, e.x);
+  // e.y = Math.min(rect.height + rect.top + canvas.clientTop + canvas.clientHeight, e.y);
+  
+
   return new mapboxgl.Point(
     e.x - rect.left - canvas.clientLeft,
     e.y - rect.top - canvas.clientTop
@@ -133,9 +140,9 @@ function highlightBuilding(feature, id = '') {
         'type': 'fill',
         'source': 'building-highlighted' + id,
         'paint': {
-          'fill-outline-color': '#401212',
-          'fill-color': '#723d3d',
-          'fill-opacity': 0.6,
+          'fill-outline-color': '#733939',
+          'fill-color': '#733939',
+          'fill-opacity': 1,
         },
       }
     )
@@ -147,9 +154,10 @@ function main() {
   
   map = new mapboxgl.Map({
     container: 'map', // container ID
-    style: 'mapbox://styles/amomorning/ckmzydbvf0aik18obwp77yn5g', // style URL
+    style: 'mapbox://styles/amomorning/ckn77mtlw04ed17o3a7s1q2yn', // style URL
     center: [16.373, 48.208], // starting position [lng, lat]
-    minZoom: 11,
+    minZoom: 12,
+    maxZoom: 17.5,
     zoom: 16,
     antialias: true
   });
@@ -161,7 +169,8 @@ function main() {
     map.on('mousemove', function (e) {
         if (!control.show3D) {
           let feature = map.queryRenderedFeatures(e.point, {layers: ['building']})[0];
-          if (feature === undefined) {
+          console.log(feature);
+          if (feature === undefined ) {
             if (typeof map.getLayer('building-highlighted') !== "undefined") {
               map.removeLayer('building-highlighted')
             }
@@ -170,6 +179,33 @@ function main() {
             }
           } else {
             
+            if(feature.id !== undefined) {
+              let range = []
+              let canvas = map.getCanvasContainer();
+              range.push(new mapboxgl.Point(0, 0));
+              range.push(new mapboxgl.Point(canvas.clientWidth, canvas.clientWidth))
+              let sameid = map.queryRenderedFeatures(range, {layers:['building']});
+              let coords = feature.geometry.coordinates;
+              feature.geometry.coordinates = [coords];
+  
+              for (let i = 0; i < sameid.length; ++ i) {
+                if(sameid[i].id === feature.id) {
+      
+                  if(sameid[i].geometry.type === 'MultiPolygon') {
+                    for(let j = 0; j < sameid[i].geometry.coordinates.length; ++ j) {
+                      feature.geometry.coordinates.push(sameid[i].geometry.coordinates[j]);
+                    }
+        
+                  } else {
+                    feature.geometry.coordinates.push(sameid[i].geometry.coordinates);
+                  }
+                }
+              }
+              feature.geometry.type = 'MultiPolygon';
+              
+            }
+            
+            console.log(feature);
             highlightBuilding(feature);
             
           }

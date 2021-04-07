@@ -99,7 +99,7 @@ body {
   height: 25%;
   width: 75%;
   outline: 1px solid #E0E0E0;
-  background: #F4F4F4;
+  background: #FFFFFF;
   
 }
 </style>

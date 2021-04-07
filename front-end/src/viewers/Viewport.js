@@ -38,10 +38,8 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     addToDOM();
     
     /* ---------- gui ---------- */
-    gui.initGUI();
-    addGUI(gui.gui);
-    gui.util.add(window, 'saveAsImage').name('save image');
-    
+  
+    enableGUI();
     /* ---------- camera ---------- */
     camera.addGUI(gui.gui);
     camera.setController(controller);
@@ -77,6 +75,19 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     }
   }
   
+  function enableGUI() {
+    gui.initGUI();
+    addGUI(gui.gui);
+    gui.util.add(window, 'saveAsImage').name('save image');
+  }
+  
+  function disableGUI() {
+    const container = document.getElementById('gui-container');
+    const canvas = document.getElementsByClassName('dg main');
+    if(canvas.length > 0) {
+      container.removeChild(canvas[0]);
+    }
+  }
   /**
    * Enable group/ungroup and highlight/unhighlight object with AssetManager
    * @returns {AssetManager}
@@ -89,6 +100,8 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     
     return assetManager;
   }
+  
+
   
   /**
    * Enable multiple select with DragFrame control
@@ -318,6 +331,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
   this.camera = to3D();
   this.draw = undefined;
   
+  this.disableGUI = disableGUI;
   this.enableDragFrames = enableDragFrames;
   this.enableTransformer = enableTransformer;
   this.enableAssetManager = enableAssetManager;

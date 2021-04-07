@@ -58,6 +58,7 @@ function main() {
   camera = viewport.to2D();
   
   am = viewport.enableAssetManager();
+  viewport.disableGUI();
   
   initWS();
   initScene();
