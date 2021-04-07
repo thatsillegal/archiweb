@@ -169,7 +169,6 @@ function main() {
     map.on('mousemove', function (e) {
         if (!control.show3D) {
           let feature = map.queryRenderedFeatures(e.point, {layers: ['building']})[0];
-          console.log(feature);
           if (feature === undefined ) {
             if (typeof map.getLayer('building-highlighted') !== "undefined") {
               map.removeLayer('building-highlighted')
@@ -205,7 +204,6 @@ function main() {
               
             }
             
-            console.log(feature);
             highlightBuilding(feature);
             
           }

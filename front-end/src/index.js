@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 "use strict";
-import * as THREE from 'three'
 import * as ARCH from "@/archiweb"
 import socket from "@/socket";
 import {setPolygonOffsetMaterial} from "@/archiweb";
+
 let renderer, scene, gui;
 let gf, am, mt;
 
@@ -39,7 +39,6 @@ function initWS() {
 
 function initScene() {
   
-  
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
@@ -56,6 +55,7 @@ function main() {
   scene = viewport.scene;
   
   camera = viewport.to2D();
+  viewport.enableSceneBasic();
   
   am = viewport.enableAssetManager();
   viewport.disableGUI();

@@ -181,6 +181,8 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     };
     renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
     renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
+    window.addEventListener( 'resize', onWindowResize, false );
+  
   }
   
   function windowResize(w, h) {
@@ -191,18 +193,49 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     render();
   }
   
+  function onWindowResize() {
+    if(!document.fullscreenElement) {
+      const w = document.getElementById('container').clientWidth;
+      windowResize(w, w*aspect);
+    }
+  }
+  
   function onDocumentKeyDown(event) {
-    // console.log('viewport key down');
+    // console.log('viewport key down', event.keyCode);
+    let elem;
     switch (event.keyCode) {
       case 16: // Shift
         controller.enablePan = true;
         break;
       case 73: // I
         window.InfoCard.hideInfoCard(!window.InfoCard.show);
-      
+        break;
+      case 70: // F
+        elem = document.getElementById("container").children[0];
+        if (elem.mozRequestFullScreen) { /* Firefox */
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+          elem.msRequestFullscreen();
+        }
+        console.log(screen);
+        windowResize(screen.width, screen.height);
+        break;
     }
   }
   
+  // function onFullScreen() {
+  //   if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined) {
+  //     /* Run code when going to fs mode */
+  //     windowResize(screen.width, screen.height);
+  //
+  //   } else {
+  //     onWindowResize();
+  //     /* Run code when going back from fs mode */
+  //   }
+  // }
+  //
   function onDocumentKeyUp(event) {
     switch (event.keyCode) {
       case 16: // Shift
