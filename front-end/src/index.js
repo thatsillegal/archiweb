@@ -3,6 +3,7 @@
 import * as ARCH from "@/archiweb"
 import socket from "@/socket";
 import {setPolygonOffsetMaterial} from "@/archiweb";
+import * as THREE from "three";
 
 let renderer, scene, gui;
 let gf, am, mt;
@@ -38,11 +39,12 @@ function initWS() {
 }
 
 function initScene() {
+  scene.background = new THREE.Color('0xffffff');
   
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
-  socket.emit('bts:initFromDatabase', {properties: {range:[16.38, 48.21, 16.42, 48.23]}})
+  socket.emit('bts:initFromDatabase', {properties: {id:2117}})
   
 }
 
@@ -55,7 +57,8 @@ function main() {
   scene = viewport.scene;
   
   camera = viewport.to2D();
-  viewport.enableSceneBasic();
+  camera.zoom = 3;
+  camera.updateProjectionMatrix();
   
   am = viewport.enableAssetManager();
   viewport.disableGUI();
