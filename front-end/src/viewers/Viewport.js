@@ -42,7 +42,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     /* ---------- camera ---------- */
     camera.addGUI(gui.gui);
     camera.setController(controller);
-    
+  
     /* ---------- control ---------- */
     controller.enableKeys = false;
     controller.mouseButtons = {
@@ -51,7 +51,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     }
     controller.update();
     animate();
-    
+  
     windowResize(width, height);
     console.log(` %c      ___           ___           ___           ___                       ___           ___           ___\n      /\\  \\         /\\  \\         /\\  \\         /\\__\\          ___        /\\__\\         /\\  \\         /\\  \\\n     /::\\  \\       /::\\  \\       /::\\  \\       /:/  /         /\\  \\      /:/ _/_       /::\\  \\       /::\\  \\    \n    /:/\\:\\  \\     /:/\\:\\  \\     /:/\\:\\  \\     /:/__/          \\:\\  \\    /:/ /\\__\\     /:/\\:\\  \\     /:/\\:\\  \\ \n   /::\\~\\:\\  \\   /::\\~\\:\\  \\   /:/  \\:\\  \\   /::\\  \\ ___      /::\\__\\  /:/ /:/ _/_   /::\\~\\:\\  \\   /::\\~\\:\\__\\ \n  /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:\\__\\ /:/__/ \\:\\__\\ /:/\\:\\  /\\__\\  __/:/\\/__/ /:/_/:/ /\\__\\ /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:|__| \n  \\/__\\:\\/:/  / \\/_|::\\/:/  / \\:\\  \\  \\/__/ \\/__\\:\\/:/  / /\\/:/  /    \\:\\/:/ /:/  / \\:\\~\\:\\ \\/__/ \\:\\~\\:\\/:/  /  \n       \\::/  /     |:|::/  /   \\:\\  \\            \\::/  /  \\::/__/      \\::/_/:/  /   \\:\\ \\:\\__\\    \\:\\ \\::/  / \n       /:/  /      |:|\\/__/     \\:\\  \\           /:/  /    \\:\\__\\       \\:\\/:/  /     \\:\\ \\/__/     \\:\\/:/  / \n      /:/  /       |:|  |        \\:\\__\\         /:/  /      \\/__/        \\::/  /       \\:\\__\\        \\::/__/ \n      \\/__/         \\|__|         \\/__/         \\/__/                     \\/__/         \\/__/         ~~
       
@@ -84,10 +84,11 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
   function disableGUI() {
     const container = document.getElementById('gui-container');
     const canvas = document.getElementsByClassName('dg main');
-    if(canvas.length > 0) {
+    if (canvas.length > 0) {
       container.removeChild(canvas[0]);
     }
   }
+  
   /**
    * Enable group/ungroup and highlight/unhighlight object with AssetManager
    * @returns {AssetManager}
@@ -101,7 +102,6 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     return assetManager;
   }
   
-
   
   /**
    * Enable multiple select with DragFrame control
@@ -174,14 +174,14 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
       container.removeChild(canvas[0]);
     }
     container.appendChild(renderer.domElement);
-    
+  
     window.onresize = function () {
       const w = document.getElementById('container').clientWidth;
-      windowResize(w, w*aspect);
+      windowResize(w, w * aspect);
     };
     renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
     renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
-    window.addEventListener( 'resize', onWindowResize, false );
+    window.addEventListener('resize', onWindowResize, false);
   
   }
   
@@ -194,9 +194,9 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
   }
   
   function onWindowResize() {
-    if(!document.fullscreenElement) {
+    if (!document.fullscreenElement) {
       const w = document.getElementById('container').clientWidth;
-      windowResize(w, w*aspect);
+      windowResize(w, w * aspect);
     }
   }
   
@@ -251,7 +251,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
       if (obj.toCamera) {
         let v = new THREE.Vector3().subVectors(camera.camera.position, obj.position);
         let theta = -Math.atan2(v.x, v.y);
-        
+  
         obj.quaternion.set(0, 0, 0, 1);
         obj.rotateZ(theta);
       }
@@ -281,7 +281,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     
     controller.enableRotate = false;
     controls.rotate = false;
-    
+  
     return camera.camera;
   }
   
@@ -296,7 +296,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     }
     controller.enablePan = false;
     controls.pan = false;
-    
+  
     return camera.camera;
   }
   

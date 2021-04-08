@@ -236,9 +236,9 @@ function highlightBuilding(feature, id = '') {
         'type': 'fill',
         'source': 'building-highlighted' + id,
         'paint': {
-          'fill-outline-color': '#401212',
-          'fill-color': '#723d3d',
-          'fill-opacity': 0.6,
+          'fill-outline-color': '#775858',
+          'fill-color': '#775858',
+          'fill-opacity': 1,
         },
       }
     )
@@ -274,10 +274,36 @@ function main() {
               map.removeSource('building-highlighted')
             }
           } else {
-            
-            highlightBuilding(feature);
-            
+  
+          if (feature.id !== undefined) {
+            let range = []
+            let canvas = map.getCanvasContainer();
+            range.push(new mapboxgl.Point(0, 0));
+            range.push(new mapboxgl.Point(canvas.clientWidth, canvas.clientWidth))
+            let sameid = map.queryRenderedFeatures(range, {layers: ['building']});
+            let coords = feature.geometry.coordinates;
+            feature.geometry.coordinates = [coords];
+    
+            for (let i = 0; i < sameid.length; ++i) {
+              if (sameid[i].id === feature.id) {
+        
+                if (sameid[i].geometry.type === 'MultiPolygon') {
+                  for (let j = 0; j < sameid[i].geometry.coordinates.length; ++j) {
+                    feature.geometry.coordinates.push(sameid[i].geometry.coordinates[j]);
+                  }
+          
+                } else {
+                  feature.geometry.coordinates.push(sameid[i].geometry.coordinates);
+                }
+              }
+            }
+            feature.geometry.type = 'MultiPolygon';
+    
           }
+  
+          highlightBuilding(feature);
+  
+        }
           
         }
       }

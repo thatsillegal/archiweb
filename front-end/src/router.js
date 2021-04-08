@@ -5,11 +5,15 @@ import Home from './components/Home'
 import Map from './components/Map'
 
 const examples = [
+  // test examples
+  'polygon-handles', 'csg',
+  // website examples
   '2d-editor', '3d-editor',
   'marching-cubes', 'material-example', 'shape-2d',
   'undo-redo-canvas', 'image-3d', 'java-backend-example',
   'archijson-geometry', 'interactive-spanning-tree',
-  'cascaded-shadow-maps', 'python-backend-example', 'mapbox-buildings'
+  'cascaded-shadow-maps', 'python-backend-example', 'mapbox-buildings',
+
 ]
 const routes = [];
 examples.forEach((item) => {
