@@ -309,12 +309,12 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
   }
   
   
-  function saveAsImage() {
+  function saveAsImage(render) {
+    render = render ?? renderer;
     let imgData;
     
     try {
-      imgData = renderer.domElement.toDataURL("image/jpeg");
-      console.log(imgData);
+      imgData = render.domElement.toDataURL("image/jpeg");
       saveFile(imgData, new Date().valueOf() + ".jpeg");
     } catch (e) {
       console.log(e);

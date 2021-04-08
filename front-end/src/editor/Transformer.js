@@ -36,6 +36,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   //API
   
   function addToInfoCard(o) {
+    if(!window.InfoCard) return;
     if (o !== undefined) {
   
       // o.position.x = Math.round(o.position.x);
