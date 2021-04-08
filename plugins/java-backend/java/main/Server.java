@@ -55,7 +55,7 @@ public class Server {
             // processing
             generator.pts = WB_Converter.toWB_Point((Vertices) archijson.getGeometries().get(0));
             generator.plane = WB_Converter.toWB_Polygon((Plane) archijson.getGeometries().get(1));
-            generator.calcVoronoi(archijson.getProperties().getD());
+            generator.calcVoronoi(archijson.getProperties().get("d").getAsDouble());
 
             // return
             ArchiJSON ret = generator.toArchiJSON(archijson.getId(), gson);

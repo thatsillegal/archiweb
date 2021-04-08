@@ -5,8 +5,8 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import * as ARCH from "@/archiweb";
 import {AssetManager, DragFrames, MultiCamera, Transformer} from "@/archiweb";
 
-const Viewport = function () {
-  
+const Viewport = function (width = window.innerWidth, height = window.innerHeight, name = 'container') {
+  const aspect = height / width;
   const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
   const scene = new THREE.Scene();
   
@@ -32,16 +32,13 @@ const Viewport = function () {
     renderer.domElement.tabIndex = 0;
     renderer.autoClear = false;
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
     
     /* ---------- dom ---------- */
     addToDOM();
     
     /* ---------- gui ---------- */
-    gui.initGUI();
-    addGUI(gui.gui);
-    gui.util.add(window, 'saveAsImage').name('save image');
-    
+  
+    enableGUI();
     /* ---------- camera ---------- */
     camera.addGUI(gui.gui);
     camera.setController(controller);
@@ -55,6 +52,7 @@ const Viewport = function () {
     controller.update();
     animate();
   
+    windowResize(width, height);
     console.log(` %c      ___           ___           ___           ___                       ___           ___           ___\n      /\\  \\         /\\  \\         /\\  \\         /\\__\\          ___        /\\__\\         /\\  \\         /\\  \\\n     /::\\  \\       /::\\  \\       /::\\  \\       /:/  /         /\\  \\      /:/ _/_       /::\\  \\       /::\\  \\    \n    /:/\\:\\  \\     /:/\\:\\  \\     /:/\\:\\  \\     /:/__/          \\:\\  \\    /:/ /\\__\\     /:/\\:\\  \\     /:/\\:\\  \\ \n   /::\\~\\:\\  \\   /::\\~\\:\\  \\   /:/  \\:\\  \\   /::\\  \\ ___      /::\\__\\  /:/ /:/ _/_   /::\\~\\:\\  \\   /::\\~\\:\\__\\ \n  /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:\\__\\ /:/__/ \\:\\__\\ /:/\\:\\  /\\__\\  __/:/\\/__/ /:/_/:/ /\\__\\ /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:|__| \n  \\/__\\:\\/:/  / \\/_|::\\/:/  / \\:\\  \\  \\/__/ \\/__\\:\\/:/  / /\\/:/  /    \\:\\/:/ /:/  / \\:\\~\\:\\ \\/__/ \\:\\~\\:\\/:/  /  \n       \\::/  /     |:|::/  /   \\:\\  \\            \\::/  /  \\::/__/      \\::/_/:/  /   \\:\\ \\:\\__\\    \\:\\ \\::/  / \n       /:/  /      |:|\\/__/     \\:\\  \\           /:/  /    \\:\\__\\       \\:\\/:/  /     \\:\\ \\/__/     \\:\\/:/  / \n      /:/  /       |:|  |        \\:\\__\\         /:/  /      \\/__/        \\::/  /       \\:\\__\\        \\::/__/ \n      \\/__/         \\|__|         \\/__/         \\/__/                     \\/__/         \\/__/         ~~
       
                             Powered by ArchiWeb 0.1.0, Institute of Architectural Algorithms and Applications
@@ -77,6 +75,20 @@ const Viewport = function () {
     }
   }
   
+  function enableGUI() {
+    gui.initGUI();
+    addGUI(gui.gui);
+    gui.util.add(window, 'saveAsImage').name('save image');
+  }
+  
+  function disableGUI() {
+    const container = document.getElementById('gui-container');
+    const canvas = document.getElementsByClassName('dg main');
+    if (canvas.length > 0) {
+      container.removeChild(canvas[0]);
+    }
+  }
+  
   /**
    * Enable group/ungroup and highlight/unhighlight object with AssetManager
    * @returns {AssetManager}
@@ -90,6 +102,7 @@ const Viewport = function () {
     return assetManager;
   }
   
+  
   /**
    * Enable multiple select with DragFrame control
    * Highlight object during selection : {@link onSelectDown}
@@ -98,17 +111,17 @@ const Viewport = function () {
    */
   function enableDragFrames() {
     if (assetManager === undefined) enableAssetManager();
-  
+    
     drag = new DragFrames(renderer, scene, camera.camera);
-  
+    
     drag.addEventListener('selectdown', () => {
       transformer.clear()
     });
     drag.addEventListener('select', onSelectDown);
     drag.addEventListener('selectup', onSelectUp);
-  
+    
     camera.setDrag(drag);
-  
+    
     return drag;
   }
   
@@ -155,40 +168,74 @@ const Viewport = function () {
   }
   
   function addToDOM() {
-    const container = document.getElementById('container');
+    const container = document.getElementById(name);
     const canvas = container.getElementsByTagName('canvas');
     if (canvas.length > 0) {
       container.removeChild(canvas[0]);
     }
     container.appendChild(renderer.domElement);
-    
+  
     window.onresize = function () {
-      windowResize(window.innerWidth, window.innerHeight);
+      const w = document.getElementById('container').clientWidth;
+      windowResize(w, w * aspect);
     };
     renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
     renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
+    window.addEventListener('resize', onWindowResize, false);
+  
   }
   
   function windowResize(w, h) {
-  
+    
     if (drag) drag.onWindowResize(w, h);
     camera.onWindowResize(w, h);
     renderer.setSize(w, h);
     render();
   }
   
+  function onWindowResize() {
+    if (!document.fullscreenElement) {
+      const w = document.getElementById('container').clientWidth;
+      windowResize(w, w * aspect);
+    }
+  }
+  
   function onDocumentKeyDown(event) {
-    // console.log('viewport key down');
+    // console.log('viewport key down', event.keyCode);
+    let elem;
     switch (event.keyCode) {
       case 16: // Shift
         controller.enablePan = true;
         break;
       case 73: // I
         window.InfoCard.hideInfoCard(!window.InfoCard.show);
-  
+        break;
+      case 70: // F
+        elem = document.getElementById("container").children[0];
+        if (elem.mozRequestFullScreen) { /* Firefox */
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+          elem.msRequestFullscreen();
+        }
+        console.log(screen);
+        windowResize(screen.width, screen.height);
+        break;
     }
   }
   
+  // function onFullScreen() {
+  //   if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined) {
+  //     /* Run code when going to fs mode */
+  //     windowResize(screen.width, screen.height);
+  //
+  //   } else {
+  //     onWindowResize();
+  //     /* Run code when going back from fs mode */
+  //   }
+  // }
+  //
   function onDocumentKeyUp(event) {
     switch (event.keyCode) {
       case 16: // Shift
@@ -209,11 +256,11 @@ const Viewport = function () {
         obj.rotateZ(theta);
       }
     });
-  
+    
     renderer.clear();
     renderer.render(scene, camera.camera);
     if (scope.csm) scope.csm.update();
-  
+    
     if (drag) drag.render();
     if (scope.draw) scope.draw();
   }
@@ -262,12 +309,12 @@ const Viewport = function () {
   }
   
   
-  function saveAsImage() {
+  function saveAsImage(render) {
+    render = render ?? renderer;
     let imgData;
     
     try {
-      imgData = renderer.domElement.toDataURL("image/jpeg");
-      console.log(imgData);
+      imgData = render.domElement.toDataURL("image/jpeg");
       saveFile(imgData, new Date().valueOf() + ".jpeg");
     } catch (e) {
       console.log(e);
@@ -317,6 +364,7 @@ const Viewport = function () {
   this.camera = to3D();
   this.draw = undefined;
   
+  this.disableGUI = disableGUI;
   this.enableDragFrames = enableDragFrames;
   this.enableTransformer = enableTransformer;
   this.enableAssetManager = enableAssetManager;

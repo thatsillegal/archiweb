@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import * as THREE from 'three'
-import CSM from 'three-csm';
-// THREE.CSM = CSM;
+import {CSM} from 'three/examples/jsm/csm/CSM';
 
 /**
  * Copyright (c) 2020-present, Inst.AAA.
@@ -128,24 +127,17 @@ const SceneBasic = function (_scene, _renderer, _camera) {
     gridUpdate(scope.grid);
     mshFloor.material.color.set(scope.floorColor);
     ambientLight.color.set(scope.ambientColor);
-  
     if (_camera) {
       scope.csm.lightDirection.x = scope.x;
       scope.csm.lightDirection.y = scope.y;
       scope.csm.lightDirection.z = scope.z;
-    
     } else {
       dirLight.castShadow = scope.shadow;
       dirLight.position.x = scope.x * scale.x;
       dirLight.position.y = scope.y * scale.y;
       dirLight.position.z = scope.z * scale.z;
-  
-  
       dirLight.color.set(scope.sunColor);
-  
     }
-  
-  
   }
   
   function lightOnly() {
@@ -208,7 +200,7 @@ const SceneBasic = function (_scene, _renderer, _camera) {
       } else {
         dirLight.position.x = scope.x * scale.x;
       }
-    
+  
     });
     sun.add(scope, 'y').min(-1).max(1).onChange(function () {
       if (_camera) {
@@ -216,7 +208,7 @@ const SceneBasic = function (_scene, _renderer, _camera) {
       } else {
         dirLight.position.y = scope.y * scale.y;
       }
-    
+  
     });
     sun.add(scope, 'z').min(-1).max(1).onChange(function () {
       if (_camera) {
@@ -224,7 +216,7 @@ const SceneBasic = function (_scene, _renderer, _camera) {
       } else {
         dirLight.position.z = scope.z * scale.z;
       }
-    
+  
     });
     if (_camera === undefined) {
       sun.addColor(scope, 'sunColor').name('sun')
