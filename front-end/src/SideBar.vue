@@ -1,14 +1,14 @@
 <template>
   <v-card
-    class="pt-5"
+    class="pt-10"
     flat
   >
     <v-navigation-drawer
-      width="1000px"
+      width="320px"
       permanent
       class="pt-5"
     >
-      <v-card flat>
+      <v-card flat min-width="320px">
         <template style="background:#ffffff;">
           <div
             id="gui-container"
@@ -59,11 +59,15 @@
           <template style="background:#ffffff;">
             <div id="piechart" class="d-flex justify-sm-center">
             </div>
+
+  
           </template>
   
         </v-card>
+        
+
       </v-row>
-      
+  
 
     </v-navigation-drawer>
   

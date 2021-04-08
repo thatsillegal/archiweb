@@ -47,7 +47,7 @@ function main() {
     center: [16.373, 48.208], // starting position [lng, lat]
     minZoom: 12,
     maxZoom: 17.5,
-    zoom: 16,
+    zoom: 15.75,
     antialias: true
   });
   

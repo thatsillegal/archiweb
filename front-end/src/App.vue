@@ -3,17 +3,17 @@
 
     <TopNav/>
     <v-row class="pa-0 ma-0">
-      <v-col class="col-2 pa-0">
+      <v-col class="pa-0">
         <SideBar></SideBar>
   
-        <div class="text-center">
+        <div class="text-center mb-16" style="width: 320px">
           <v-btn rounded outlined large>
             Search
           </v-btn>
         </div>
 
       </v-col>
-      <v-col class="col-10 pa-0">
+      <v-col class="pa-0">
         <v-row class="pa-0 ma-0">
   
             <Result></Result>
@@ -21,6 +21,7 @@
       </v-col>
 
     </v-row>
+    
     <Footer/>
       
   </v-app>

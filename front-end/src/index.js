@@ -2,15 +2,15 @@
 "use strict";
 import * as ARCH from "@/archiweb"
 import socket from "@/socket";
-import {setPolygonOffsetMaterial} from "@/archiweb";
 import * as THREE from "three";
 
 let renderer, scene, gui;
 let gf, am, mt;
 
 let camera;
+let environment;
 
-let roads = [], buildings = [];
+let buildings = [], block;
 
 function clear(list) {
   if(list !== undefined)
@@ -20,31 +20,48 @@ function clear(list) {
 
 function initWS() {
   socket.on('stb:loadFromDatabase', async function (geometryElements) {
-    clear(roads);
     clear(buildings);
+    environment.clear();
     console.log('loading')
     
     for(let e of geometryElements) {
       let points = gf.coordinatesToPoints(e.coordinates, e.size);
-      if(e.closed) {
-        let building = gf.Segments(points, e.closed, 0xaaaaaa, true);
-        building.material = mt.Doubled(0xaaaaaa);
-        setPolygonOffsetMaterial(building.material)
+      
+      if(e.properties.type === 'building') {
+        let building = gf.Segments(points, e.closed, 0, true);
+        building.material = mt.Doubled(0);
+        ARCH.setPolygonOffsetMaterial(building.material);
         buildings.push(building);
-      } else {
-        roads.push(gf.Segments(points, e.closed));
+      } else if (e.properties.type === 'road'){
+        environment.add(gf.Segments(points, e.closed));
+      } else if (e.properties.type === 'block') {
+        block = gf.Segments(points, e.closed, 0xffffff, true);
+        block.material = mt.Doubled(0xffffff);
+        block.position.z = -5;
+        ARCH.setPolygonOffsetMaterial(block.material);
+      } else{
+        let building = gf.Segments(points, e.closed, 0x444444, true);
+        building.material = mt.Doubled(0x222222);
+        ARCH.setPolygonOffsetMaterial(building.material);
+        building.position.z = -5;
+        environment.add(building);
       }
     }
   });
 }
 
 function initScene() {
-  scene.background = new THREE.Color('0xffffff');
+  scene.background = new THREE.Color('0xcccccc');
   
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
-  
-  socket.emit('bts:initFromDatabase', {properties: {id:2117}})
+  const light = new THREE.SpotLight(0xffffff, 1.1);
+  light.position.set(0, 0, 1000);
+  scene.add(light);
+  gf.Plane([0, 0, -10], [10000, 10000], mt.Matte(0xaaaaaa));
+  environment = new THREE.Group();
+  scene.add(environment);
+  socket.emit('bts:initFromDatabase', {properties: {id:10}})
   
 }
 
