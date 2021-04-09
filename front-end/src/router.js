@@ -35,7 +35,7 @@ examples.forEach((item) => {
 })
 
 routes.push(
-  {path: '/', name: 'index', component: Viewer, meta: {title: 'App'}},
+  {path: '/', name: 'index', component: Viewer, meta: {title: 'ArchIndex'}},
   // {path: '/', name: 'map', component: Map, meta: {title: 'Map'}},
   {path: '/archiweb', name: 'home', component: Home, meta: {title: 'ArchiWeb'}}
 )

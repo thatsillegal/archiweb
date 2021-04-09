@@ -7,11 +7,10 @@ let gf, am, mt;
 
 let camera;
 let piedata = [
-  {label:'hi', val:0.1},
-  {label:'hilo', val:0.4},
-  {label:'hie', val:0.2},
-  {label:'hias', val:0.2},
-  {label:'hisd', val:0.1},
+  {label:'food', val:0.4},
+  {label:'retail', val:0.2},
+  {label:'entertain', val:0.25},
+  {label:'transport', val:0.15},
 ]
 
 function createPieChart(data) {

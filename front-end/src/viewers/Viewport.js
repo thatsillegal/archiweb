@@ -208,7 +208,8 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
         controller.enablePan = true;
         break;
       case 73: // I
-        window.InfoCard.hideInfoCard(!window.InfoCard.show);
+        if(window.InfoCard)
+          window.InfoCard.hideInfoCard(!window.InfoCard.show);
         break;
       case 70: // F
         elem = document.getElementById("container").children[0];

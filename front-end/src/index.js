@@ -138,16 +138,23 @@ function addKeyEvent() {
           renderer.getSize(size);
           let w = size.x;
           let h = size.y;
+          
+          let renderin = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
+          renderin.autoClear = false;
+          renderin.setPixelRatio(window.devicePixelRatio);
+          renderin.setSize(w, h)
           const rt = new THREE.WebGLRenderTarget(w, h);
-          renderer.render(scene, camera, rt);
+          console.log(renderer)
+          renderin.render(scene, camera, rt);
 
           const buffer = new Uint8Array(w * h * 4);
-          renderer.readRenderTargetPixels(rt, 0, 0, w, h, buffer);
-          let res = new Uint8Array(w * h);
+          renderin.readRenderTargetPixels(rt, 0, 0, w, h, buffer);
+          let res = new Array(w * h);
           for(let i = 0; i < w * h; ++ i) {
             res[i] = buffer[4*i];
           }
-          console.log(res);
+          
+          socket.emit('server:extractor', {'image': res})
           
         }
           // window.saveAsImage(renderer);
