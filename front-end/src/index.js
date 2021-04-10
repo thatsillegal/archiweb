@@ -25,6 +25,10 @@ function clear(list) {
 
 
 function initWS() {
+  socket.on('resultSelection', async function(data){
+    window.Result.blocks = data.ids;
+  })
+  
   socket.on('stb:loadFromDatabase', async function (geometryElements) {
     clear(handles);
     clear(buildings);
@@ -49,6 +53,7 @@ function initWS() {
         building.material = mt.Doubled(0);
         ARCH.setPolygonOffsetMaterial(building.material);
         building.position.z = 5;
+        building.children[1].material.color = new THREE.Color('#FFF')
         buildings.push(building);
         building.properties = e.properties;
         handle.object = building;
@@ -77,6 +82,10 @@ function initWS() {
     }
   
     initDrag();
+  
+    toggleImageMode(true);
+    sendImage();
+    toggleImageMode(false);
     toggleEditMode(EDITMODE);
     am.refreshSelection(scene);
     am.setCurrentID(1);
@@ -94,7 +103,9 @@ function initScene() {
   scene.add( light );
   environment = new THREE.Group();
   scene.add(environment);
-  socket.emit('bts:initFromDatabase', {properties: {id:10}})
+  socket.emit('bts:initFromDatabase', {properties: {id:5706}})
+  // socket.emit('bts:initFromDatabase', {properties: {id:1936}})
+
   
 }
 
@@ -134,33 +145,37 @@ function addKeyEvent() {
         break;
       case 83: // s
         if(IMAGEMODE) {
-          let size = new THREE.Vector2();
-          renderer.getSize(size);
-          let w = size.x;
-          let h = size.y;
-          
-          let renderin = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
-          renderin.autoClear = false;
-          renderin.setPixelRatio(window.devicePixelRatio);
-          renderin.setSize(w, h)
-          const rt = new THREE.WebGLRenderTarget(w, h);
-          console.log(renderer)
-          renderin.render(scene, camera, rt);
-
-          const buffer = new Uint8Array(w * h * 4);
-          renderin.readRenderTargetPixels(rt, 0, 0, w, h, buffer);
-          let res = new Array(w * h);
-          for(let i = 0; i < w * h; ++ i) {
-            res[i] = buffer[4*i];
-          }
-          
-          socket.emit('server:extractor', {'image': res})
-          
+          sendImage();
         }
           // window.saveAsImage(renderer);
         
     }
   }
+}
+
+function sendImage() {
+  let size = new THREE.Vector2();
+  renderer.getSize(size);
+  let w = size.x;
+  let h = size.y;
+  
+  let renderin = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
+  renderin.autoClear = false;
+  renderin.setPixelRatio(window.devicePixelRatio);
+  renderin.setSize(w, h)
+  const rt = new THREE.WebGLRenderTarget(w, h);
+  console.log(renderer)
+  renderin.render(scene, camera, rt);
+  
+  const buffer = new Uint8Array(w * h * 4);
+  renderin.readRenderTargetPixels(rt, 0, 0, w, h, buffer);
+  let res = new Array(w * h);
+  for(let i = 0; i < w * h; ++ i) {
+    res[i] = buffer[4*i];
+  }
+  
+  socket.emit('server:extractor', {'image': res})
+  
 }
 
 function toggleImageMode(mode) {
