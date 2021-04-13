@@ -84,7 +84,7 @@ function initWS() {
     initDrag();
   
     toggleImageMode(true);
-    sendImage();
+    // sendImage();
     toggleImageMode(false);
     toggleEditMode(EDITMODE);
     am.refreshSelection(scene);
@@ -103,7 +103,7 @@ function initScene() {
   scene.add( light );
   environment = new THREE.Group();
   scene.add(environment);
-  socket.emit('bts:initFromDatabase', {properties: {id:5706}})
+  socket.emit('bts:initFromDatabase', {properties: {id: 3488 }})
   // socket.emit('bts:initFromDatabase', {properties: {id:1936}})
 
   
