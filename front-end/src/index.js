@@ -4,6 +4,7 @@ import * as ARCH from "@/archiweb"
 import socket from "@/socket";
 import * as THREE from "three";
 import {DragControls} from "three/examples/jsm/controls/DragControls";
+import {create} from "@/piechart"
 
 let renderer, scene, drag;
 let gf, am, mt;
@@ -13,6 +14,10 @@ let environment;
 
 let buildings = [], block, handles=[];
 let EDITMODE = false, IMAGEMODE = false;
+
+let blockID = 1936;
+
+//1936
 
 
 function clear(list) {
@@ -40,15 +45,30 @@ function initWS() {
       if(e.closed) points.pop();
   
       let handle = [];
-      if(e.properties.type === 'building' || e.properties.type === 'block') {
+      
+      if( e.properties.type === 'block' ) {
         points.forEach((p)=>{
           handle.push(gf.Cylinder([p.x, p.y, p.z], [1, 10], mt.Matte(0xB68D70), false));
         });
         am.addSelection(handle, 1);
         handles.push(handle);
+        console.log(e);
+        window.piedata = []
+        for (let key in e.properties['F_Diversity'] ) {
+          // e.properties[key];
+          console.log(key, e.properties['F_Diversity'][key]);
+          window.piedata.push({label: key, val:e.properties['F_Diversity'][key]});
+        }
+        create();
       }
-      
+
       if(e.properties.type === 'building') {
+        points.forEach((p)=>{
+          handle.push(gf.Cylinder([p.x, p.y, p.z], [1, 10], mt.Matte(0xB68D70), false));
+        });
+        am.addSelection(handle, 1);
+        handles.push(handle);
+        
         let building = gf.Segments(points, e.closed, 0, true);
         building.material = mt.Doubled(0);
         ARCH.setPolygonOffsetMaterial(building.material);
@@ -59,7 +79,6 @@ function initWS() {
         handle.object = building;
 
       } else if (e.properties.type === 'block') {
-
         
         block = gf.Segments(points, e.closed, 0xffffff, true);
         block.material = mt.Doubled(0xffffff);
@@ -84,7 +103,7 @@ function initWS() {
     initDrag();
   
     toggleImageMode(true);
-    // sendImage();
+    sendImage();
     toggleImageMode(false);
     toggleEditMode(EDITMODE);
     am.refreshSelection(scene);
@@ -103,8 +122,8 @@ function initScene() {
   scene.add( light );
   environment = new THREE.Group();
   scene.add(environment);
-  socket.emit('bts:initFromDatabase', {properties: {id: 3488 }})
-  // socket.emit('bts:initFromDatabase', {properties: {id:1936}})
+  // socket.emit('bts:initFromDatabase', {properties: {id: 3488 }})
+  socket.emit('bts:initFromDatabase', {properties: {id:blockID}})
 
   
 }
@@ -219,8 +238,8 @@ function main() {
   
   const viewport = new ARCH.Viewport(size, size);
   renderer = viewport.renderer;
-  
   scene = viewport.scene;
+  viewport.controller.enabled = false;
   
   camera = viewport.to2D();
   camera.zoom = 3;

@@ -89,11 +89,11 @@ export default {
     right: null,
   }),
   mounted() {
-      const index = require('@/index.js');
-      index.main();
-      
-      const pie = require('@/piechart.js');
-      pie.main();
+    const pie = require('@/piechart.js');
+    pie.main();
+    
+    const index = require('@/index.js');
+    index.main();
   },
 }
 </script>

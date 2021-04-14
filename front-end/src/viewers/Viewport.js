@@ -194,7 +194,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
   }
   
   function onWindowResize() {
-    if (!document.fullscreenElement) {
+    if (document.fullscreenElement !== null) {
       const w = document.getElementById('container').clientWidth;
       windowResize(w, w * aspect);
     }
@@ -221,7 +221,8 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
           elem.msRequestFullscreen();
         }
         console.log(screen);
-        windowResize(screen.width, screen.height);
+        windowResize(screen.availWidth, screen.availHeight);
+        
         break;
     }
   }
