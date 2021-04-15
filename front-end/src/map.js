@@ -38,6 +38,13 @@ function highlightBuilding(feature, id = '') {
   }
 }
 
+function mapFlyTo(lat, lng) {
+  map.flyTo({
+    center: [lng, lat],
+    essential: true
+  });
+}
+
 /* ---------- main entry ---------- */
 function main() {
   
@@ -103,5 +110,6 @@ function main() {
 }
 
 export {
-  main
+  main,
+  mapFlyTo
 }

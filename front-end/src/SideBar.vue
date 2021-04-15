@@ -23,7 +23,7 @@
       
       <v-row
         dense
-        class="mx-5 my-3"
+        class="my-3"
       >
         <v-col
           v-for="item in items"
@@ -32,27 +32,25 @@
           dense
         >
           <v-slider
+            class="px-5"
             dense
             v-model="item.val"
-            step="1"
+            step="0.0001"
+            max="1"
+            min="0"
             color="black"
             track-color="grey"
             thumb-color="brown"
             :label="item.label"
+            :hint="item.hint"
+            persistent-hint
           >
-  
-            <template v-slot:append>
-              <v-text-field
-                v-model="item.val"
-                class="mt-0 pt-0"
-                hide-details
-                single-line
-                type="number"
-                style="width: 60px"
-                color="black"
-              ></v-text-field>
-            </template>
+
           </v-slider>
+          <v-divider
+            class="mx=0"
+            v-if="item.hint===''"
+          ></v-divider>
 
         </v-col>
         <v-card flat>
@@ -80,20 +78,22 @@ export default {
   name: "SideBar",
   data: () => ({
     items: [
-      { label: 'Shape', val: 25, color: 'orange darken-3' },
-      { label: 'Area', val: 25, color: 'orange darken-3' },
-      { label: 'Density', val: 75, color: 'green lighten-1' },
-      { label: 'Activity', val: 50, color: 'red' },
-      { label: 'Function', val: 50, color: 'red' },
+      { label: 'Morphology', val: 0.2, hint: '' },
+      { label: 'Area', val: 0.2, hint: 'loading...' },
+      { label: 'GSI', val: 0.3, hint: 'loading...' },
+      { label: 'Activity', val: 0.4, hint: 'loading...' },
+      { label: 'Function', val: 0.5, hint: 'ratio is changeable' },
     ],
     right: null,
   }),
   mounted() {
-    const pie = require('@/piechart.js');
-    pie.main();
-    
+    window.SideBar = this;
+  
     const index = require('@/index.js');
     index.main();
+    
+    const pie = require('@/piechart.js');
+    pie.main();
   },
 }
 </script>

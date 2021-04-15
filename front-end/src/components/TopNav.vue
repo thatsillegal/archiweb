@@ -19,7 +19,7 @@
         </a>
         <a class="text-decoration-none" href="/#/archiweb" style="color:#000000;">
           
-          <h2 class="pr-2">ArchiWeb</h2>
+          <h2 class="pr-2">ArchIndex</h2>
         
         </a>
       

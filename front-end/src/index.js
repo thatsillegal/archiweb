@@ -30,8 +30,15 @@ function clear(list) {
 
 
 function initWS() {
-  socket.on('resultSelection', async function(data){
-    window.Result.blocks = data.ids;
+  socket.on('resultBlock', async function(data){
+    window.Result.blocks = [];
+    
+    for (let e of data) {
+      console.log(e);
+      window.Result.blocks.push(e);
+    }
+    
+    
   })
   
   socket.on('stb:loadFromDatabase', async function (geometryElements) {
@@ -59,6 +66,10 @@ function initWS() {
           console.log(key, e.properties['F_Diversity'][key]);
           window.piedata.push({label: key, val:e.properties['F_Diversity'][key]});
         }
+        window.SideBar.items[1].hint = '' + e.properties['A'].toFixed(2) + 'm2';
+        window.SideBar.items[2].hint = '' + e.properties['GSI'].toFixed(2);
+        window.SideBar.items[3].hint = '' + (e.properties['T_dense']/Math.sqrt(e.properties['A'])).toFixed(4);
+        
         create();
       }
 
@@ -184,6 +195,8 @@ function sendImage() {
   renderin.setSize(w, h)
   const rt = new THREE.WebGLRenderTarget(w, h);
   console.log(renderer)
+  // renderin.render(scene, camera);
+  // renderin.setRenderTarget(rt);
   renderin.render(scene, camera, rt);
   
   const buffer = new Uint8Array(w * h * 4);
@@ -230,7 +243,6 @@ function toggleEditMode(mode) {
   } else {
     drag.deactivate();
   }
-  
 }
 
 function main() {

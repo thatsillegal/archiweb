@@ -194,7 +194,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
   }
   
   function onWindowResize() {
-    if (document.fullscreenElement !== null) {
+    if (document.fullscreenElement === null) {
       const w = document.getElementById('container').clientWidth;
       windowResize(w, w * aspect);
     }

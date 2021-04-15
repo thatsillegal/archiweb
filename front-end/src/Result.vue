@@ -13,7 +13,7 @@
         height="248px"
       >
         
-        <v-container v-for="(img, i) in blocks" :key="i">
+        <v-container v-for="(block, i) in blocks" :key="i">
           <v-hover v-slot:default="{ hover }">
             
             <v-card
@@ -21,7 +21,7 @@
               :elevation="hover ? 10 : 4"
               max-height="220px"
               max-width="220px"
-              @click="flyTo"
+              @click="flyTo(block.lat, block.lng)"
             >
               
               <v-tooltip top>
@@ -29,7 +29,7 @@
                   <v-img
                     v-bind="attrs"
                     v-on="on"
-                    :src="'http://model.amomorning.com/block/'+(img)+'.jpg'"
+                    :src="'http://model.amomorning.com/block/'+(block.id)+'.jpg'"
                     class="mx-1"
                   >
                     <template v-slot:placeholder>
@@ -46,7 +46,18 @@
                     </template>
                   </v-img>
                 </template>
-                <span>Top tooltip</span>
+                <span>
+                  {{"id: " + block.id}} <br>
+                  {{"lat: " + block.lat}} <br>
+                  {{"lng: " + block.lng}} <br>
+                  {{"block area: " + block.A.toFixed(2) + "m2"}} <br>
+                  {{"built area: " + block.B.toFixed(2) + "m2"}} <br>
+                  {{"GSI: " + block.GSI.toFixed(4)}} <br>
+                  {{"activities: " + (block.T_dense / Math.sqrt(block.A)).toFixed(4)}} <br>
+                  {{"trajectory nums: " + block.T_num}} <br>
+                  {{"POI nums: " + block.F_num}} <br>
+                  
+                </span>
               </v-tooltip>
             
             </v-card>
@@ -64,24 +75,26 @@
 </template>
 
 <script>
+import {main, mapFlyTo} from "@/map";
+
 export default {
   name: "Result",
   data: () => ({
     length: 4,
     window: 0,
-    blocks:[1757, 924, 5884, 572, 1426, 5378, 3295, 6770, 44, 4021, 3937, 7324]
+    blocks:[]
   }),
   mounted() {
-    const index = require('@/map.js');
-    index.main();
+    main();
     
     window.Result = this;
     
   },
   methods: {
-    flyTo() {
-      console.log('fly to ...');
+    flyTo(lat, lng) {
+      mapFlyTo(lat, lng);
     }
+    
   }
 }
 </script>
