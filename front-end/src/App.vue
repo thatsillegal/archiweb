@@ -7,7 +7,7 @@
         <SideBar></SideBar>
   
         <div class="text-center mb-16" style="width: 320px">
-          <v-btn rounded outlined large>
+          <v-btn rounded outlined large @click="search">
             Search
           </v-btn>
         </div>
@@ -32,6 +32,7 @@ import TopNav from './components/TopNav'
 import Footer from './components/Footer'
 import SideBar from "@/SideBar";
 import Result from "@/Result";
+import {searchImage} from "@/index";
 
 export default {
   name: 'App',
@@ -41,6 +42,11 @@ export default {
     Footer,
     Result,
   },
+  methods: {
+    search() {
+      searchImage();
+    }
+  }
 }
 </script>
 
