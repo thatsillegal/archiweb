@@ -30,7 +30,7 @@ function clear(list) {
 
 
 function initWS() {
-  socket.on('resultBlock', async function(data){
+  socket.on('resultBlocks', async function(data){
     window.Result.blocks = [];
     
     for (let e of data) {
@@ -41,7 +41,7 @@ function initWS() {
     
   })
   
-  socket.on('stb:loadFromDatabase', async function (geometryElements) {
+  socket.on('canvasResult', async function (geometryElements) {
     clear(handles);
     clear(buildings);
     environment.clear();
@@ -133,8 +133,7 @@ function initScene() {
   scene.add( light );
   environment = new THREE.Group();
   scene.add(environment);
-  // socket.emit('bts:initFromDatabase', {properties: {id: 3488 }})
-  socket.emit('bts:initFromDatabase', {properties: {id:blockID}})
+  socket.emit('browserQueryCanvas', {properties: {id:blockID}})
 
   
 }
@@ -206,8 +205,7 @@ function sendImage() {
     res[i] = buffer[4*i];
   }
   
-  socket.emit('server:extractor', {'image': res})
-  
+  socket.emit('browserSearchImage', {'image': res})
 }
 
 function toggleImageMode(mode) {
