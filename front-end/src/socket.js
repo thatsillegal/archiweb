@@ -1,7 +1,6 @@
 import {io} from 'socket.io-client'
 
-const socket = io("ws://10.192.4.11:39201/")
 
-// const socket = process.env.NODE_ENV === 'development' ? io('ws://127.0.0.1:27781') : io('wss://web.archialgo.com');
+const socket = process.env.NODE_ENV === 'development' ? io('ws://10.192.4.11:39201') : io('wss://index.archialgo.com');
 // const socket = ""
 export default socket

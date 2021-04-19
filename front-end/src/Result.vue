@@ -29,7 +29,7 @@
                   <v-img
                     v-bind="attrs"
                     v-on="on"
-                    :src="'http://model.amomorning.com/block/'+(block.id)+'.jpg'"
+                    :src="'https://model.amomorning.com/block/'+(block.id)+'.jpg'"
                     class="mx-1"
                   >
                     <template v-slot:placeholder>
