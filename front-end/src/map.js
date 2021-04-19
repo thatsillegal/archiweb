@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 import mapboxgl from 'mapbox-gl';
 import {my_accesstoken} from "@/testdata";
-
+import ClickPopup from "@/ClickPopup";
+import socket from "@/socket";
 let gui, util, map;
 
 mapboxgl.accessToken = 'your_token';
@@ -45,8 +46,20 @@ function mapFlyTo(lat, lng) {
   });
 }
 
+let clickPopup;
 /* ---------- main entry ---------- */
 function main() {
+  
+  socket.on('resultBlockID', async function (message) {
+    if(message.properties.status === 'success') {
+      clickPopup.block = 'Retrieve Block #' + message.properties.id;
+      clickPopup.blockID = message.properties.id;
+    } else {
+      clickPopup.block = 'No valid block';
+      clickPopup.blockID = -1;
+  
+    }
+  })
   
   map = new mapboxgl.Map({
     container: 'map', // container ID
@@ -104,7 +117,19 @@ function main() {
         }
       }
     );
-    
+  
+    map.on('click', function(e) {
+      let coordinates = e.lngLat;
+      socket.emit('mapQueryBlockID', {properties:{lat:coordinates.lat, lng:coordinates.lng}})
+  
+      new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML('<div id="popup-content"></div>')
+        .addTo(map);
+      clickPopup = new ClickPopup({
+        propsData: {lat: coordinates.lat, lon:coordinates.lng, block:"loading..."},
+      }).$mount('#popup-content');
+    });
   })
   
 }

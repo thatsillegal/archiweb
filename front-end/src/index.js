@@ -15,10 +15,28 @@ let environment, buildings;
 let handles=[];
 let EDITMODE = false, IMAGEMODE = false;
 
-let blockID = 1936, block;
+let blockID = 1936  , block;
 
 //1936
 
+function setBlockID(id) {
+  blockID = id;
+  
+  handles.forEach((handle)=>{
+    handle.forEach((h)=>{
+      h.parent.remove(h);
+    })
+  })
+  handles = [];
+  buildings.clear();
+  environment.clear();
+  if(block) {
+    block.segments.parent.remove(block.segments)
+  }
+  
+  socket.emit('browserQueryCanvas', {properties: {id:blockID}})
+  
+}
 
 function searchImage() {
   if(!IMAGEMODE) {
@@ -50,13 +68,13 @@ function searchImage() {
   let params = block.toArchiJSON();
   params.image = res;
   
+  window.Result.blocks = [];
   socket.emit('browserSearchImage', params)
 }
 
 
 function initWS() {
   socket.on('resultBlocks', async function(data){
-    window.Result.blocks = [];
     
     for (let e of data) {
       window.Result.blocks.push(e);
@@ -65,14 +83,12 @@ function initWS() {
   
   socket.on('canvasResult', async function (data) {
     if(data.properties.status === 'error') {
-      console.log('canvas init error');
+      alert('canvas init error');
       return;
     }
-    
-    clear(handles);
-    buildings.clear();
-    environment.clear();
-    
+  
+
+
     for(let e of data.geometryElements) {
       let points = gf.coordinatesToPoints(e.coordinates, e.size);
       if(e.closed) points.pop();
@@ -206,7 +222,13 @@ function toggleEditMode(mode) {
 
 function clear(list) {
   list = list ?? [];
-  list.forEach((e)=>{e.parent.remove(e)});
+  list.forEach((e)=>{
+    if(Array.isArray(e)) {
+      clear(e);
+    } else {
+      e.parent.remove(e)
+    }
+  });
   list = [];
 }
 
@@ -232,5 +254,6 @@ function main() {
 
 export {
   main,
-  searchImage
+  searchImage,
+  setBlockID,
 }
