@@ -77,7 +77,6 @@ const MaterialFactory = function () {
   
   /* ---------- Shader Material ---------- */
   
-  //FIXME: color not set, always 0xffffff
   /**
    * enable with {@link SceneBasic}
    * @constructor

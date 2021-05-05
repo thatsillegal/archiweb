@@ -91,7 +91,6 @@ const SceneBasic = function (_scene, _renderer, _camera) {
     // _scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
     // _scene.add( new THREE.DirectionalLightHelper(dirLight));
   
-  
     gridUpdate();
     axesUpdate();
   }

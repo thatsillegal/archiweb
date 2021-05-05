@@ -545,7 +545,7 @@ function createMeshWireframe(mesh, color = 0xffff00, linewidth) {
 function sceneMesh(object, shadow = true, doubleSide = false, layer = [0]) {
   object.traverseVisible((mesh) => {
     mesh.layer = layer;
-    console.log(mesh)
+    // console.log(mesh)
     if (shadow) {
       mesh.castShadow = true;
       mesh.receiveShadow = true;

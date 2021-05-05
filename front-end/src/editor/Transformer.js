@@ -196,19 +196,7 @@ const Transformer = function (_scene, _renderer, _camera) {
     }
   }
   
-  function applyGroupCenter(group) {
-    let box = new THREE.Box3().setFromObject(group);
-    let c = new THREE.Vector3();
-    box.getCenter(c);
-    c = c.sub(group.position);
-    group.translateX(c.x);
-    group.translateY(c.y);
-    
-    group.children.forEach((item) => {
-      item.position.x -= c.x;
-      item.position.y -= c.y;
-    });
-  }
+
   
   function setFromIntersections(intersections) {
     let mesh = undefined;
@@ -601,4 +589,18 @@ const Transformer = function (_scene, _renderer, _camera) {
   this.isTransformer = true;
 }
 
-export {Transformer};
+function applyGroupCenter(group) {
+  let box = new THREE.Box3().setFromObject(group);
+  let c = new THREE.Vector3();
+  box.getCenter(c);
+  c = c.sub(group.position);
+  group.translateX(c.x);
+  group.translateY(c.y);
+  
+  group.children.forEach((item) => {
+    item.position.x -= c.x;
+    item.position.y -= c.y;
+  });
+}
+
+export {Transformer, applyGroupCenter};

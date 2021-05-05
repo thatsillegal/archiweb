@@ -3,6 +3,17 @@ import * as gui from '@/gui'
 import {AssetManager, DragFrames, MultiCamera, Transformer, SceneBasic} from "@/archiweb";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
+
+/**
+ * Copyright (c) 2020-present, Inst.AAA.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * Date: 2020-11-12
+ * Author: Yichen Mo
+ */
+
 const Viewport = function (width = window.innerWidth, height = window.innerHeight, aspect, name = 'container') {
   const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
   const scene = new THREE.Scene();
@@ -35,12 +46,12 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     addToDOM();
     
     /* ---------- gui ---------- */
-  
+    
     enableGUI();
     /* ---------- camera ---------- */
     camera.addGUI(gui.gui);
     camera.setController(controller);
-  
+    
     /* ---------- control ---------- */
     controller.enableKeys = false;
     controller.mouseButtons = {
@@ -49,7 +60,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     }
     controller.update();
     animate();
-  
+    
     windowResize(width, height);
     console.log(` %c      ___           ___           ___           ___                       ___           ___           ___\n      /\\  \\         /\\  \\         /\\  \\         /\\__\\          ___        /\\__\\         /\\  \\         /\\  \\\n     /::\\  \\       /::\\  \\       /::\\  \\       /:/  /         /\\  \\      /:/ _/_       /::\\  \\       /::\\  \\    \n    /:/\\:\\  \\     /:/\\:\\  \\     /:/\\:\\  \\     /:/__/          \\:\\  \\    /:/ /\\__\\     /:/\\:\\  \\     /:/\\:\\  \\ \n   /::\\~\\:\\  \\   /::\\~\\:\\  \\   /:/  \\:\\  \\   /::\\  \\ ___      /::\\__\\  /:/ /:/ _/_   /::\\~\\:\\  \\   /::\\~\\:\\__\\ \n  /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:\\__\\ /:/__/ \\:\\__\\ /:/\\:\\  /\\__\\  __/:/\\/__/ /:/_/:/ /\\__\\ /:/\\:\\ \\:\\__\\ /:/\\:\\ \\:|__| \n  \\/__\\:\\/:/  / \\/_|::\\/:/  / \\:\\  \\  \\/__/ \\/__\\:\\/:/  / /\\/:/  /    \\:\\/:/ /:/  / \\:\\~\\:\\ \\/__/ \\:\\~\\:\\/:/  /  \n       \\::/  /     |:|::/  /   \\:\\  \\            \\::/  /  \\::/__/      \\::/_/:/  /   \\:\\ \\:\\__\\    \\:\\ \\::/  / \n       /:/  /      |:|\\/__/     \\:\\  \\           /:/  /    \\:\\__\\       \\:\\/:/  /     \\:\\ \\/__/     \\:\\/:/  / \n      /:/  /       |:|  |        \\:\\__\\         /:/  /      \\/__/        \\::/  /       \\:\\__\\        \\::/__/ \n      \\/__/         \\|__|         \\/__/         \\/__/                     \\/__/         \\/__/         ~~
       
@@ -130,14 +141,14 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
    */
   function enableTransformer(enableGUI = true) {
     if (assetManager === undefined) enableAssetManager();
-  
+    
     transformer = new Transformer(scene, renderer, camera.camera);
     camera.setTransformer(transformer);
-  
+    
     transformer._dragFrames = drag;
     transformer._assetManager = assetManager;
     assetManager.setTransformer(transformer);
-  
+    
     if (enableGUI) {
       transformer.addGUI(gui.gui);
     }
@@ -154,7 +165,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     } else {
       sceneBasic = new SceneBasic(scene, renderer);
     }
-  
+    
     if (enableGUI) {
       sceneBasic.addGUI(gui.gui)
     }
@@ -177,12 +188,13 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
       container.removeChild(canvas[0]);
     }
     container.appendChild(renderer.domElement);
-  
+    
     renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
     renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
     window.addEventListener('resize', onWindowResize, false);
-  
+    
   }
+  
   function windowResize(w, h) {
     
     if (drag) drag.onWindowResize(w, h);
@@ -243,7 +255,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
       if (obj.toCamera) {
         let v = new THREE.Vector3().subVectors(camera.camera.position, obj.position);
         let theta = -Math.atan2(v.x, v.y);
-  
+        
         obj.quaternion.set(0, 0, 0, 1);
         obj.rotateZ(theta);
       }
@@ -273,7 +285,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     
     controller.enableRotate = false;
     controls.rotate = false;
-  
+    
     return camera.camera;
   }
   
@@ -288,7 +300,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     }
     controller.enablePan = false;
     controls.pan = false;
-  
+    
     return camera.camera;
   }
   

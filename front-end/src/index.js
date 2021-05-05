@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 
 import * as ARCH from "@/archiweb"
+import {loaderOption} from "./creator/Loader";
 
 let scene, renderer, gui, camera;
 let gf, mt, am;
@@ -16,8 +17,18 @@ function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
+  loaderOption.status = 'merged';
+  loaderOption.edge = true;
+  const loader = new ARCH.Loader(scene);
+  loader.loadModel('/models/test_cube.dae', (mesh) => {
+    mesh.position.set(-300, 0, 0);
+    // ARCH.setPolygonOffsetMaterial(mesh.material);
+    // const edge = ARCH.createMeshEdge(mesh);
+    // scene.add(edge);
+    am.refreshSelection(scene);
+  });
   // refresh global objects
-  am.refreshSelection();
+  am.refreshSelection(scene);
 }
 
 
