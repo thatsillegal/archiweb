@@ -173,16 +173,8 @@ const SceneBasic = function (_scene, _renderer, _camera) {
       function () {
         gridUpdate(scope.grid);
         if (scope._transformer === undefined) return;
-        
-        if (scope.grid > 0) {
-          scope._transformer.setTranslationSnap(scope.grid);
-          scope._transformer.setRotationSnap(THREE.MathUtils.degToRad(15));
-          scope._transformer.setScaleSnap(0.25);
-        } else {
-          scope._transformer.setTranslationSnap(null);
-          scope._transformer.setRotationSnap(null);
-          scope._transformer.setScaleSnap(null);
-        }
+        scope._transformer.snap = true;
+        scope._transformer.setTransformSnap(scope.grid);
       }
     );
     sceneBasic.addColor(scope, 'skyColor').name('sky')

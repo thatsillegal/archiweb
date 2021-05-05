@@ -7,7 +7,7 @@ let renderer, scene, gui;
 
 let camera;
 
-let gf, am;
+let gf, am, tr;
 
 function initScene() {
   scene.background = new THREE.Color(0xfafafa);
@@ -27,7 +27,7 @@ function initScene() {
   const loader = new ARCH.Loader(scene);
   loader.addGUI(gui.util);
   
-  loader.loadModel('http://model.amomorning.com/tree/spruce-tree.dae', (mesh) => {
+  loader.loadModel('https://model.amomorning.com/tree/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);
     ARCH.setMaterial(mesh, new THREE.MeshLambertMaterial({color: 0x99A083, transparent: true, opacity: 0.8}))
     ARCH.setPolygonOffsetMaterial(mesh.material);
@@ -35,7 +35,7 @@ function initScene() {
     am.refreshSelection(scene);
   });
   
-  loader.loadModel('http://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
+  loader.loadModel('https://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
     mesh.scale.set(2, 2, 2);
     ARCH.setPolygonOffsetMaterial(mesh.material);
@@ -64,8 +64,6 @@ function initScene() {
   am.setCurrentID(1);
   
 }
-
-
 // APIs
 
 function updateObject(uuid, model) {
@@ -86,7 +84,8 @@ function main() {
   
   am = viewport.enableAssetManager();
   viewport.enableDragFrames();
-  viewport.enableTransformer();
+  tr = viewport.enableTransformer();
+  tr.highlight = true;
   
   initScene();
   

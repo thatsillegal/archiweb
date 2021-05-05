@@ -64,11 +64,13 @@ const AssetManager = function (_scene) {
       alert("⚠️ no object selected");
       return;
     }
-    
+  
+    scope.unHighlightList([obj]);
+  
     const group = new THREE.Group();
     _scene.add(group);
     transformer.applyTransform(obj);
-    
+  
     let layers = new Set();
     while (obj.children.length > 0) {
       obj.children.forEach((item) => {
@@ -100,6 +102,7 @@ const AssetManager = function (_scene) {
         parent.add(item);
       });
     }
+  
   
     transformer.control.detach();
     obj.layer = undefined;

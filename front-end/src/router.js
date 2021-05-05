@@ -14,6 +14,7 @@ const examples = [
   'archijson-geometry', 'interactive-spanning-tree',
   'cascaded-shadow-maps', 'python-backend-example', 'mapbox-buildings',
 
+
 ]
 const routes = [];
 examples.forEach((item) => {

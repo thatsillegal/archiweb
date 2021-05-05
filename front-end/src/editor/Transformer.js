@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as THREE from "three";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 /**
@@ -31,17 +32,14 @@ const Transformer = function (_scene, _renderer, _camera) {
   let shiftDown;
   
   
-  this._dragFrames;
+  this.highlight = false;
   
   //API
   
   function addToInfoCard(o) {
     if (o !== undefined) {
-  
-      // o.position.x = Math.round(o.position.x);
-      // o.position.y = Math.round(o.position.y);
-      // o.position.z = Math.round(o.position.z);
-      //
+      
+      
       if (o.toInfoCard !== undefined) {
         o.toInfoCard();
         return;
@@ -50,7 +48,7 @@ const Transformer = function (_scene, _renderer, _camera) {
       window.InfoCard.info.position = o.position;
       window.InfoCard.info.model = {};
       window.InfoCard.info.properties = {type: o.type, matrix: o.matrix.elements};
-  
+      
     } else {
       // clear info card
       window.InfoCard.info.uuid = "uuid";
@@ -58,7 +56,7 @@ const Transformer = function (_scene, _renderer, _camera) {
       window.InfoCard.info.model = {};
       window.InfoCard.info.properties = {};
     }
-  
+    
   }
   
   function toList(group) {
@@ -98,12 +96,19 @@ const Transformer = function (_scene, _renderer, _camera) {
     
     control.addEventListener('object-changed',
       function (event) {
-        scope.object = control.object;
         addToInfoCard(event.value);
         // highlightCurrent(control.object);
+        if (control.object !== scope.object) {
+          scope._assetManager.unHighlightList(window.highlightObject);
+          scope.object = control.object;
+        }
         if (control.object) {
           window.highlightObject = toList(control.object);
+          if (scope.highlight)
+            scope._assetManager.highlightList(window.highlightObject);
         } else {
+          if (scope.highlight)
+            scope._assetManager.unHighlightList(window.highlightObject);
           window.highlightObject = window.objects;
         }
         scope.objectChanged(control.object);
@@ -113,17 +118,20 @@ const Transformer = function (_scene, _renderer, _camera) {
     control.addEventListener('dragging-changed', function (event) {
       addDraggingFlag(scope.object, event.value);
       dragged = !event.value;
-  
-  
+      
+      
       if (event.value === true) {
         copy = 0;
         clonedObject = new THREE.Group();
         setCloneObject(control.object);
+        if (scope.highlight)
+          scope._assetManager.unHighlightList([clonedObject]);
+        _renderer.domElement.style.cursor = 'pointer';
       } else {
-    
+        
         control.object.updateMatrix();
         addToInfoCard(control.object);
-  
+        
         if (copy % 2 === 1) {
           applyTransformGroup(clonedObject);
           while (clonedObject.children.length > 0) {
@@ -133,9 +141,10 @@ const Transformer = function (_scene, _renderer, _camera) {
           }
           refresh = true;
         }
+        _renderer.domElement.style.cursor = 'auto';
         copy = 0;
       }
-  
+      
       scope.draggingChanged(scope.object, event.value);
     });
     
@@ -166,7 +175,7 @@ const Transformer = function (_scene, _renderer, _camera) {
       const cloned = object.clone();
       if (object.toCamera) cloned.toCamera = true;
       if (object.layer !== undefined) cloned.layer = Array.from(object.layer);
-  
+      
       if (cloned.material) {
         if (cloned.material.length > 0) {
           let materials = []
@@ -215,7 +224,7 @@ const Transformer = function (_scene, _renderer, _camera) {
       let group = mesh.parent;
       while (group.parent.isGroup)
         group = group.parent;
-    
+      
       applyGroupCenter(group);
       return group;
     }
@@ -240,54 +249,56 @@ const Transformer = function (_scene, _renderer, _camera) {
     const intersections = raycaster.intersectObjects(window.objects, true);
     const intersected = setFromIntersections(intersections);
     
-    if (shiftDown && intersected !== undefined) {
-      
-      if (control.object === undefined) {
-        attachObject([intersected]);
-      } else {
-        
-        if (control.object.isTransformerGroup) {
-          
-          const o = intersected;
-          
-          if (o.parent !== control.object) {
-            o.position.x -= control.object.position.x;
-            o.position.y -= control.object.position.y;
-            
-            control.object.add(o);
-            applyGroupCenter(control.object);
-          }
-          
-        } else {
-          attachObject([control.object, intersected]);
-        }
-        
-      }
-      console.log(control.object)
-      
-      
-    } else if (selected.length > 0) {
+    /* ---------- drag frame contains objects ---------- */
+    if (selected.length > 0) {
       selected.forEach((obj) => {
         if (obj.isGroup) {
           applyGroupCenter(obj);
         }
       })
-      
       attachObject(selected);
       selected = [];
-    } else if (intersected !== undefined && control.object === undefined) {
-      attachObject([intersected]);
-    } else {
+      return;
+    }
+    
+    /* ---------- void selection ---------- */
+    if (intersected === undefined) {
+      if (shiftDown === true) return;
       
       clear();
       if (refresh) {
         refreshSelection(_scene);
-        
         refresh = false;
       }
-      
       if (scope._dragFrames !== undefined)
         scope._dragFrames.enabled = true;
+      return;
+    }
+    
+    /* ---------- shift add object ---------- */
+    if (shiftDown) {
+      if (control.object === undefined) {
+        attachObject([intersected]);
+      } else {
+        if (control.object.isTransformerGroup) {
+          const o = intersected;
+          if (o.parent !== control.object) {
+            o.position.x -= control.object.position.x;
+            o.position.y -= control.object.position.y;
+            control.object.add(o);
+            applyGroupCenter(control.object);
+          }
+        } else {
+          attachObject([control.object, intersected]);
+        }
+      }
+      
+      /* ---------- normal select ---------- */
+    } else {
+      clear();
+      // applyTransformGroup(control.object);
+      // refreshSelection(_scene);
+      attachObject([intersected]);
     }
   }
   
@@ -311,16 +322,13 @@ const Transformer = function (_scene, _renderer, _camera) {
         scope._dragFrames.enabled = false;
     }
   }
-
+  
   
   function deleteObject(object) {
     if (object === undefined) return;
-  
+    
     if (!object.isGroup) {
-      console.log(object)
       object.parent.remove(object);
-      // console.log(_scene.getObjectById(parseInt(object.uuid)))
-      // if(_scene.getObjectById(object.uuid) !== undefined)
       try {
         _scene.remove(object)
       } catch (e) {
@@ -334,7 +342,7 @@ const Transformer = function (_scene, _renderer, _camera) {
         });
       }
     }
-  
+    
   }
   
   /**
@@ -395,7 +403,7 @@ const Transformer = function (_scene, _renderer, _camera) {
     if (!object.isGroup) {
       object.quaternion.premultiply(quaternion);
       object.position.applyQuaternion(quaternion);
-  
+      
       object.updateMatrixWorld(true);
       return;
     }
@@ -403,17 +411,33 @@ const Transformer = function (_scene, _renderer, _camera) {
       const child = object.children[i];
       child.quaternion.premultiply(quaternion);
       child.position.applyQuaternion(quaternion);
-  
+      
       child.updateMatrixWorld(true);
+    }
+  }
+  
+  
+  function setTransformSnap(ts, rs, ss) {
+    scope.translateionSnap = ts ?? scope.translateionSnap;
+    scope.rotationSnap = rs ?? scope.rotationSnap;
+    scope.scaleSnap = ss ?? scope.scaleSnap;
+    if (scope.snap) {
+      control.setTranslationSnap(scope.translateionSnap);
+      control.setRotationSnap(THREE.MathUtils.degToRad(scope.rotationSnap));
+      control.setScaleSnap(scope.scaleSnap);
+    } else {
+      control.setTranslationSnap(null);
+      control.setRotationSnap(null);
+      control.setScaleSnap(null);
     }
   }
   
   function deleteSelected() {
     let obj = control.object;
     deleteObject(obj);
-  
+    
     clear();
-  
+    
     refreshSelection(_scene);
   }
   
@@ -433,7 +457,7 @@ const Transformer = function (_scene, _renderer, _camera) {
         control.setMode("translate");
         scope.mode = 0;
         break;
-  
+      
       case 69: // E
         control.setMode("rotate");
         scope.mode = 1;
@@ -445,44 +469,42 @@ const Transformer = function (_scene, _renderer, _camera) {
         break;
       
       case 83: // S
-        if (scope.snap === true) {
-          scope.snap = false;
-          control.setTranslationSnap(null);
-          control.setRotationSnap(null);
-          control.setScaleSnap(null);
-        } else {
-          scope.snap = true;
-          control.setTranslationSnap(scope.translateionSnap);
-          control.setRotationSnap(THREE.MathUtils.degToRad(scope.rotationSnap));
-          control.setScaleSnap(scope.scaleSnap);
-        }
+        scope.snap = !scope.snap;
+        setTransformSnap();
         break;
-  
+      
       case 187:
       case 107: // +, =, num+
         control.setSize(control.size + 0.1);
         break;
-  
+      
       case 189:
       case 109: // -, _, num-
         control.setSize(Math.max(control.size - 0.1, 0.1));
         break;
-  
+      
       case 18:// alt
-        copy++;
+        if (_renderer.domElement.style.cursor !== 'auto') {
+          copy++;
+          if (copy % 2 === 1) {
+            _renderer.domElement.style.cursor = 'move';
+          } else {
+            _renderer.domElement.style.cursor = 'pointer';
+          }
+        }
         break;
-  
+      
       case 32: // space bar
         clear();
-    
+        
         break;
-  
+      
       case 68: // D
       case 46: // delete
         deleteSelected();
-    
+        
         break;
-  
+      
       case 16: // shift
         shiftDown = true;
     }
@@ -522,15 +544,8 @@ const Transformer = function (_scene, _renderer, _camera) {
     
     transformer.add(scope, 'snap')
       .listen().onChange(function () {
-      if (scope.snap) {
-        control.setTranslationSnap(null);
-        control.setRotationSnap(null);
-        control.setScaleSnap(null);
-      } else {
-        control.setTranslationSnap(scope.translateionSnap);
-        control.setRotationSnap(THREE.MathUtils.degToRad(scope.rotationSnap));
-        control.setScaleSnap(scope.scaleSnap);
-      }
+      setTransformSnap();
+      
     });
     
     transformer.add(scope, 'deleteSelected').name('delete');
@@ -578,12 +593,12 @@ const Transformer = function (_scene, _renderer, _camera) {
   this.draggingChanged = draggingChanged;
   this.deleteChanged = deleteChanged;
   
+  this.setTransformSnap = setTransformSnap;
   this.translateionSnap = 100;
   this.rotationSnap = 15;
   this.scaleSnap = 0.25;
   
   this.isTransformer = true;
-  
 }
 
 export {Transformer};

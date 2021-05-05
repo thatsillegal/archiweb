@@ -1,12 +1,9 @@
 import * as THREE from 'three';
 import * as gui from '@/gui'
+import {AssetManager, DragFrames, MultiCamera, Transformer, SceneBasic} from "@/archiweb";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
-import * as ARCH from "@/archiweb";
-import {AssetManager, DragFrames, MultiCamera, Transformer} from "@/archiweb";
-
-const Viewport = function (width = window.innerWidth, height = window.innerHeight, name = 'container') {
-  const aspect = height / width;
+const Viewport = function (width = window.innerWidth, height = window.innerHeight, aspect, name = 'container') {
   const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
   const scene = new THREE.Scene();
   
@@ -16,6 +13,7 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
   let drag;
   let transformer;
   let assetManager;
+  let sceneBasic;
   
   let scope = this;
   
@@ -132,31 +130,36 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
    */
   function enableTransformer(enableGUI = true) {
     if (assetManager === undefined) enableAssetManager();
-    
+  
     transformer = new Transformer(scene, renderer, camera.camera);
     camera.setTransformer(transformer);
-    
+  
     transformer._dragFrames = drag;
     transformer._assetManager = assetManager;
     assetManager.setTransformer(transformer);
-    
+  
     if (enableGUI) {
       transformer.addGUI(gui.gui);
+    }
+    if (sceneBasic) {
+      sceneBasic._transformer = transformer;
     }
     return transformer;
   }
   
   function enableSceneBasic(enableGUI = true, enableCSM = false) {
-    let sceneBasic;
     if (enableCSM) {
-      sceneBasic = new ARCH.SceneBasic(scene, renderer, camera.camera);
+      sceneBasic = new SceneBasic(scene, renderer, camera.camera);
       scope.csm = sceneBasic.csm;
     } else {
-      sceneBasic = new ARCH.SceneBasic(scene, renderer);
+      sceneBasic = new SceneBasic(scene, renderer);
     }
-    
+  
     if (enableGUI) {
       sceneBasic.addGUI(gui.gui)
+    }
+    if (transformer) {
+      sceneBasic._transformer = transformer;
     }
     return sceneBasic;
   }
@@ -175,16 +178,11 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
     }
     container.appendChild(renderer.domElement);
   
-    window.onresize = function () {
-      const w = document.getElementById('container').clientWidth;
-      windowResize(w, w * aspect);
-    };
     renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
     renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);
     window.addEventListener('resize', onWindowResize, false);
   
   }
-  
   function windowResize(w, h) {
     
     if (drag) drag.onWindowResize(w, h);
@@ -194,11 +192,16 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
   }
   
   function onWindowResize() {
-    if (!document.fullscreenElement) {
-      const w = document.getElementById('container').clientWidth;
-      windowResize(w, w * aspect);
+    if (document.fullscreenElement === null) {
+      const w = document.getElementById(name).clientWidth;
+      const h = window.innerHeight;
+      if (aspect)
+        windowResize(w, w * aspect);
+      else
+        windowResize(w, h);
     }
   }
+  
   
   function onDocumentKeyDown(event) {
     // console.log('viewport key down', event.keyCode);
@@ -219,23 +222,12 @@ const Viewport = function (width = window.innerWidth, height = window.innerHeigh
         } else if (elem.msRequestFullscreen) { /* IE/Edge */
           elem.msRequestFullscreen();
         }
-        console.log(screen);
         windowResize(screen.width, screen.height);
         break;
     }
   }
   
-  // function onFullScreen() {
-  //   if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== undefined) {
-  //     /* Run code when going to fs mode */
-  //     windowResize(screen.width, screen.height);
-  //
-  //   } else {
-  //     onWindowResize();
-  //     /* Run code when going back from fs mode */
-  //   }
-  // }
-  //
+  
   function onDocumentKeyUp(event) {
     switch (event.keyCode) {
       case 16: // Shift
