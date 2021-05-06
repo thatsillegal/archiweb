@@ -17,18 +17,20 @@ function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
-  loaderOption.status = 'merged';
+  loaderOption.status = 'grouped';
   loaderOption.edge = true;
+  loaderOption.doubleSide = true;
   const loader = new ARCH.Loader(scene);
-  loader.loadModel('/models/test_cube.dae', (mesh) => {
-    mesh.position.set(-300, 0, 0);
-    // ARCH.setPolygonOffsetMaterial(mesh.material);
-    // const edge = ARCH.createMeshEdge(mesh);
-    // scene.add(edge);
+  loader.loadModel('/models/test/model.dae', (mesh) => {
+    mesh.position.x = -300;
+    // mesh.traverse((m)=>{
+    //   if(m.isMesh) {
+    //   }
+    // })
     am.refreshSelection(scene);
   });
+  
   // refresh global objects
-  am.refreshSelection(scene);
 }
 
 
@@ -40,6 +42,8 @@ function draw() {
 
 /* ---------- main entry ---------- */
 function main() {
+  console.warn = () => {
+  };
   const viewport = new ARCH.Viewport();
   renderer = viewport.renderer;
   scene = viewport.scene;

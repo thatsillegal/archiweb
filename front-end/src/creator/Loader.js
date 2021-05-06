@@ -11,6 +11,8 @@ import {sceneAddMesh, sceneMesh} from "@/creator/GeometryFactory";
 import {refreshSelection} from "@/creator/AssetManager";
 import {Geometry} from "three/examples/jsm/deprecated/Geometry"
 import {applyGroupCenter} from "../editor/Transformer";
+import {setPolygonOffsetMaterial} from "./MaterialFactory";
+import {BufferGeometryUtils} from "three/examples/jsm/utils/BufferGeometryUtils";
 /**
  * Copyright (c) 2020-present, Inst.AAA.
  *
@@ -71,6 +73,7 @@ const Loader = function (_scene) {
     /* ---------- merge ---------- */
   
     if (loaderOption.status === "merged") {
+  
       const materials = new Set();
       const meshes = [];
     
@@ -90,10 +93,10 @@ const Loader = function (_scene) {
       // console.log(buffer);
       lineGeometry.setAttribute('position', new THREE.BufferAttribute(buffer, 3));
       const result = mergeMeshes(meshes);
-      console.log(result)
+      // console.log(result)
   
       const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
-      console.log(buffer)
+      // console.log(buffer)
       if (buffer.length === 0) sceneAddMesh(_scene, result, loaderOption.edge, loaderOption.shadow);
       else sceneAddMesh(_scene, result, line);
   
@@ -192,20 +195,21 @@ const Loader = function (_scene) {
     searchGroupMaterials(object, materials)
   
     materials.forEach(function (material) {
+      setPolygonOffsetMaterial(material);
+  
       let meshGeometry = new Geometry();
       searchGroupMaterialChild(material, object, meshGeometry);
-      meshes.push(new THREE.Mesh(meshGeometry.toBufferGeometry(), material));
+      let geom = meshGeometry.toBufferGeometry();
+      geom = BufferGeometryUtils.mergeVertices(geom, 1e-1);
+      meshes.push(new THREE.Mesh(geom, material));
     });
-    console.log('meshes', meshes);
   
     const ret = new THREE.Group().copy(object);
     ret.children = [];
     ret.layer = [0];
-    // ret.matrix = object.matrix;
     let lineGeometry = new THREE.BufferGeometry();
     buffer = new Float32Array();
     searchGroupLines(object);
-    // console.log(buffer);
     lineGeometry.setAttribute('position', new THREE.BufferAttribute(buffer, 3));
     const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
     if (buffer.length > 0) ret.add(line);
@@ -215,6 +219,8 @@ const Loader = function (_scene) {
       sceneAddMesh(ret, mesh, loaderOption.edge, loaderOption.shadow, [0]);
     })
   
+  
+    // return ret;
   
     /* ---------- group ---------- */
     object.children.forEach((obj) => {
@@ -309,8 +315,8 @@ const Loader = function (_scene) {
       }
       if (omaterial === material) {
         object.geometry = new Geometry().fromBufferGeometry(object.geometry);
-        object.geometry.applyMatrix4(matrix);
-        meshGeometry.merge(object.geometry, object.matrix);
+        // object.geometry.applyMatrix4(matrix);
+        meshGeometry.merge(object.geometry, matrix);
       }
       return;
     }

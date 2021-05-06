@@ -4,7 +4,7 @@ import {LineMaterial} from "three/examples/jsm/lines/LineMaterial";
 import {WireframeGeometry2} from "three/examples/jsm/lines/WireframeGeometry2";
 import {Wireframe} from "three/examples/jsm/lines/Wireframe";
 import * as earcut from "earcut";
-
+import {setMaterialDoubleSide, setPolygonOffsetMaterial} from "@/creator/MaterialFactory";
 
 /**
  * Copyright (c) 2020-present, Inst.AAA.
@@ -15,7 +15,6 @@ import * as earcut from "earcut";
  * Date: 2020-11-12
  * Author: Yichen Mo
  */
-import {setMaterialDoubleSide, setPolygonOffsetMaterial} from "@/creator/MaterialFactory";
 
 const GeometryFactory = function (_scene) {
   
@@ -515,7 +514,7 @@ function createMeshEdge(mesh, color = 0x000000) {
   setPolygonOffsetMaterial(mesh.material);
   
   const matLine = new THREE.LineBasicMaterial({color: color});
-  const geoLine = new THREE.EdgesGeometry(mesh.geometry);
+  const geoLine = new THREE.EdgesGeometry(mesh.geometry, 3); // threshold angle
   const lineSegs = new THREE.LineSegments(geoLine, matLine);
   lineSegs.unselectable = true;
   return lineSegs;
