@@ -10,9 +10,10 @@ import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 import {sceneAddMesh, sceneMesh} from "@/creator/GeometryFactory";
 import {refreshSelection} from "@/creator/AssetManager";
 import {Geometry} from "three/examples/jsm/deprecated/Geometry"
-import {applyGroupCenter} from "../editor/Transformer";
+import {applyGroupCenter, applyTransformGroup} from "../editor/Transformer";
 import {setPolygonOffsetMaterial} from "./MaterialFactory";
 import {BufferGeometryUtils} from "three/examples/jsm/utils/BufferGeometryUtils";
+import {createMeshEdge} from "./GeometryFactory";
 /**
  * Copyright (c) 2020-present, Inst.AAA.
  *
@@ -55,7 +56,14 @@ const Loader = function (_scene) {
     /* ---------- raw ---------- */
   
     if (loaderOption.status === "raw") {
-    
+      if (object.type === 'Object3D') {
+        let children = object.children;
+        object = new THREE.Group();
+        object.children = children;
+        children.forEach((o) => {
+          o.parent = object;
+        })
+      }
       // set shadow, doubleSide, layer
       sceneMesh(object, loaderOption.shadow, loaderOption.doubleSide, [0]);
     
@@ -63,8 +71,18 @@ const Loader = function (_scene) {
       while (object.children.length === 1) {
         object = object.children[0];
       }
-  
+    
       sceneAddMesh(_scene, object, false, loaderOption.shadow)
+      if (loaderOption.edge) {
+        object.traverse((mesh) => {
+          if (mesh.isMesh) {
+            mesh.add(createMeshEdge(mesh));
+          }
+        })
+      }
+      if (loaderOption.selectable) {
+        object.layer = [0];
+      }
       object.toCamera = loaderOption.toCamera;
       return object;
     }
@@ -73,7 +91,7 @@ const Loader = function (_scene) {
     /* ---------- merge ---------- */
   
     if (loaderOption.status === "merged") {
-  
+    
       const materials = new Set();
       const meshes = [];
     
@@ -82,11 +100,16 @@ const Loader = function (_scene) {
       // console.log(materials)
     
       materials.forEach(function (material) {
+        if (loaderOption.doubleSide) {
+          material.side = THREE.DoubleSide;
+        } else {
+          material.side = THREE.FrontSide;
+        }
         let meshGeometry = new Geometry();
         searchMaterialChild(material, object, meshGeometry);
         meshes.push(new THREE.Mesh(meshGeometry, material));
       });
-  
+    
       let lineGeometry = new THREE.BufferGeometry();
       buffer = new Float32Array();
       searchLines(object);
@@ -94,12 +117,12 @@ const Loader = function (_scene) {
       lineGeometry.setAttribute('position', new THREE.BufferAttribute(buffer, 3));
       const result = mergeMeshes(meshes);
       // console.log(result)
-  
+    
       const line = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({color: 0x000000}));
       // console.log(buffer)
       if (buffer.length === 0) sceneAddMesh(_scene, result, loaderOption.edge, loaderOption.shadow);
       else sceneAddMesh(_scene, result, line);
-  
+    
       if (checkMaterial(result)) {
         result.material = new THREE.MeshLambertMaterial({
           color: 0x787774,
@@ -107,7 +130,7 @@ const Loader = function (_scene) {
           shadowSide: THREE.BackSide
         });
       }
-  
+    
       result.toCamera = loaderOption.toCamera;
       return result;
     }
@@ -117,9 +140,19 @@ const Loader = function (_scene) {
       while (checkChildren(object) !== undefined) {
         object = checkChildren(object);
       }
+      if (object.type === 'Object3D') {
+        let children = object.children;
+        object = new THREE.Group();
+        object.children = children;
+        children.forEach((o) => {
+          o.parent = object;
+        })
+      }
+      console.log(object)
+      applyTransformGroup(object);
       const result = searchGroupedMesh(object);
       _scene.add(result);
-  
+    
       applyGroupCenter(result);
       result.toCamera = loaderOption.toCamera;
       return result;
@@ -148,6 +181,7 @@ const Loader = function (_scene) {
     if (!object.isGroup) return;
     object.children.forEach((obj) => {
       if (obj.isMesh) {
+        console.log(obj)
         if (obj.material.length > 0) {
           materials.add(obj.material[0]);
         } else {
@@ -175,7 +209,7 @@ const Loader = function (_scene) {
         if (omaterial.length > 0) {
           omaterial = omaterial[0]
         }
-      
+  
         if (omaterial === material) {
           if (obj.geometry.isBufferGeometry)
             obj.geometry = new Geometry().fromBufferGeometry(obj.geometry);
@@ -196,7 +230,12 @@ const Loader = function (_scene) {
   
     materials.forEach(function (material) {
       setPolygonOffsetMaterial(material);
-  
+      if (loaderOption.doubleSide) {
+        material.side = THREE.DoubleSide;
+      } else {
+        material.side = THREE.FrontSide;
+      }
+    
       let meshGeometry = new Geometry();
       searchGroupMaterialChild(material, object, meshGeometry);
       let geom = meshGeometry.toBufferGeometry();
@@ -424,6 +463,13 @@ const Loader = function (_scene) {
           callback(loadModel(obj));
         });
         break;
+      case '3dm':
+        loader = new Rhino3dmLoader();
+        loader.setLibraryPath('https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/');
+        loader.load(filename, function (obj) {
+          callback(loadModel(obj))
+        });
+        break;
       case '3mf':
         loader = new ThreeMFLoader();
         loader.load(filename, function (obj) {
@@ -600,7 +646,7 @@ const Loader = function (_scene) {
           let contents = event.target.result;
           let loader = new THREE.ImageLoader();
           loader.load(contents, function (image) {
-      
+  
             scope.dispatchEvent({type: 'load', object: image});
             // alert(''+image.width + ' ' + image.height);
           });

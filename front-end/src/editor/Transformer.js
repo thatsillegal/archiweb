@@ -333,77 +333,7 @@ const Transformer = function (_scene, _renderer, _camera) {
     
   }
   
-  /**
-   * Apply Transformation to children in group
-   * The matrix on three will be clear
-   * @param object : THREE.Group
-   */
-  function applyTransformGroup(object) {
-    if (object !== undefined && object.isGroup) {
-      
-      object.matrixAutoUpdate = false;
-      
-      setChildQuaternion(object, object.quaternion);
-      setChildPosition(object, object.position);
-      setChildScale(object, object.scale);
-      
-      object.position.set(0, 0, 0);
-      object.quaternion.set(0, 0, 0, 1);
-      object.scale.set(1, 1, 1);
-      
-      object.updateMatrixWorld(true);
-      object.matrixAutoUpdate = true;
-      
-    }
-  }
-  
-  
-  function setChildScale(object, scale) {
-    if (!object.isGroup) {
-      object.scale.multiply(scale);
-      object.position.multiply(scale);
-      object.updateMatrixWorld(true);
-      return;
-    }
-    for (let i = 0; i < object.children.length; ++i) {
-      const child = object.children[i];
-      child.scale.multiply(scale);
-      child.position.multiply(scale);
-      child.updateMatrixWorld(true);
-    }
-  }
-  
-  
-  function setChildPosition(object, position) {
-    if (!object.isGroup) {
-      object.position.add(position);
-      object.updateMatrixWorld(true);
-      return;
-    }
-    for (let i = 0; i < object.children.length; ++i) {
-      const child = object.children[i];
-      child.position.add(position);
-      child.updateMatrixWorld(true);
-    }
-  }
-  
-  function setChildQuaternion(object, quaternion) {
-    if (!object.isGroup) {
-      object.quaternion.premultiply(quaternion);
-      object.position.applyQuaternion(quaternion);
-      
-      object.updateMatrixWorld(true);
-      return;
-    }
-    for (let i = 0; i < object.children.length; ++i) {
-      const child = object.children[i];
-      child.quaternion.premultiply(quaternion);
-      child.position.applyQuaternion(quaternion);
-      
-      child.updateMatrixWorld(true);
-    }
-  }
-  
+
   
   function setTransformSnap(ts, rs, ss) {
     scope.translateionSnap = ts ?? scope.translateionSnap;
@@ -603,4 +533,76 @@ function applyGroupCenter(group) {
   });
 }
 
-export {Transformer, applyGroupCenter};
+
+/**
+ * Apply Transformation to children in group
+ * The matrix on three will be clear
+ * @param object : THREE.Group
+ */
+function applyTransformGroup(object) {
+  if (object !== undefined && object.isGroup) {
+    
+    object.matrixAutoUpdate = false;
+    
+    setChildQuaternion(object, object.quaternion);
+    setChildPosition(object, object.position);
+    setChildScale(object, object.scale);
+    
+    object.position.set(0, 0, 0);
+    object.quaternion.set(0, 0, 0, 1);
+    object.scale.set(1, 1, 1);
+    
+    object.updateMatrixWorld(true);
+    object.matrixAutoUpdate = true;
+    
+  }
+}
+
+
+function setChildScale(object, scale) {
+  if (!object.isGroup) {
+    object.scale.multiply(scale);
+    object.position.multiply(scale);
+    object.updateMatrixWorld(true);
+    return;
+  }
+  for (let i = 0; i < object.children.length; ++i) {
+    const child = object.children[i];
+    child.scale.multiply(scale);
+    child.position.multiply(scale);
+    child.updateMatrixWorld(true);
+  }
+}
+
+
+function setChildPosition(object, position) {
+  if (!object.isGroup) {
+    object.position.add(position);
+    object.updateMatrixWorld(true);
+    return;
+  }
+  for (let i = 0; i < object.children.length; ++i) {
+    const child = object.children[i];
+    child.position.add(position);
+    child.updateMatrixWorld(true);
+  }
+}
+
+function setChildQuaternion(object, quaternion) {
+  if (!object.isGroup) {
+    object.quaternion.premultiply(quaternion);
+    object.position.applyQuaternion(quaternion);
+    
+    object.updateMatrixWorld(true);
+    return;
+  }
+  for (let i = 0; i < object.children.length; ++i) {
+    const child = object.children[i];
+    child.quaternion.premultiply(quaternion);
+    child.position.applyQuaternion(quaternion);
+    
+    child.updateMatrixWorld(true);
+  }
+}
+
+export {Transformer, applyGroupCenter, applyTransformGroup};

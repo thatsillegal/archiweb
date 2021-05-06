@@ -552,6 +552,8 @@ function sceneMesh(object, shadow = true, doubleSide = false, layer = [0]) {
     if (mesh.isMesh) {
       if (doubleSide) {
         setMaterialDoubleSide(mesh.material);
+      } else {
+        setMaterialDoubleSide(mesh.material, THREE.FrontSide);
       }
       mesh.add(createMeshWireframe(mesh, 0xffff00, 0.005));
       mesh.children[0].visible = false;

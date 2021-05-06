@@ -169,14 +169,14 @@ function setMaterialColor(material, color) {
     material.color.set(color);
 }
 
-function setMaterialDoubleSide(material) {
+function setMaterialDoubleSide(material, side = THREE.DoubleSide) {
   if (material === undefined) return;
   if (material.length > 0) {
     material.forEach((item) => {
       setMaterialDoubleSide(item);
     })
   }
-  material.side = THREE.DoubleSide;
+  material.side = side;
   material.shadowSide = THREE.BackSide;
 }
 

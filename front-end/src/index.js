@@ -17,16 +17,13 @@ function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
-  loaderOption.status = 'grouped';
+  loaderOption.status = 'raw';
   loaderOption.edge = true;
-  loaderOption.doubleSide = true;
+  loaderOption.doubleSide = false;
   const loader = new ARCH.Loader(scene);
-  loader.loadModel('/models/test/model.dae', (mesh) => {
-    mesh.position.x = -300;
-    // mesh.traverse((m)=>{
-    //   if(m.isMesh) {
-    //   }
-    // })
+  loader.addGUI(gui.util);
+  loader.loadModel('/models/b_3dm/model.3dm', (mesh) => {
+    mesh.scale.set(10, 10, 10);
     am.refreshSelection(scene);
   });
   
