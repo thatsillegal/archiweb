@@ -284,8 +284,6 @@ const Transformer = function (_scene, _renderer, _camera) {
       /* ---------- normal select ---------- */
     } else {
       clear();
-      // applyTransformGroup(control.object);
-      // refreshSelection(_scene);
       attachObject([intersected]);
     }
   }

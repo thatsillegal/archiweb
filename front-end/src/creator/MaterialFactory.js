@@ -173,11 +173,11 @@ function setMaterialDoubleSide(material, side = THREE.DoubleSide) {
   if (material === undefined) return;
   if (material.length > 0) {
     material.forEach((item) => {
-      setMaterialDoubleSide(item);
+      setMaterialDoubleSide(item, side);
     })
   }
   material.side = side;
-  material.shadowSide = THREE.BackSide;
+  
 }
 
 /**

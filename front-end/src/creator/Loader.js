@@ -14,6 +14,7 @@ import {applyGroupCenter, applyTransformGroup} from "../editor/Transformer";
 import {setPolygonOffsetMaterial} from "./MaterialFactory";
 import {BufferGeometryUtils} from "three/examples/jsm/utils/BufferGeometryUtils";
 import {createMeshEdge} from "./GeometryFactory";
+// import {IFCLoader} from "three/examples/jsm/loaders/IFCLoader"
 /**
  * Copyright (c) 2020-present, Inst.AAA.
  *
@@ -148,13 +149,13 @@ const Loader = function (_scene) {
           o.parent = object;
         })
       }
-      console.log(object)
       applyTransformGroup(object);
       const result = searchGroupedMesh(object);
       _scene.add(result);
     
       applyGroupCenter(result);
       result.toCamera = loaderOption.toCamera;
+      console.log(result)
       return result;
     }
   
@@ -181,7 +182,7 @@ const Loader = function (_scene) {
     if (!object.isGroup) return;
     object.children.forEach((obj) => {
       if (obj.isMesh) {
-        console.log(obj)
+        // console.log(obj)
         if (obj.material.length > 0) {
           materials.add(obj.material[0]);
         } else {
@@ -482,7 +483,14 @@ const Loader = function (_scene) {
           callback(loadModel(obj));
         })
         break;
-      
+      // case 'ifc':
+      //   loader = new IFCLoader();
+      //   loader.setWasmPath( '/ifc/' );
+      //   loader.load(filename, function (obj) {
+      //     callback(loadModel(obj));
+      //   });
+      //   break;
+      //
       // FIXME: not support 3d ?
       // case 'dxf':
       //   loader = new DXFLoader();
@@ -603,9 +611,9 @@ const Loader = function (_scene) {
           let contents = event.target.result;
           
           let loader = new Rhino3dmLoader();
-          loader.setLibraryPath('three/examples/jsm/libs/rhino3dm/');
+          loader.setLibraryPath('https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/');
           loader.parse(contents, function (object) {
-            
+    
             onOpen(object);
           });
           

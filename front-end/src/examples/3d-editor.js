@@ -2,6 +2,7 @@
 "use strict";
 import * as THREE from 'three'
 import * as ARCH from "@/archiweb"
+import {loaderOption} from "../archiweb";
 
 let renderer, scene, gui;
 
@@ -26,6 +27,8 @@ function initScene() {
   
   const loader = new ARCH.Loader(scene);
   loader.addGUI(gui.util);
+  loaderOption.status = "merged";
+  loaderOption.edge = false;
   
   loader.loadModel('https://model.amomorning.com/tree/spruce-tree.dae', (mesh) => {
     mesh.position.set(0, -300, 0);

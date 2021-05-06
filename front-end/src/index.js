@@ -2,6 +2,7 @@
 
 import * as ARCH from "@/archiweb"
 import {loaderOption} from "./creator/Loader";
+import {applyTransformGroup} from "./editor/Transformer";
 
 let scene, renderer, gui, camera;
 let gf, mt, am;
@@ -19,13 +20,18 @@ function initScene() {
   
   loaderOption.status = 'raw';
   loaderOption.edge = true;
-  loaderOption.doubleSide = false;
+  loaderOption.doubleSide = true;
   const loader = new ARCH.Loader(scene);
   loader.addGUI(gui.util);
-  loader.loadModel('/models/b_3dm/model.3dm', (mesh) => {
-    mesh.scale.set(10, 10, 10);
+  loader.loadModel('/models/bugalow_fbx/model.fbx', (result) => {
+    result.scale.set(0.1, 0.1, 0.1);
+    applyTransformGroup(result);
     am.refreshSelection(scene);
   });
+  // loader.loadModel('/models/test_ifc/example.ifc', (result) => {
+  //   console.log(result);
+  //   am.refreshSelection(scene);
+  // });
   
   // refresh global objects
 }
@@ -46,12 +52,16 @@ function main() {
   scene = viewport.scene;
   gui = viewport.gui;
   camera = viewport.camera;
+  viewport.setCameraPosition([1120, 630, 450], [160, 135, 400]);
   
   am = viewport.enableAssetManager();
   viewport.enableDragFrames();
   viewport.enableTransformer();
-  viewport.enableSceneBasic();
-  
+  let sb = viewport.enableSceneBasic();
+  sb.x = 1;
+  sb.y = 0.5;
+  sb.z = 0.6;
+  sb.update();
   initGUI();
   initScene();
   
