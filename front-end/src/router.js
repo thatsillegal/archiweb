@@ -8,7 +8,7 @@ const examples = [
   // test examples
   'polygon-handles', 'csg',
   // website examples
-  '2d-editor', '3d-editor',
+  '2d-editor', '3d-editor', 'loaders-example',
   'marching-cubes', 'material-example', 'shape-2d',
   'undo-redo-canvas', 'image-3d', 'java-backend-example',
   'archijson-geometry', 'interactive-spanning-tree',

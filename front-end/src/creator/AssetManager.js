@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {applyGroupCenter} from "../editor/Transformer";
 
 /**
  * Copyright (c) 2020-present, Inst.AAA.
@@ -93,12 +94,13 @@ const AssetManager = function (_scene) {
       alert("⚠️ no group selected");
       return;
     }
-  
+    scope.unHighlightList([obj]);
     const parent = obj.parent;
     transformer.applyTransform(obj);
   
     while (obj.children.length > 0) {
       obj.children.forEach((item) => {
+        applyGroupCenter(item);
         parent.add(item);
       });
     }
@@ -197,6 +199,7 @@ const AssetManager = function (_scene) {
   this.setTransformer = function (controls) {
     transformer = controls;
   }
+  
   
   this.addGUI = function (gui) {
     _gui = gui;

@@ -196,7 +196,6 @@ const Transformer = function (_scene, _renderer, _camera) {
     }
   }
   
-
   
   function setFromIntersections(intersections) {
     let mesh = undefined;
@@ -285,6 +284,7 @@ const Transformer = function (_scene, _renderer, _camera) {
     } else {
       clear();
       attachObject([intersected]);
+      applyGroupCenter(control.object);
     }
   }
   
@@ -331,7 +331,6 @@ const Transformer = function (_scene, _renderer, _camera) {
     
   }
   
-
   
   function setTransformSnap(ts, rs, ss) {
     scope.translateionSnap = ts ?? scope.translateionSnap;
@@ -463,8 +462,9 @@ const Transformer = function (_scene, _renderer, _camera) {
       setTransformSnap();
       
     });
-    
+  
     transformer.add(scope, 'deleteSelected').name('delete');
+    transformer.add(scope, 'setCenter').name('center');
   }
   
   function setSelected(objects) {
@@ -477,14 +477,18 @@ const Transformer = function (_scene, _renderer, _camera) {
   
   function clear() {
     applyTransformGroup(control.object);
-    
+  
     control.detach();
-    
+  
     while (grouped.children.length > 0) {
       grouped.children.forEach((item) => {
         _scene.attach(item);
       });
     }
+  }
+  
+  this.setCenter = function () {
+    applyGroupCenter(control.object);
   }
   
   init();
@@ -517,6 +521,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   this.isTransformer = true;
 }
 
+
 function applyGroupCenter(group) {
   let box = new THREE.Box3().setFromObject(group);
   let c = new THREE.Vector3();
@@ -529,8 +534,11 @@ function applyGroupCenter(group) {
     item.position.x -= c.x;
     item.position.y -= c.y;
   });
+  if (group.geometry) {
+    group.geometry.translate(-c.x, -c.y, 0);
+  }
+  
 }
-
 
 /**
  * Apply Transformation to children in group
@@ -556,7 +564,6 @@ function applyTransformGroup(object) {
   }
 }
 
-
 function setChildScale(object, scale) {
   if (!object.isGroup) {
     object.scale.multiply(scale);
@@ -564,6 +571,7 @@ function setChildScale(object, scale) {
     object.updateMatrixWorld(true);
     return;
   }
+  
   for (let i = 0; i < object.children.length; ++i) {
     const child = object.children[i];
     child.scale.multiply(scale);

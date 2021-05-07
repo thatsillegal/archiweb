@@ -3,7 +3,7 @@ export {SceneBasic} from "@/viewers/SceneBasic";
 export {MultiCamera} from "@/viewers/MultiCamera"
 
 export {DragFrames} from "@/editor/DragFrames";
-export {Transformer} from "@/editor/Transformer"
+export {Transformer, applyTransformGroup} from "@/editor/Transformer"
 
 
 export {Loader, loaderOption} from "@/creator/Loader";

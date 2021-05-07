@@ -1,8 +1,8 @@
 {
   "name": "archiweb",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "ArchiWeb is a front-end web application to display architectural data",
+  "description": "ArchiWeb: a front-end web application to display architectural data",
   "author": {
     "name": "Yichen Mo",
     "email": "moyichen@seu.edu.cn"
