@@ -17,7 +17,7 @@ function initScene() {
   mt = new ARCH.MaterialFactory();
   
   // refresh global objects
-  am.refreshSelection();
+  am.refreshSelection(scene);
 }
 
 

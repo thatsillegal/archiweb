@@ -1,14 +1,13 @@
-/* eslint-disable no-unused-vars,no-case-declarations */
 import mapboxgl from 'mapbox-gl';
 import * as dat from 'dat.gui';
-import {my_accesstoken} from "@/testdata";
 import * as ARCH from "@/archiweb";
 import * as THREE from 'three';
 
 let gui, util, map;
 
 mapboxgl.accessToken = 'your_token';
-mapboxgl.accessToken = my_accesstoken;
+// import {my_accesstoken} from "@/testdata";
+// mapboxgl.accessToken = my_accesstoken;
 
 let control = {
   randomCenter: function () {
@@ -146,7 +145,7 @@ function initScene() {
       const gf = new ARCH.GeometryFactory(this.scene);
       const mt = new ARCH.MaterialFactory();
   
-      const box = gf.Cuboid([1, 1, 0], [0.6, 0.6, 1.8], mt.Matte(0xff0000));
+      gf.Cuboid([1, 1, 0], [0.6, 0.6, 1.8], mt.Matte(0xff0000));
   
       const loader = new ARCH.Loader(this.scene);
       loader.loadModel('http://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {

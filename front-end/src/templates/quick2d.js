@@ -14,7 +14,7 @@ function initGUI() {
 function initScene() {
   
   // refresh global objects
-  ARCH.refreshSelection();
+  ARCH.refreshSelection(scene);
 }
 
 
