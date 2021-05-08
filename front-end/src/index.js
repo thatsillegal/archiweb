@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars,no-case-declarations */
 
-import * as ARCH from "@/archiweb"
+import * as ARCH from "@/archiweb";
 
 let scene, renderer, gui, camera;
 let gf, mt, am;
@@ -16,6 +16,19 @@ function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
+  for (let i = 0; i < 10; ++ i) {
+    gf.Cuboid([0, i*50, i*30], [300, 50, 50], mt.Matte());
+  }
+  for (let i = 0; i < 10; ++ i) {
+    gf.Cuboid([300, 450-i*50, i*30+330], [300, 50, 50], mt.Matte());
+  }
+  gf.Cuboid([150,650,300], [600, 350, 50], mt.Matte());
+  // box = gf.Cuboid([0,0,0],[100, 200, 600], mt.Matte(0xff0000));
+  // let cylinder = gf.Cylinder([300, 0, 0], [50, 400], mt.Matte(), false);
+  //
+  // console.log(box)
+  // console.log(cylinder)
+  
   // refresh global objects
   am.refreshSelection(scene);
 }
@@ -23,7 +36,7 @@ function initScene() {
 
 /* ---------- animate per frame ---------- */
 function draw() {
-
+  // box.position.x += 1;
 }
 
 
@@ -37,8 +50,13 @@ function main() {
   
   am = viewport.enableAssetManager();
   viewport.enableDragFrames();
-  viewport.enableTransformer();
-  viewport.enableSceneBasic();
+  let tr = viewport.enableTransformer();
+  tr.highlight = true;
+  tr.snap = true;
+  
+  let sb = viewport.enableSceneBasic();
+  sb.x = -1;
+  sb.update();
   
   initGUI();
   initScene();
