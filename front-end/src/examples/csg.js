@@ -46,11 +46,8 @@ function initScene() {
   ]
   
   gf.Segments(gf.coordinatesToPoints(dddd.flat(), 3), true, 0xeeeeee, true);
-  
-  
-  let polymesh = gf.Mesh(polygonmesh.vertices, polygonmesh.faces, mt.Flat());
-  
-  //
+  gf.Mesh(polygonmesh.vertices, polygonmesh.faces, mt.Flat());
+//
   ARCH.refreshSelection(scene);
 }
 

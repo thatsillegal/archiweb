@@ -67,6 +67,7 @@ function initScene() {
   am.setCurrentID(1);
   
 }
+
 // APIs
 
 function updateObject(uuid, model) {
@@ -74,9 +75,6 @@ function updateObject(uuid, model) {
   o.updateModel(o, model);
 }
 
-window.searchSceneByUUID = function (uuid) {
-  return scene.getObjectByProperty('uuid', uuid);
-}
 
 function main() {
   const viewport = new ARCH.Viewport();

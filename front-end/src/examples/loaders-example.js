@@ -1,5 +1,5 @@
 import * as ARCH from "@/archiweb"
-import {loaderOption} from "@/archiweb";
+import {loaderOption} from "@/archiweb"
 
 
 let scene, gui;

@@ -16,23 +16,25 @@ function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
   
-  for (let i = 0; i < 10; ++ i) {
-    gf.Cuboid([0, i*50, i*30], [300, 50, 50], mt.Matte());
+  let stairs = [];
+  for (let i = 0; i < 10; ++i) {
+    stairs.push(gf.Cuboid([0, i * 50, i * 30], [300, 50, 50], mt.Matte()));
   }
-  for (let i = 0; i < 10; ++ i) {
-    gf.Cuboid([300, 450-i*50, i*30+330], [300, 50, 50], mt.Matte());
+  for (let i = 0; i < 10; ++i) {
+    stairs.push(gf.Cuboid([300, 450 - i * 50, i * 30 + 330], [300, 50, 50], mt.Matte()));
   }
-  gf.Cuboid([150,650,300], [600, 350, 50], mt.Matte());
-  // box = gf.Cuboid([0,0,0],[100, 200, 600], mt.Matte(0xff0000));
-  // let cylinder = gf.Cylinder([300, 0, 0], [50, 400], mt.Matte(), false);
-  //
-  // console.log(box)
-  // console.log(cylinder)
+  stairs.push(gf.Cuboid([150, 650, 300], [600, 350, 50], mt.Matte()));
   
   // refresh global objects
+  
+  am.addSelection(stairs, 1);
   am.refreshSelection(scene);
 }
 
+function updateObject(uuid, model) {
+  const o = scene.getObjectByProperty('uuid', uuid);
+  o.updateModel(o, model);
+}
 
 /* ---------- animate per frame ---------- */
 function draw() {
@@ -66,5 +68,6 @@ function main() {
 }
 
 export {
-  main
+  main,
+  updateObject
 }

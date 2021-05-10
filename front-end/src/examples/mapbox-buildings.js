@@ -270,10 +270,10 @@ function main() {
             map.removeLayer('building-highlighted')
           }
           if (typeof map.getSource('building-highlighted') !== "undefined") {
-              map.removeSource('building-highlighted')
-            }
-          } else {
-  
+            map.removeSource('building-highlighted')
+          }
+        } else {
+      
           if (feature.id !== undefined) {
             let range = []
             let canvas = map.getCanvasContainer();
@@ -282,26 +282,26 @@ function main() {
             let sameid = map.queryRenderedFeatures(range, {layers: ['building']});
             let coords = feature.geometry.coordinates;
             feature.geometry.coordinates = [coords];
-    
+        
             for (let i = 0; i < sameid.length; ++i) {
               if (sameid[i].id === feature.id) {
-        
+            
                 if (sameid[i].geometry.type === 'MultiPolygon') {
                   for (let j = 0; j < sameid[i].geometry.coordinates.length; ++j) {
                     feature.geometry.coordinates.push(sameid[i].geometry.coordinates[j]);
                   }
-          
+              
                 } else {
                   feature.geometry.coordinates.push(sameid[i].geometry.coordinates);
                 }
               }
             }
             feature.geometry.type = 'MultiPolygon';
-    
+        
           }
-  
+      
           highlightBuilding(feature);
-  
+      
         }
           
         }

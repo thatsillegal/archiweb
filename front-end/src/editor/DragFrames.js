@@ -261,13 +261,13 @@ const DragFrames = function (_renderer, _scene, _camera) {
   
   function searchChildInFrustum(frustum, object) {
     if (object.isMesh || object.isLine || object.isPoints) {
-    
+  
       if (object.material !== undefined) {
-      
+    
         if (object.geometry.boundingSphere === null) object.geometry.computeBoundingSphere();
-      
+    
         const center = new THREE.Vector3();
-      
+    
         center.copy(object.geometry.boundingSphere.center);
         center.applyMatrix4(object.matrixWorld);
         

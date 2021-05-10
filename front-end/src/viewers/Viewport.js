@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as gui from '@/gui'
-import {AssetManager, DragFrames, MultiCamera, Transformer, SceneBasic} from "@/archiweb";
+import {AssetManager, DragFrames, MultiCamera, SceneBasic, Transformer} from "@/archiweb";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 

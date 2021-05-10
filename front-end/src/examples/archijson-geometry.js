@@ -38,7 +38,7 @@ function parseGeometry(geometryElements) {
         console.log(e)
         b = gf.Mesh(e.vertices, e.faces);
         console.log(b)
-    
+  
       } else {
         b = gf[e.type]();
         reconstructed.push(b);

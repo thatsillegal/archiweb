@@ -126,7 +126,7 @@ const GeometryFactory = function (_scene) {
     
       segments.center = getPointsCenter(points);
       if (filled) {
-      
+  
         segments.parent.remove(segments);
         segments.children = []
         const coords = pointsToCoordinates(points);
@@ -134,9 +134,9 @@ const GeometryFactory = function (_scene) {
         segments.geometry.setIndex(triangulatePolygon(coords));
         segments.geometry.computeVertexNormals();
         segments.geometry.translate(-segments.center.x, -segments.center.y, -segments.center.z);
-      
+  
         sceneAddMesh(_scene, segments, true);
-      
+  
       } else {
         segments.geometry.setFromPoints(points);
         segments.geometry.translate(-segments.center.x, -segments.center.y, -segments.center.z);

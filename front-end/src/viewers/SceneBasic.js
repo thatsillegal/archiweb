@@ -16,10 +16,10 @@ const SceneBasic = function (_scene, _renderer, _camera) {
   let scope = this;
   this.csm;
   this._transformer;
-  this.skyColor = '#c4ced6';
-  this.floorColor = '#80807a';
+  this.skyColor = '#d9dfe5';
+  this.floorColor = '#b5b5b4';
   this.sunColor = '#ffffff';
-  this.ambientColor = '#444445'
+  this.ambientColor = '#9b9b9b'
   this.x = 0.4;
   this.y = -0.6;
   this.z = 0.6;

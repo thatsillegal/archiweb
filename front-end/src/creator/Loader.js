@@ -613,7 +613,7 @@ const Loader = function (_scene) {
           let loader = new Rhino3dmLoader();
           loader.setLibraryPath('https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/');
           loader.parse(contents, function (object) {
-    
+  
             onOpen(object);
           });
           

@@ -160,8 +160,6 @@ function addMouseEvent() {
 }
 
 
-
-
 function addKeyEvent() {
   renderer.domElement.addEventListener('keydown', onDocumentKeyDown, false);
   renderer.domElement.addEventListener('keyup', onDocumentKeyUp, false);

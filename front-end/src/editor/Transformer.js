@@ -488,7 +488,7 @@ const Transformer = function (_scene, _renderer, _camera) {
   }
   
   this.setCenter = function () {
-    applyGroupCenter(control.object);
+    applyGroupCenter(control.object, true);
   }
   
   init();
