@@ -13,7 +13,7 @@ const examples = [
   'undo-redo-canvas', 'image-3d', 'java-backend-example',
   'archijson-geometry', 'interactive-spanning-tree',
   'cascaded-shadow-maps', 'python-backend-example', 'mapbox-buildings',
-
+  'logo'
 
 ]
 const routes = [];

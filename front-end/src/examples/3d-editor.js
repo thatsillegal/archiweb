@@ -40,7 +40,7 @@ function initScene() {
   
   loader.loadModel('https://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
     mesh.position.set(500, 0, 0);
-    mesh.scale.set(2, 2, 2);
+    mesh.scale.set(2, 2, 2)
     ARCH.setPolygonOffsetMaterial(mesh.material);
     ARCH.setMaterialOpacity(mesh, 0.6);
     mesh.toCamera = true;
