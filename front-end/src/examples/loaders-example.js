@@ -12,14 +12,14 @@ function initScene() {
   loader.addGUI(gui.util);
   
   // render a sketchup model
-  loaderOption.status = 'raw';
-  loaderOption.edge = true;
-  loaderOption.doubleSide = true;
-  loader.loadModel('/models/bugalow_fbx/model.fbx', (result) => {
-    result.scale.set(0.1, 0.1, 0.1);
-    ARCH.applyTransformGroup(result);
-    am.refreshSelection(scene);
-  });
+  // loaderOption.status = 'raw';
+  // loaderOption.edge = true;
+  // loaderOption.doubleSide = true;
+  // loader.loadModel('/models/bugalow_fbx/model.fbx', (result) => {
+  //   result.scale.set(0.1, 0.1, 0.1);
+  //   ARCH.applyTransformGroup(result);
+  //   am.refreshSelection(scene);
+  // });
   
   // test model
   // loaderOption.status = 'grouped';
@@ -40,13 +40,13 @@ function initScene() {
   // })
   
   //test fbx
-  // loaderOption.status = 'raw';
-  // loaderOption.edge = true;
-  // loaderOption.doubleSide = false;
-  // loader.loadModel('/models/fbox/model.fbx', (result) => {
-  //   console.log(result);
-  //   am.refreshSelection(scene);
-  // })
+  loaderOption.status = 'raw';
+  loaderOption.edge = true;
+  loaderOption.doubleSide = false;
+  loader.loadModel('/models/fbox/model.fbx', (result) => {
+    console.log(result);
+    am.refreshSelection(scene);
+  })
   
   //test rhino 3dm
   // loaderOption.status = 'grouped';

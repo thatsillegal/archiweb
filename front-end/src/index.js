@@ -5,6 +5,7 @@ import * as ARCH from "@/archiweb";
 let scene, renderer, gui, camera;
 let gf, mt, am;
 let stairs = [];
+
 /* ---------- GUI setup ---------- */
 function initGUI() {
   gui.gui.add(stairpara, "w", 100, 500, 30).onChange(function () {
@@ -39,7 +40,6 @@ function initScene() {
   gf.Cuboid([150, 650, 300], [600, 350, 50], mt.Matte());
   
   // refresh global objects
-  
   am.addSelection(stairs, 1);
   am.refreshSelection(scene);
 }
