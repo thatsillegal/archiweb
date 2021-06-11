@@ -24,7 +24,7 @@ ArchiWeb provides a template to create a web application from scratch, you can e
 
 ### Environment
 - Node 12.x
-- Java 8+
+- Java 8 (for Processing)
 
 ### Installation
 ``` bash
