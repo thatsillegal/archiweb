@@ -34,8 +34,17 @@ function static_files(dir) {
 
 app.use(static_files(__dirname));
 
+console.log(process.env.MONGO_URL);
 const io = require('./io');
 io.createSocketIO(http);
+
+const mongoose = require('mongoose')
+
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}, () => console.log("db connnected"));
+mongoose.connection.on('error', console.error)
 
 
 http.listen(27781, () => {
