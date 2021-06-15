@@ -21,15 +21,23 @@ import * as THREE from "three";
 const ArchiJSON = function (_scene, _geoFty) {
   let scope = this;
   let lines = [];
+  this.socket = socket;
   
   this.sendArchiJSON = function (eventName, app, objects, properties = {}) {
     let geometries = [];
     for (let obj of objects) if (obj.exchange) {
       geometries.push(obj.toArchiJSON());
     }
-  
+    
     socket.emit(eventName, {app: app, geometryElements: geometries, properties: properties});
   }
+  
+  socket.on('connect', async function () {
+    let key = "cb792abe-c615-45f9-9b64-e9d95ce2dd94";
+    socket.key = key;
+    socket.emit('register', {key: key});
+    
+  })
   
   socket.on('stb:receiveGeometry', async function (message) {
     // get geometry

@@ -2,16 +2,24 @@
 
 import * as ARCH from "@/archiweb"
 
-let scene, renderer, gui, camera;
 
+let scene, renderer, gui, camera;
+let gf, a;
 /* ---------- GUI setup ---------- */
 function initGUI() {
-
+  gui.gui.add(param, 'send');
 }
 
+const param = {
+  send: function () {
+    a.socket.emit('bts:sendGeometry', {greeting: 'hello'});
+  }
+}
 
 /* ---------- create your scene object ---------- */
 function initScene() {
+  gf = new ARCH.GeometryFactory(scene);
+  a = new ARCH.ArchiJSON(scene, gf)
   
   // refresh global objects
   ARCH.refreshSelection(scene);
