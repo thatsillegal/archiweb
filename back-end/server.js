@@ -34,17 +34,32 @@ function static_files(dir) {
 
 app.use(static_files(__dirname));
 
-console.log(process.env.MONGO_URL);
 const io = require('./io');
 io.createSocketIO(http);
 
+// console.log(process.env.MONGO_URL);
+const connStr = process.env.MONGO_URL;
 const mongoose = require('mongoose')
-
-mongoose.connect(process.env.MONGO_URL, {
+mongoose.connect(connStr, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-}, () => console.log("db connnected"));
-mongoose.connection.on('error', console.error)
+});
+
+
+// on connect
+mongoose.connection.once('open', function () {
+  console.log('Mongoose default connection open to ' + connStr);
+})
+
+// on error
+mongoose.connection.on('error', function (err) {
+  console.log('Mongoose default connection error: ' + err);
+});
+
+// on disconnect
+mongoose.connection.on('disconnected', function () {
+  console.log('Mongoose default connection disconnected');
+});
 
 
 http.listen(27781, () => {
