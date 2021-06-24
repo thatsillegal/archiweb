@@ -1,11 +1,7 @@
 const UserModel = require('../model/users');
 const APIAuthModel = require('../model/apiauth');
 
-exports.list = async function () {
-  let users = await UserModel.find().limit(10);
-  console.log(users);
-  return users;
-}
+
 
 // construct a doc
 exports.insert = function (username, password, sid) {
@@ -13,21 +9,34 @@ exports.insert = function (username, password, sid) {
     username: username,
     password: password,
     sid: sid
-  }).save().then(r => console.log(r));
-  new APIAuthModel({
-    username: username
-  }).save().then(r => console.log(r));
+  }).save().then(() => {
+      new APIAuthModel({
+        username: username
+      }).save().then(() => {
+        return {code: 200, message: "OK"};
+      });
+    }
+  );
+  return {code: 503, message: 'Error'}
 }
 
 exports.createToken = function (username, description) {
   new APIAuthModel({
     username: username,
     description: description
-  }).save().then(r => console.log(r));
+  }).save().then(r => {
+    console.log(r)
+    return {code: 200, message: "OK"};
+  });
+  return {code: 503, message: "Error"};
 }
 
-
 // querying
+exports.list = async function (page = 1, limit = 10) {
+  let skip = (page - 1) * limit
+  return UserModel.find().skip(skip).limit(limit);
+}
+
 exports.find = async function (username) {
   let user = await UserModel.findOne({username: username});
   let tokens = await APIAuthModel.find({username: username});
@@ -42,7 +51,22 @@ exports.findUsername = async function (token) {
 }
 
 // update
-
+exports.updatePassword = async function (username, oldpwd, newpwd) {
+  const res = await this.login(username, oldpwd);
+  if (res.code !== 200) return {
+    code: 503,
+    message: "wrong password"
+  }
+  UserModel.findOne({username: username}, function (err, user) {
+    if (err) return {
+      code: 503,
+      message: "error"
+    }
+    user.set({password: newpwd});
+    user.save().then(r => console.log('r' + r));
+  })
+  
+}
 
 // deleting
 exports.deleteToken = function (token) {
@@ -52,6 +76,10 @@ exports.deleteToken = function (token) {
       message: "deleting error"
     }
   })
+  return {
+    code: 200,
+    message: "OK"
+  }
 }
 
 exports.deleteUser = function (username) {
@@ -74,6 +102,11 @@ exports.deleteUser = function (username) {
       }
     }
   })
+  
+  return {
+    code: 200,
+    message: "OK"
+  }
 }
 
 
@@ -95,4 +128,5 @@ exports.login = async function (username, password) {
     code: 422,
     message: "wrong password"
   }
+  return {code: 200, message: "OK"};
 }

@@ -35,8 +35,10 @@ const ArchiJSON = function (_scene, _geoFty) {
   socket.on('connect', async function () {
     let key = "cb792abe-c615-45f9-9b64-e9d95ce2dd94";
     socket.key = key;
-    socket.emit('register', {key: key});
-    
+    socket.emit('register', {key: key}, response => {
+      console.log(response);
+    });
+  
   })
   
   socket.on('stb:receiveGeometry', async function (message) {

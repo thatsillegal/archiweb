@@ -8,11 +8,17 @@ let gf, a;
 /* ---------- GUI setup ---------- */
 function initGUI() {
   gui.gui.add(param, 'send');
+  gui.gui.add(param, 'quick');
 }
 
 const param = {
   send: function () {
     a.socket.emit('bts:sendGeometry', {greeting: 'hello'});
+  },
+  quick: function () {
+    a.socket.emit('quick', 'hello', ret => {
+      console.log(ret);
+    })
   }
 }
 

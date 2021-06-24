@@ -45,7 +45,6 @@ mongoose.connect(connStr, {
   useUnifiedTopology: true
 });
 
-
 // on connect
 mongoose.connection.once('open', function () {
   console.log('Mongoose default connection open to ' + connStr);
