@@ -1,34 +1,42 @@
 const UserModel = require('../model/users');
 const APIAuthModel = require('../model/apiauth');
+const {v4} = require("uuid");
 
 
 
 // construct a doc
-exports.insert = function (username, password, sid) {
-  new UserModel({
-    username: username,
-    password: password,
-    sid: sid
-  }).save().then(() => {
-      new APIAuthModel({
-        username: username
-      }).save().then(() => {
-        return {code: 200, message: "OK"};
-      });
-    }
-  );
-  return {code: 503, message: 'Error'}
+exports.insert = async function (username, password, sid) {
+  try {
+    await new UserModel({
+      username: username,
+      password: password,
+      sid: sid
+    }).save().then(async () => {
+        await new APIAuthModel({
+          username: username
+        }).save();
+      }
+    );
+    return {code: 200, message: "OK"};
+  } catch (e) {
+    console.log(e);
+    return {code: 503, message: "Error"};
+  }
+  
 }
 
-exports.createToken = function (username, description) {
-  new APIAuthModel({
-    username: username,
-    description: description
-  }).save().then(r => {
-    console.log(r)
+exports.createToken = async function (username, description, token = v4()) {
+  try {
+    await new APIAuthModel({
+      token: token,
+      username: username,
+      description: description
+    }).save();
     return {code: 200, message: "OK"};
-  });
-  return {code: 503, message: "Error"};
+  } catch (e) {
+    console.log(e);
+    return {code: 503, message: "Error"};
+  }
 }
 
 // querying
@@ -40,6 +48,8 @@ exports.list = async function (page = 1, limit = 10) {
 exports.find = async function (username) {
   let user = await UserModel.findOne({username: username});
   let tokens = await APIAuthModel.find({username: username});
+  console.log(user);
+  console.log(tokens);
   
   return {user: user, tokens: tokens};
 }
@@ -65,6 +75,7 @@ exports.updatePassword = async function (username, oldpwd, newpwd) {
     user.set({password: newpwd});
     user.save().then(r => console.log('r' + r));
   })
+  return {code: 200, message: "OK"};
   
 }
 

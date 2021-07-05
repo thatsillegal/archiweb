@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Viewer from './components/Viewer'
 import Home from './components/Home'
 import Map from './components/Map'
+import Login from './components/Login'
 
 const examples = [
   // test examples
@@ -37,6 +38,7 @@ examples.forEach((item) => {
 
 routes.push(
   {path: '/', name: 'index', component: Viewer, meta: {title: 'App'}},
+  {path: '/login', name: 'login', component: Login, meta: {title: 'Login'}},
   // {path: '/', name: 'map', component: Map, meta: {title: 'Map'}},
   {path: '/archiweb', name: 'home', component: Home, meta: {title: 'ArchiWeb'}}
 )

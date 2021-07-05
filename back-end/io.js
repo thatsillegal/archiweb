@@ -7,6 +7,7 @@ exports.createSocketIO = function (server) {
       methods: ["GET", "POST"]
     }
   });
+  
   const rooms = io.of('/').adapter.rooms;
   const keyuid = {'cb792abe-c615-45f9-9b64-e9d95ce2dd94': 'amomorning'}
   

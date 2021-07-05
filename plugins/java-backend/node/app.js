@@ -53,11 +53,16 @@ io.on('connection', (socket) => {
   socket.on('bts:sendGeometry', async function (data) {
     console.log(date.toLocaleString(), 'bts:sendGeometry: ' + data);
     data.id = socket.id;
-  
+    
     console.log('bts:' + data.app + 'ReceiveGeometry')
     io.emit('bts:' + data.app + 'ReceiveGeometry', data);
-  
+    
   });
+  
+  socket.on('stb:sendProperties', async function (data) {
+    console.log(data);
+    io.to(data.id).emit('stb:receiveProperties', data.properties);
+  })
   
   socket.on('stb:sendGeometry', async function (data) {
     data = JSON.parse(data);

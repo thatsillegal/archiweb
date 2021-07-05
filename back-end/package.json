@@ -11,6 +11,7 @@
     "bcryptjs": "^2.4.3",
     "koa": "^2.13.1",
     "koa-router": "^9.4.0",
+    "koa-session": "^6.2.0",
     "mime": "^2.5.2",
     "mongodb": "^3.6.9",
     "mongoose": "^5.12.13",

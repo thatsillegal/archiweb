@@ -4,28 +4,30 @@ import * as ARCH from "@/archiweb"
 
 
 let scene, renderer, gui, camera;
-let gf, a;
+let gf, archijson;
+let cube;
+
 /* ---------- GUI setup ---------- */
 function initGUI() {
   gui.gui.add(param, 'send');
-  gui.gui.add(param, 'quick');
 }
 
 const param = {
   send: function () {
-    a.socket.emit('bts:sendGeometry', {greeting: 'hello'});
-  },
-  quick: function () {
-    a.socket.emit('quick', 'hello', ret => {
-      console.log(ret);
-    })
+    archijson.sendArchiJSON('bts:sendGeometry', 'python', [cube]);
   }
 }
 
 /* ---------- create your scene object ---------- */
 function initScene() {
   gf = new ARCH.GeometryFactory(scene);
-  a = new ARCH.ArchiJSON(scene, gf)
+  archijson = new ARCH.ArchiJSON(scene, gf)
+  
+  archijson.socket.on('stb:receiveProperties', async function (data) {
+    console.log(data);
+  })
+  
+  cube = gf.Cuboid([0, 0, 0], [100, 100, 100]);
   
   // refresh global objects
   ARCH.refreshSelection(scene);
@@ -44,8 +46,9 @@ function main() {
   renderer = viewport.renderer;
   scene = viewport.scene;
   gui = viewport.gui;
-  camera = viewport.to2D();
+  camera = viewport.to3D();
   
+  viewport.enableSceneBasic();
   initGUI();
   initScene();
   

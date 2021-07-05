@@ -8,10 +8,10 @@ from formfinding import from_vertices_and_faces
 import logging
 
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+# log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:8080")
+socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 
 
