@@ -65,6 +65,7 @@ api.post('/user/delete', async (ctx) => {
 
 api.post('/user/find', async (ctx) => {
   let user = await ctx.request.body;
+  ctx.set("Access-Control-Allow-Origin", "*");
   ctx.response.body = await userController.find(user.username);
 })
 

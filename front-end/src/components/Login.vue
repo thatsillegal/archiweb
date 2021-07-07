@@ -1,10 +1,7 @@
 <template>
   <v-container fill-height>
     <v-layout align-center justify-center>
-      <v-flex class="login-form text-center"
-      >
-  
-  
+      <v-flex class="login-form text-center">
         <v-card light class="pa-5 my-5 px-10 elevation-9">
           <v-card-text subheading>
             <template
@@ -114,19 +111,10 @@ export default {
   }),
   computed: {
     matchRule() {
-      const rules = []
-      const nospace =
-        v => (v || '').indexOf(' ') < 0 ||
-          'No spaces are allowed'
-  
-      rules.push(nospace)
-      const match =
-        v => (!!v && v) === this.user.password ||
-          'Values do not match'
-  
-      rules.push(match)
-  
-      return rules
+      return [
+        v => (v || '').indexOf(' ') < 0 || 'No spaces are allowed',
+        v => (!!v && v) === this.user.password || 'Values do not match'
+      ]
     },
   },
   mounted() {
@@ -154,8 +142,7 @@ export default {
             // expired in 5 days.
             storage.set('username', this.user.username, 60 * 24 * 5);
           }
-          // window.location.href = '/'
-          await this.$router.push('/');
+          await this.$router.push('/workspace');
         }
       } else {
         const requestOption = {

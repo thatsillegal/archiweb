@@ -6,7 +6,7 @@
       flat
       absolute
     >
-      <div class="d-flex align-end">
+      <v-row class="d-flex align-end mx-3">
         <a class="text-decoration-none" href="http://labaaa.org" style="color:#000000;" target="_blank">
           <v-img
             alt="Logo"
@@ -18,12 +18,19 @@
           />
         </a>
         <a class="text-decoration-none" href="/#/archiweb" style="color:#000000;">
-          
+    
           <h2 class="pr-2">ArchiWeb</h2>
-        
+  
         </a>
-      
-      </div>
+  
+        <v-spacer></v-spacer>
+        <a>
+          <v-btn icon large v-if="this.$route.path==='/archiweb'" to="/workspace">
+            <v-icon color="black"> mdi-home</v-icon>
+          </v-btn>
+        </a>
+
+      </v-row>
     
     
     </v-app-bar>
