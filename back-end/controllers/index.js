@@ -7,6 +7,7 @@ exports.index = async function (ctx) {
     "<a href='/api/user/delete'>删除用户</a>",
     "<a href='/api/token/delete'>删除token</a>",
     "<a href='/api/token/create'>创建token</a>",
+    "<a href='/api/drop'>drop users</a>",
   ];
   
   ctx.body = links.join("<br />");

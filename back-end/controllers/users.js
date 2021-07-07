@@ -3,14 +3,14 @@ const APIAuthModel = require('../model/apiauth');
 const {v4} = require("uuid");
 
 
-
 // construct a doc
-exports.insert = async function (username, password, sid) {
+exports.insert = async function (username, password, email) {
+  
   try {
     await new UserModel({
       username: username,
       password: password,
-      sid: sid
+      email: email
     }).save().then(async () => {
         await new APIAuthModel({
           username: username
@@ -52,6 +52,36 @@ exports.find = async function (username) {
   console.log(tokens);
   
   return {user: user, tokens: tokens};
+}
+
+exports.existUser = async function (username) {
+  const user = await UserModel.findOne({username: username});
+  
+  if (!user) {
+    return {
+      code: 422,
+      message: "user not found"
+    }
+  }
+  return {
+    code: 421,
+    message: "user exist"
+  }
+}
+
+exports.existEmail = async function (email) {
+  const mail = await UserModel.findOne({email: email});
+  if (!mail) {
+    return {
+      code: 432,
+      message: "email not found"
+    }
+  } else {
+    return {
+      code: 431,
+      message: "email exist"
+    }
+  }
 }
 
 

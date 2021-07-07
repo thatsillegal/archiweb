@@ -11,8 +11,8 @@ const Users = new mongoose.Schema({
       return require('bcryptjs').hashSync(val, 12);
     }
   },
-  sid: {
-    type: Number,
+  email: {
+    type: String,
     unique: true
   },
   created: {type: Date, default: Date.now},

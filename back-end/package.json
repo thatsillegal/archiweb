@@ -12,6 +12,7 @@
     "koa": "^2.13.1",
     "koa-router": "^9.4.0",
     "koa-session": "^6.2.0",
+    "koa2-cors": "^2.0.6",
     "mime": "^2.5.2",
     "mongodb": "^3.6.9",
     "mongoose": "^5.12.13",
@@ -19,6 +20,8 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "koa-bodyparser": "^4.3.0",
+    "koa-cors": "0.0.16",
     "koa-webpack": "^5.3.0"
   },
   "description": ""
