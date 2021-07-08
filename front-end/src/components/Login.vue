@@ -63,7 +63,8 @@
         </div>
         <div v-else @click="options.isLoggingIn = true">
           <v-btn class="white elevation-0 mr-2" rounded large>
-            <u>↩ go back</u>
+            <v-icon>mdi-arrow-left</v-icon>
+            <u>go back</u>
           </v-btn>
         </div>
 
@@ -74,6 +75,7 @@
 
 <script>
 import storage from '@/storage'
+import {urls} from '@/testdata'
 export default {
   name: "Login",
   data: () => ({
@@ -134,13 +136,16 @@ export default {
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({username: this.user.username, password: this.user.password})
         }
-        const response = await fetch("http://127.0.0.1:27781/api/user/login", requestOption);
+        const response = await fetch(urls.login, requestOption);
         const data = await response.json();
         console.log(data);
         if (data.code === 200) {
           if (this.options.shouldStayLoggedIn) {
             // expired in 5 days.
             storage.set('username', this.user.username, 60 * 24 * 5);
+          } else {
+            // expired in 0.1 minute.
+            storage.set('username', this.user.username, 0.1);
           }
           await this.$router.push('/workspace');
         }
@@ -150,7 +155,7 @@ export default {
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify(this.user)
         }
-        const response = await fetch("http://127.0.0.1:27781/api/user/insert", requestOption);
+        const response = await fetch(urls.insertUser, requestOption);
         const data = await response.json();
         console.log(data);
         if (data.code === 200)

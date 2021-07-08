@@ -60,6 +60,7 @@ api.post('/user/insert', async (ctx) => {
 
 api.post('/user/delete', async (ctx) => {
   let user = await ctx.request.body;
+  ctx.set("Access-Control-Allow-Origin", "*");
   ctx.response.body = await userController.deleteUser(user.username);
 });
 
@@ -71,7 +72,14 @@ api.post('/user/find', async (ctx) => {
 
 api.post('/token/create', async (ctx) => {
   let token = await ctx.request.body;
+  ctx.set("Access-Control-Allow-Origin", "*");
   ctx.response.body = await userController.createToken(token.username, token.description)
+})
+
+api.post('/token/delete', async (ctx) => {
+  let token = await ctx.request.body;
+  ctx.set("Access-Control-Allow-Origin", "*");
+  ctx.response.body = await userController.deleteToken(token.token);
 })
 
 api.post('/user/login', async (ctx) => {
