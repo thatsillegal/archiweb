@@ -2,7 +2,7 @@
   <v-container fill-height>
     <v-layout align-center justify-center>
       <v-flex class="login-form text-center">
-        <v-card light class="pa-5 my-5 px-10 elevation-9">
+        <v-card light class="pa-5 ma-5 px-10 elevation-9">
           <v-card-text subheading>
             <template
               v-if="options.isLoggingIn"
