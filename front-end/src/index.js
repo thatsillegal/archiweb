@@ -14,7 +14,9 @@ function initGUI() {
 
 const param = {
   send: function () {
-    archijson.sendArchiJSON('bts:sendGeometry', 'python', [cube]);
+    archijson.socket.emit('exchange', {to: 'engine', body: 'hello from client'}, response => {
+      console.log(response);
+    });
   }
 }
 

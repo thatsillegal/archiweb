@@ -33,9 +33,9 @@ const ArchiJSON = function (_scene, _geoFty) {
   }
   
   socket.on('connect', async function () {
-    let key = "cb792abe-c615-45f9-9b64-e9d95ce2dd94";
+    let key = "9d8b6db7-1a95-4747-ae96-b5641047794c";
     socket.key = key;
-    socket.emit('register', {key: key}, response => {
+    socket.emit('register', {key: key, identity: 'client'}, response => {
       console.log(response);
     });
   
@@ -45,6 +45,10 @@ const ArchiJSON = function (_scene, _geoFty) {
     // get geometry
     scope.parseGeometry(message);
     
+  });
+  
+  socket.on('receive', async function (message) {
+    console.log(message)
   });
   
   
