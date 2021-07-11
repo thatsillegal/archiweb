@@ -5,6 +5,7 @@ import Home from './components/Home'
 import Map from './components/Map'
 import Login from './components/Login'
 import Workspace from "@/components/Workspace";
+import ViewBoard from "@/components/ViewBoard";
 
 const examples = [
   // test examples
@@ -41,6 +42,13 @@ routes.push(
   {path: '/', name: 'index', component: Viewer, meta: {title: 'App'}},
   {path: '/login', name: 'login', component: Login, meta: {title: 'Login'}},
   {path: '/workspace', name: 'workspace', component: Workspace, meta: {title: 'ArchiWeb Workspace'}},
+  {
+    path: '/viewboard/:token',
+    name: 'viewboard',
+    component: ViewBoard,
+    meta: {title: 'ArchiWeb ViewBoard'},
+    props: true
+  },
   // {path: '/', name: 'map', component: Map, meta: {title: 'Map'}},
   {path: '/archiweb', name: 'home', component: Home, meta: {title: 'ArchiWeb'}}
 )

@@ -8,6 +8,10 @@ exports.index = async function (ctx) {
     "<a href='/api/token/delete'>删除token</a>",
     "<a href='/api/token/create'>创建token</a>",
     "<a href='/api/drop'>drop users</a>",
+  
+    "<a href='/api/connection/list'>所有连接</a>",
+    "<a href='/api/connection/token'>token连接</a>",
+    "<a href='/api/connection/user'>用户连接</a>",
   ];
   
   ctx.body = links.join("<br />");

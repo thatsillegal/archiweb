@@ -36,62 +36,16 @@
             class="mx-0 mb-10 elevation-9 pa-4"
           >
             <v-row class="d-flex align-end py-2">
-              <v-card-title class="px-5 py-1">
+              <v-card-title
+                class="px-5 py-1"
+              >
                 Token {{ id }}
               </v-card-title>
               <v-spacer></v-spacer>
-          
+  
               <!--          delete confirm                 -->
-              <template>
-                <v-dialog
-                  v-model="del.dialog"
-                  max-width="390"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      class="mx-3"
-                      color="error"
-                      v-bind="attrs"
-                      v-on="on"
-                      plain
-                      :loading="del.loading"
-                    >
-                      delete
-                    </v-btn>
-                  </template>
-                  <v-card>
-                    <v-card-title class="text-h5 red--text text--darken-2">
-                      Dangerous Zone
-                    </v-card-title>
-                    <v-card-text>
-                      The token {{ t.token }} will be removed from database.
-                      This operation CANNOT be recovered.
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        color="green darken-1"
-                        text
-                        @click="remove(t.token)"
-                        rounded
-                        :loading="del.loading"
-                      >
-                        Continue
-                      </v-btn>
-                      <v-btn
-                        color="red darken-1"
-                        text
-                        @click="del.dialog = false"
-                        rounded
-                      >
-                        cancel
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-              </template>
-        
-        
+              <DeleteDialog :token="t.token"></DeleteDialog>
+
             </v-row>
             
             <v-row class="d-flex align-start pb-3">
@@ -108,15 +62,38 @@
                 copy
               </v-btn>
             </v-row>
-        
+  
             <v-textarea
               label="Description"
               :value="t.description"
               rows="2"
               auto-grow
               readonly outlined
-        
+  
             ></v-textarea>
+            <v-row>
+              <v-spacer></v-spacer>
+              <v-btn
+                v-if="t.count > 0"
+                class="mx-3 mb-3"
+                small
+                color="success"
+                :to="'/viewboard/'+t.token"
+              >
+                {{ t.count }} alive
+              </v-btn>
+              <v-btn
+                v-else
+                class="mx-3 mb-3"
+                small
+                color="grey lighten-2"
+                :to="'/viewboard/'+t.token"
+              >
+      
+                inactive
+              </v-btn>
+  
+            </v-row>
           </v-card>
       
       
@@ -195,11 +172,12 @@
 import storage from '@/storage';
 import {urls} from '@/testdata'
 import Snackbar from "@/components/Snackbar";
+import DeleteDialog from "@/components/DeleteDialog";
 
 export default {
   
   name: "Workspace",
-  components: {Snackbar},
+  components: {Snackbar, DeleteDialog},
   data: () => ({
     loading: false,
     username: '',
@@ -210,14 +188,10 @@ export default {
       description: 'default',
       loading: false,
     },
-    del: {
-      dialog: false,
-      loading: false
-    }
+
   }),
   async mounted() {
     await this.refresh();
-  
   },
   methods: {
     async refresh() {
@@ -236,9 +210,12 @@ export default {
         const response = await fetch(urls.findUser, requestOption);
         const res = await response.json();
         console.log(res);
-        res.tokens.forEach(t => {
-          this.tokens.push({token: t.token, description: t.description});
-        })
+  
+        for (let t of res.tokens) {
+          const countRes = await fetch(urls.tokenConn + '?token=' + t.token + '&count=1&alive=1');
+          const count = await countRes.json();
+          this.tokens.push({token: t.token, description: t.description, count: count});
+        }
         this.username = res.user.username;
         this.email = res.user.email;
       }
@@ -246,26 +223,7 @@ export default {
       this.loading = false;
     
     },
-    async remove(token) {
-      this.del.loading = true;
-    
-      const requestOption = {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({token: token})
-      }
-      const response = await fetch(urls.deleteToken, requestOption);
-      const res = await response.json();
-      console.log(res);
-      if (res.code === 200) {
-        this.del.dialog = false;
-        await this.refresh();
-        this.snackbarInfo("Delete successful");
-      } else {
-        this.snackbarInfo("Error: " + res.message);
-      }
-      this.del.loading = false;
-    },
+  
     async create() {
       this.add.loading = true;
       let user = storage.get('username');
@@ -312,7 +270,7 @@ export default {
     },
     snackbarInfo(text) {
       // this.$refs.snackbar.update(text, true);
-      this.$refs.snackbar.timeout = 1000;
+      this.$refs.snackbar.timeout = 2000;
       this.$refs.snackbar.text = text;
       this.$refs.snackbar.show = true;
     }

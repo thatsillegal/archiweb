@@ -36,64 +36,11 @@ function static_files(dir) {
 
 
 const userController = require('./controllers/users');
+const connController = require('./controllers/connections');
+
 app.use(static_files(__dirname));
 app.use(bodyParser())
-let api = new Router();
-api.post('/user/insert', async (ctx) => {
-  let user = await ctx.request.body;
-  
-  const existUser = await userController.existUser(user.username);
-  const existMail = await userController.existEmail(user.email);
-  
-  ctx.set("Access-Control-Allow-Origin", "*");
-  if (existUser.code === 421) {
-    ctx.response.body = existUser;
-  } else if (existMail.code === 431) {
-    ctx.response.body = existMail;
-  } else {
-    // /** delete for test **/
-    // userController.deleteUser(user.username);
-    ctx.response.body = await userController.insert(user.username, user.password, user.email);
-  }
-  
-})
 
-api.post('/user/delete', async (ctx) => {
-  let user = await ctx.request.body;
-  ctx.set("Access-Control-Allow-Origin", "*");
-  ctx.response.body = await userController.deleteUser(user.username);
-});
-
-api.post('/user/find', async (ctx) => {
-  let user = await ctx.request.body;
-  ctx.set("Access-Control-Allow-Origin", "*");
-  ctx.response.body = await userController.find(user.username);
-})
-
-api.post('/token/create', async (ctx) => {
-  let token = await ctx.request.body;
-  ctx.set("Access-Control-Allow-Origin", "*");
-  ctx.response.body = await userController.createToken(token.username, token.description)
-})
-
-api.post('/token/delete', async (ctx) => {
-  let token = await ctx.request.body;
-  ctx.set("Access-Control-Allow-Origin", "*");
-  ctx.response.body = await userController.deleteToken(token.token);
-})
-
-api.post('/user/login', async (ctx) => {
-  let user = await ctx.request.body;
-  ctx.set("Access-Control-Allow-Origin", "*");
-  console.log(user);
-  ctx.response.body = await userController.login(user.username, user.password);
-})
-
-
-let router = new Router();
-// router.use('/', home.routes(), home.allowedMethods());
-router.use('/api', api.routes(), api.allowedMethods());
-app.use(router.routes()).use(router.allowedMethods());
 app.use(cors({
   origin: function (ctx) {
     if (ctx.url === '/test') {
@@ -121,8 +68,80 @@ mongoose.connect(connStr, {
 });
 
 // on connect
-mongoose.connection.once('open', function () {
+mongoose.connection.once('open', async function () {
   console.log('Mongoose default connection open to ' + connStr);
+  await connController.reboot();
+  
+  let api = new Router();
+  api.post('/user/insert', async (ctx) => {
+    let user = await ctx.request.body;
+    
+    const existUser = await userController.existUser(user.username);
+    const existMail = await userController.existEmail(user.email);
+    
+    ctx.set("Access-Control-Allow-Origin", "*");
+    if (existUser.code === 421) {
+      ctx.response.body = existUser;
+    } else if (existMail.code === 431) {
+      ctx.response.body = existMail;
+    } else {
+      // /** delete for test **/
+      // userController.deleteUser(user.username);
+      ctx.response.body = await userController.insert(user.username, user.password, user.email);
+    }
+    
+  })
+  
+  api.post('/user/delete', async (ctx) => {
+    let user = await ctx.request.body;
+    ctx.set("Access-Control-Allow-Origin", "*");
+    ctx.response.body = await userController.deleteUser(user.username);
+  });
+  
+  api.post('/user/find', async (ctx) => {
+    let user = await ctx.request.body;
+    ctx.set("Access-Control-Allow-Origin", "*");
+    ctx.response.body = await userController.find(user.username);
+  })
+  
+  api.post('/token/create', async (ctx) => {
+    let token = await ctx.request.body;
+    ctx.set("Access-Control-Allow-Origin", "*");
+    ctx.response.body = await userController.createToken(token.username, token.description)
+  })
+  
+  api.post('/token/delete', async (ctx) => {
+    let token = await ctx.request.body;
+    ctx.set("Access-Control-Allow-Origin", "*");
+    ctx.response.body = await userController.deleteToken(token.token);
+  })
+  
+  api.post('/user/login', async (ctx) => {
+    let user = await ctx.request.body;
+    ctx.set("Access-Control-Allow-Origin", "*");
+    console.log(user);
+    ctx.response.body = await userController.login(user.username, user.password);
+  })
+  
+  api.get('/connection/token', async (ctx) => {
+    let args = await ctx.query;
+    ctx.set("Access-Control-Allow-Origin", "*");
+    let conns = args.alive ? await connController.queryAlive(args.token) : await connController.queryAll(args.token)
+    ctx.response.body = args.count ? conns.length : conns;
+    
+  })
+  
+  api.get('/connection/user', async (ctx) => {
+    let args = ctx.query;
+    ctx.set("Access-Control-Allow-Origin", "*");
+    let conns = args.alive ? await connController.findAlive(args.username) : await connController.findAll(args.username)
+    ctx.response.body = args.count ? conns.length : conns;
+  })
+  
+  let router = new Router();
+// router.use('/', home.routes(), home.allowedMethods());
+  router.use('/api', api.routes(), api.allowedMethods());
+  app.use(router.routes()).use(router.allowedMethods());
 })
 
 // on error
