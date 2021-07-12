@@ -19,13 +19,13 @@ exports.insert = async function (token, identity, socket) {
 }
 exports.reboot = async function () {
   try {
-    
-    ConnModel.find({alive: true}, function (err, conns) {
+  
+    ConnModel.find({alive: true}, function (err, connections) {
       if (err) return {
         code: 503,
         message: "error"
       }
-      for (let conn of conns) {
+      for (let conn of connections) {
         conn.set({alive: false});
         conn.save()
       }
@@ -39,13 +39,13 @@ exports.reboot = async function () {
 
 exports.update = async function (socket, alive) {
   try {
-    ConnModel.findOne({socket: socket}, function (err, conns) {
-      if (err || conns === null) return {
+    ConnModel.findOne({socket: socket}, function (err, connections) {
+      if (err || connections === null) return {
         code: 503,
         message: "error"
       }
-      conns.set({alive: alive});
-      conns.save();
+      connections.set({alive: alive});
+      connections.save();
     })
     return {code: 200, message: "OK"};
   } catch (e) {
@@ -55,13 +55,11 @@ exports.update = async function (socket, alive) {
 }
 
 exports.queryAlive = async function (token) {
-  let conns = await ConnModel.find({token: token, alive: true});
-  return conns;
+  return ConnModel.find({token: token, alive: true});
 }
 
 exports.queryAll = async function (token) {
-  let conns = await ConnModel.find({token: token});
-  return conns;
+  return ConnModel.find({token: token});
 }
 
 
@@ -72,8 +70,8 @@ exports.findAlive = async function (username) {
   let ret = []
   
   for (let t of tokens) {
-    let conns = await this.queryAlive(t.token);
-    ret.push({token: t.token, count: conns.length, connections: conns});
+    let connections = await this.queryAlive(t.token);
+    ret.push({token: t.token, count: connections.length, connections: connections});
   }
   return ret;
 }
@@ -84,10 +82,18 @@ exports.findAll = async function (username) {
   let ret = []
   
   for (let t of tokens) {
-    let conns = await this.queryAll(t.token);
-    ret.push({token: t.token, count: conns.length, connections: conns});
+    let connections = await this.queryAll(t.token);
+    ret.push({token: t.token, count: connections.length, connections: connections});
   }
   return ret;
+}
+
+exports.count = async function (token, alive = false) {
+  if (alive) {
+    return ConnModel.countDocuments({token: token, alive: true});
+  } else {
+    return ConnModel.countDocuments({token: token});
+  }
 }
 
 exports.list = async function (page = 1, limit = 10) {

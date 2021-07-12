@@ -77,10 +77,10 @@ export default {
     token: String
   },
   data: () => ({
-    count: 0,
+    count: "Connect Error",
     all: [],
     alive: [],
-    
+  
     table: {
       headers: [
         {text: 'Alive', align: 'start', value: 'alive'},
@@ -103,7 +103,9 @@ export default {
       this.alive = await aliveRes.json();
   
       const allRes = await fetch(urls.tokenConn + '?token=' + this.token + '&count=1');
-      this.count = await allRes.json();
+      const res = await allRes.json();
+      console.log(res);
+      this.count = res.count;
       this.table.button = !!this.count;
       // console.log(this.count)
     },

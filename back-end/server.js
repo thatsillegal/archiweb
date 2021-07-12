@@ -96,8 +96,13 @@ api.post('/user/login', async (ctx) => {
 api.get('/connection/token', async (ctx) => {
   let args = await ctx.query;
   ctx.set("Access-Control-Allow-Origin", "*");
-  let conns = args.alive ? await connController.queryAlive(args.token) : await connController.queryAll(args.token)
-  ctx.response.body = args.count ? conns.length : conns;
+  
+  if (args.count) {
+    ctx.response.body = {count: await connController.count(args.token, !!args.alive)};
+  } else {
+    ctx.response.body = args.alive ? await connController.queryAlive(args.token) : await connController.queryAll(args.token);
+  }
+  
   
 })
 

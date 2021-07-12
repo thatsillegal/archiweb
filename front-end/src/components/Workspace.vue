@@ -217,7 +217,7 @@ export default {
         for (let t of res.tokens) {
           const countRes = await fetch(urls.tokenConn + '?token=' + t.token + '&count=1&alive=1');
           const count = await countRes.json();
-          this.tokens.push({token: t.token, description: t.description, count: count});
+          this.tokens.push({token: t.token, description: t.description, count: count.count});
         }
       }
     
