@@ -1,13 +1,19 @@
 package main;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import converter.WB_Converter;
 import geometry.Plane;
 import geometry.Vertices;
+import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.Arrays;
 
 /**
  * @classname: archiweb
@@ -16,7 +22,6 @@ import java.net.URISyntaxException;
  * @date: 2020/12/31
  */
 public class Server {
-    private static final int PORT = 27781;
     private Socket socket;
     public Generator generator;
 
@@ -28,10 +33,9 @@ public class Server {
                 this.setup();
                 System.out.println("Socket connected to " + args[0]);
             } else {
-                String uri = "http://localhost:" + PORT;
-                socket = IO.socket(uri);
+                socket = IO.socket(SensitiveInfo.URL);
                 this.setup();
-                System.out.println("Socket connected to " + uri);
+                System.out.println("Socket connected to " + SensitiveInfo.URL);
             }
 
         } catch (URISyntaxException e) {
@@ -47,24 +51,61 @@ public class Server {
 
         socket.connect();
 
-        socket.on("bts:exampleReceiveGeometry", args -> {
-            // receive
-            ArchiJSON archijson = gson.fromJson(args[0].toString(), ArchiJSON.class);
+
+        socket.on(Socket.EVENT_CONNECT, args -> {
+            JsonObject o = new JsonObject();
+            o.addProperty("token", SensitiveInfo.TOKEN);
+            o.addProperty("identity", "java-backend");
+
+            socket.emit("register", gson.toJson(o), (Ack) this::printStatus);
+        });
+
+        socket.on("receive", args -> {
+            JsonObject ctx = gson.fromJson(String.valueOf(args[0]), JsonObject.class);
+            String id = ctx.get("id").getAsString();
+            JsonObject body = ctx.get("body").getAsJsonObject();
+
+            ArchiJSON archijson = gson.fromJson(body, ArchiJSON.class);
             archijson.parseGeometryElements(gson);
 
-            // processing
             generator.pts = WB_Converter.toWB_Point((Vertices) archijson.getGeometries().get(0));
             generator.plane = WB_Converter.toWB_Polygon((Plane) archijson.getGeometries().get(1));
             generator.calcVoronoi(archijson.getProperties().get("d").getAsDouble());
 
-            // return
-            ArchiJSON ret = generator.toArchiJSON(archijson.getId(), gson);
-            socket.emit("stb:sendGeometry",gson.toJson(ret));
+            ArchiJSON ret = generator.toArchiJSON(gson);
+            JsonObject o = new JsonObject();
+            o.addProperty("to", "client");
+            o.addProperty("id", id);
+            o.addProperty("body", gson.toJson(ret));
 
+            socket.emit("exchange", gson.toJson(o), (Ack) this::printStatus);
         });
+
+
+//        socket.on("bts:exampleReceiveGeometry", args -> {
+//            // receive
+//            ArchiJSON archijson = gson.fromJson(args[0].toString(), ArchiJSON.class);
+//            archijson.parseGeometryElements(gson);
+//
+//            // processing
+//            generator.pts = WB_Converter.toWB_Point((Vertices) archijson.getGeometries().get(0));
+//            generator.plane = WB_Converter.toWB_Polygon((Plane) archijson.getGeometries().get(1));
+//            generator.calcVoronoi(archijson.getProperties().get("d").getAsDouble());
+//
+//            // return
+//            socket.emit("stb:sendGeometry",gson.toJson(ret));
+//
+//        });
     }
 
 
-
+    public void printStatus(Object[] obj) {
+        try {
+            JSONObject response = (JSONObject) obj[0];
+            System.out.println(response.getString("status"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

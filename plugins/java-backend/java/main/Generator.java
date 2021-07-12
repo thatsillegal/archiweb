@@ -50,11 +50,10 @@ public class Generator {
         draw = true;
     }
 
-    public ArchiJSON toArchiJSON(String clientID, Gson gson) {
+    public ArchiJSON toArchiJSON(Gson gson) {
         ArchiJSON ret = new ArchiJSON();
-        ret.setId(clientID);
         List<JsonElement> elements = new ArrayList<>();
-        for(WB_Polygon ply : plys) {
+        for (WB_Polygon ply : plys) {
             Segments p = WB_Converter.toSegments(ply);
             elements.add(gson.toJsonTree(p));
         }

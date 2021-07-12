@@ -18,7 +18,7 @@ const control = {
   nx: 500,
   ny: 300,
   sendToJava: function () {
-    archijson.sendArchiJSON('bts:sendGeometry', 'example', window.objects, property);
+    archijson.sendArchiJSON('java-backend', window.objects, property);
   }
 }
 
@@ -78,7 +78,9 @@ function initScene() {
   
   // refresh global objects
   ARCH.refreshSelection(scene);
-  control.sendToJava();
+  archijson.first = function () {
+    control.sendToJava();
+  }
 }
 
 function generatePoints(num, nx, ny) {
