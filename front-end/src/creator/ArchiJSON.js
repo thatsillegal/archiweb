@@ -33,9 +33,9 @@ const ArchiJSON = function (_scene, _geoFty) {
   }
   
   socket.on('connect', async function () {
-    let key = "9d8b6db7-1a95-4747-ae96-b5641047794c";
-    socket.key = key;
-    socket.emit('register', {key: key, identity: 'client'}, response => {
+    let token = "9d8b6db7-1a95-4747-ae96-b5641047794c";
+    socket.token = token;
+    socket.emit('register', {token: token, identity: 'client'}, response => {
       console.log(response);
     });
   

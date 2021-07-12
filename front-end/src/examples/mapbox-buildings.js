@@ -6,8 +6,9 @@ import * as THREE from 'three';
 let gui, util, map;
 
 mapboxgl.accessToken = 'your_token';
-// import {my_accesstoken} from "@/testdata";
-// mapboxgl.accessToken = my_accesstoken;
+import {accesstoken} from "@/sensitiveInfo";
+
+mapboxgl.accessToken = accesstoken;
 
 let control = {
   randomCenter: function () {

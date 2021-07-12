@@ -49,7 +49,7 @@
 
 
 <script>
-import {urls} from "@/testdata";
+import {urls} from "@/sensitiveInfo";
 
 export default {
   name: "DeleteDialog",

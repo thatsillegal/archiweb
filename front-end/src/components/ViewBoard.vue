@@ -1,20 +1,27 @@
 <template>
   <v-container>
-    <v-row>
-      
+    <v-row class="mb-10">
+  
       <v-col class="col-1 col-xl-2">
       </v-col>
       <v-col class="col-10 col-xl-8">
-        
+    
         <h1 class="mt-15 my-5">
           Token: {{ token }}
         </h1>
-        <h2> Alive Users</h2>
+        <v-row class="my-5 mx-1">
+      
+          <h2> Alive Users</h2>
+          <v-spacer></v-spacer>
+          <v-chip color="green" dark>
+            {{ alive.length }}
+          </v-chip>
+        </v-row>
         <v-card
           v-for="(t, id) in alive" :key="id"
           class="my-5 elevation-9"
         >
-          <v-card-title>
+          <v-card-title class="font-weight-bold">
             {{ t.identity }}
           </v-card-title>
           <v-card-text>
@@ -22,9 +29,16 @@
           </v-card-text>
           <v-chip color="success" small class="ma-4"> ALIVE</v-chip>
         </v-card>
-        <h2>History connections {{ count }}</h2>
+        <v-row class="my-5 mx-1">
+      
+          <h2>History connections </h2>
+          <v-spacer></v-spacer>
+          <v-chip>
+            {{ count }}
+          </v-chip>
+        </v-row>
         <v-btn
-          v-if="all.length === 0"
+          v-if="table.button"
           @click="showAll"
           color="white"
           class="elevation-9 my-5 mb-15"
@@ -32,7 +46,7 @@
           Show All
         </v-btn>
         <v-data-table
-          v-else
+          v-else-if="this.count > 0"
           :loading="table.loading"
           :headers="table.headers"
           :items="all"
@@ -55,7 +69,7 @@
 </template>
 
 <script>
-import {urls} from "@/testdata";
+import {urls} from "@/sensitiveInfo";
 
 export default {
   name: "ViewBoard",
@@ -75,7 +89,8 @@ export default {
         {text: 'Create', value: 'created'},
         {text: 'Update', value: 'updated'},
       ],
-      loading: false
+      loading: false,
+      button: false,
     }
   }),
   async mounted() {
@@ -83,20 +98,23 @@ export default {
   },
   methods: {
     async refresh() {
-      
+  
       const aliveRes = await fetch(urls.tokenConn + '?token=' + this.token + '&alive=1');
       this.alive = await aliveRes.json();
-      
+  
       const allRes = await fetch(urls.tokenConn + '?token=' + this.token + '&count=1');
       this.count = await allRes.json();
-      console.log(this.count)
+      this.table.button = !!this.count;
+      // console.log(this.count)
     },
     async showAll() {
+      this.table.button = false;
       this.table.loading = true;
+  
       const allRes = await fetch(urls.tokenConn + '?token=' + this.token);
       let all = await allRes.json();
+  
       this.all = all.reverse();
-      console.log(this.all)
       this.table.loading = false;
     },
     getColor(it) {

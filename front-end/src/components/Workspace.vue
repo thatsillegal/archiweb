@@ -170,7 +170,7 @@
 
 <script>
 import storage from '@/storage';
-import {urls} from '@/testdata'
+import {urls} from '@/sensitiveInfo'
 import Snackbar from "@/components/Snackbar";
 import DeleteDialog from "@/components/DeleteDialog";
 
@@ -210,17 +210,17 @@ export default {
         const response = await fetch(urls.findUser, requestOption);
         const res = await response.json();
         console.log(res);
+        this.username = res.user.username;
+        this.email = res.user.email;
   
+        this.loading = false;
         for (let t of res.tokens) {
           const countRes = await fetch(urls.tokenConn + '?token=' + t.token + '&count=1&alive=1');
           const count = await countRes.json();
           this.tokens.push({token: t.token, description: t.description, count: count});
         }
-        this.username = res.user.username;
-        this.email = res.user.email;
       }
     
-      this.loading = false;
     
     },
   

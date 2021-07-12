@@ -25,7 +25,7 @@
   
         <v-spacer></v-spacer>
         <a>
-          <v-btn icon large v-if="this.$route.path==='/archiweb'" to="/workspace">
+          <v-btn icon large v-if="checkURL(this.$route.path)" to="/workspace">
             <v-icon color="black"> mdi-home</v-icon>
           </v-btn>
         </a>
@@ -38,4 +38,16 @@
 </template>
 
 <script>
+export default {
+  methods: {
+    checkURL(url) {
+      console.log(url)
+      if (url.indexOf('viewboard') >= 0 || url.indexOf('archiweb') >= 0)
+        return true;
+      console.log(typeof url)
+      return false;
+    }
+  }
+}
+
 </script>

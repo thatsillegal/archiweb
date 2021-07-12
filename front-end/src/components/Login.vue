@@ -75,7 +75,7 @@
 
 <script>
 import storage from '@/storage'
-import {urls} from '@/testdata'
+import {urls} from '@/sensitiveInfo'
 export default {
   name: "Login",
   data: () => ({

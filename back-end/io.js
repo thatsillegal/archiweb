@@ -17,25 +17,25 @@ exports.createSocketIO = function (server) {
     console.info(date.toLocaleString(), `Client connected [id=${socket.id}]`);
     socket.on('register', async function (data, callback) {
   
-      console.info(date.toLocaleString(), `Client [id=${socket.id}] registered.`);
   
       if (typeof (data) === "string")
         data = JSON.parse(data);
   
       try {
-        let username = await userController.findUsername(data.key);
+        let username = await userController.findUsername(data.token);
         let identity = data.identity;
         socket.join(username + '-' + identity);
         socket.uid = username;
-    
-        await connController.insert(data.key, data.identity, socket.id);
-    
+  
+        await connController.insert(data.token, data.identity, socket.id);
+  
+        console.info(date.toLocaleString(), `Client [id=${socket.id}] registered.`);
         callback({
           status: 'register: OK'
         });
-    
+  
       } catch (e) {
-    
+        console.log(e);
         callback({
           status: 'Error'
         });

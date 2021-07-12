@@ -48,8 +48,8 @@ exports.list = async function (page = 1, limit = 10) {
 exports.find = async function (username) {
   let user = await UserModel.findOne({username: username});
   let tokens = await APIAuthModel.find({username: username});
-  console.log(user);
-  console.log(tokens);
+  // console.log(user);
+  // console.log(tokens);
   
   return {user: user, tokens: tokens};
 }
@@ -86,8 +86,12 @@ exports.existEmail = async function (email) {
 
 
 exports.findUsername = async function (token) {
-  let username = await APIAuthModel.findOne({token: token});
-  return username.username;
+  try {
+    let username = await APIAuthModel.findOne({token: token});
+    return username.username;
+  } catch (e) {
+    return {code: 503, message: "Error"}
+  }
 }
 
 // update

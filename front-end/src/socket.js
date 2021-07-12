@@ -1,6 +1,7 @@
 import {io} from 'socket.io-client'
+import {uri} from '@/sensitiveInfo'
 // const socket = io("ws://localhost:27781/")
 // const socket = '';
-const socket = process.env.NODE_ENV === 'development' ? io('ws://127.0.0.1:27781') : io('wss://web.archialgo.com');
-// const socket = ""
+// uri = uri || "ws://localhost:27781";
+const socket = io(uri);
 export default socket
