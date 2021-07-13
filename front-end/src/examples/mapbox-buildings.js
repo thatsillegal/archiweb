@@ -48,17 +48,17 @@ let control = {
   },
   show3D: false
 }
-var modelOrigin = [16.371658895495273, 48.20703295326334];
-var modelAltitude = 0;
-var modelRotate = [0, 0, 0];
+const modelOrigin = [16.371658895495273, 48.20703295326334];
+const modelAltitude = 0;
+const modelRotate = [0, 0, 0];
 
-var modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
   modelOrigin,
   modelAltitude
 );
 
 // transformation parameters to position, rotate and scale the 3D model onto the map
-var modelTransform = {
+const modelTransform = {
   translateX: modelAsMercatorCoordinate.x,
   translateY: modelAsMercatorCoordinate.y,
   translateZ: modelAsMercatorCoordinate.z,
@@ -149,28 +149,28 @@ function initScene() {
       gf.Cuboid([1, 1, 0], [0.6, 0.6, 1.8], mt.Matte(0xff0000));
   
       const loader = new ARCH.Loader(this.scene);
-      loader.loadModel('http://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
-        mesh.position.set(22, 22, 0)
+      loader.loadModel('https://model.amomorning.com/tree/autumn-tree.dae', (mesh) => {
+        mesh.position.set(22, 22, -0.3)
         mesh.scale.set(0.05, 0.05, 0.05);
       })
   
     },
     render: function (gl, matrix) {
-      var rotationX = new THREE.Matrix4().makeRotationAxis(
+      const rotationX = new THREE.Matrix4().makeRotationAxis(
         new THREE.Vector3(1, 0, 0),
         modelTransform.rotateX
       );
-      var rotationY = new THREE.Matrix4().makeRotationAxis(
+      const rotationY = new THREE.Matrix4().makeRotationAxis(
         new THREE.Vector3(0, 1, 0),
         modelTransform.rotateY
       );
-      var rotationZ = new THREE.Matrix4().makeRotationAxis(
+      const rotationZ = new THREE.Matrix4().makeRotationAxis(
         new THREE.Vector3(0, 0, 1),
         modelTransform.rotateZ
       );
-      
-      var m = new THREE.Matrix4().fromArray(matrix);
-      var l = new THREE.Matrix4()
+  
+      const m = new THREE.Matrix4().fromArray(matrix);
+      const l = new THREE.Matrix4()
         .makeTranslation(
           modelTransform.translateX,
           modelTransform.translateY,
@@ -186,7 +186,7 @@ function initScene() {
         .multiply(rotationX)
         .multiply(rotationY)
         .multiply(rotationZ);
-      
+  
       this.camera.projectionMatrix = m.multiply(l);
   
       this.renderer.resetState();

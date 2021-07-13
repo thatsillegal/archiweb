@@ -1,9 +1,9 @@
 import * as ARCH from "@/archiweb"
 import {building} from "@/assets/models/csg";
+import {token} from "@/sensitiveInfo"
 
 let scene, gui;
 let gf, mt, am;
-let archijson;
 
 let reconstructed = [];
 let balls = []
@@ -11,15 +11,7 @@ let segments, prism, vertices, mesh;
 
 /* ---------- GUI setup ---------- */
 const control = {
-  send: function () {
-    reconstructed.forEach((it) => {
-      it.parent.remove(it);
-    })
-    reconstructed = [];
-    
-    am.setCurrentID(1);
-    archijson.sendArchiJSON('bts:sendGeometry', 'archijson', window.objects);
-  },
+
   dragChanging: false
 }
 
@@ -28,26 +20,41 @@ function initGUI() {
   gui.gui.add(control, 'dragChanging');
 }
 
-function parseGeometry(geometryElements) {
-  for (let e of geometryElements) {
-    
-    let b = scene.getObjectByProperty('uuid', e.uuid);
-    
-    if (!b) {
-      if (e.type === 'Mesh') {
-        console.log(e)
-        b = gf.Mesh(e.vertices, e.faces);
-        console.log(b)
+function initArchiJSON() {
+  let archijson = new ARCH.ArchiJSON(token);
   
-      } else {
-        b = gf[e.type]();
-        reconstructed.push(b);
+  archijson.onReceive = function (o) {
+    for (let e of o.geometryElements) {
+      
+      let b = scene.getObjectByProperty('uuid', e.uuid);
+      
+      if (!b) {
+        if (e.type === 'Mesh') {
+          console.log(e)
+          b = gf.Mesh(e.vertices, e.faces);
+          console.log(b)
+          
+        } else {
+          b = gf[e.type]();
+          reconstructed.push(b);
+        }
       }
+      
+      b.fromArchiJSON(b, e);
     }
-    
-    b.fromArchiJSON(b, e);
+    ARCH.refreshSelection(scene);
   }
-  ARCH.refreshSelection(scene);
+  
+  /* set send button */
+  control.send = function () {
+    reconstructed.forEach((it) => {
+      it.parent.remove(it);
+    })
+    reconstructed = [];
+    
+    am.setCurrentID(1);
+    archijson.sendArchiJSON('archijson', window.objects);
+  }
 }
 
 
@@ -55,7 +62,6 @@ function parseGeometry(geometryElements) {
 function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mt = new ARCH.MaterialFactory();
-  archijson = new ARCH.ArchiJSON(scene, gf);
   
   const cuboid = gf.Cuboid([100, 100, 0], [200, 200, 300], mt.Matte(0xff0000));
   
@@ -94,8 +100,6 @@ function initScene() {
   am.setCurrentID(1);
   
   
-  /* ---------- handle returned object ---------- */
-  archijson.parseGeometry = parseGeometry;
 }
 
 window.searchSceneByUUID = function (uuid) {
@@ -147,6 +151,7 @@ function main() {
   tr.draggingChanged = draggingChanged;
   
   viewport.draw = draw;
+  initArchiJSON();
   initGUI();
   initScene();
   
