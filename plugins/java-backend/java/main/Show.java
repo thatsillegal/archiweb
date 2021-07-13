@@ -16,7 +16,8 @@ public class Show extends PApplet {
 
     public void settings () {
        size(600, 800, P3D);
-       server = new Server();
+        smooth(8);
+        server = new Server();
     }
 
     public void setup() {

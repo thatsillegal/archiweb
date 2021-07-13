@@ -1,6 +1,4 @@
 import socket from "@/socket";
-import * as THREE from "three";
-import {token} from "@/sensitiveInfo"
 
 /**
  *
@@ -15,38 +13,39 @@ import {token} from "@/sensitiveInfo"
 
 /**
  * You need to modify this file for specific usage
- * @param _scene
- * @param _geoFty
  * @constructor
+ * @param token
  */
-const ArchiJSON = function (_scene, _geoFty) {
+const ArchiJSON = function (token) {
   let scope = this;
   this.socket = socket;
-  this.lines = [];
-  
-  this.sendArchiJSON = function (identity, objects, properties = {}) {
+  /**
+   * Send ArchiJson
+   * @param identity to which backend device, required
+   * @param objects geometry elements, can be undefined
+   * @param properties properties, can ve undefined
+   */
+  this.sendArchiJSON = function (identity, objects = {}, properties = {}) {
     let geometries = [];
     for (let obj of objects) if (obj.exchange) {
       geometries.push(obj.toArchiJSON());
     }
-    
     socket.emit('exchange', {to: identity, body: {geometryElements: geometries, properties: properties}}, response => {
-      console.log(response);
-      
+      if (window.DEBUG) console.log(response);
     });
   }
   
-  this.first = function () {
-  
+  this.onSetup = function () {
+  }
+  this.onReceive = function (body) {
+    if (window.DEBUG) console.log(body);
   }
   
   socket.on('connect', async function () {
     socket.token = token;
     socket.emit('register', {token: token, identity: 'client'}, response => {
-      console.log(response);
-      
-      scope.first();
-      
+      if (window.DEBUG) console.log(response);
+      scope.onSetup();
     });
     
   })
@@ -54,24 +53,10 @@ const ArchiJSON = function (_scene, _geoFty) {
   
   socket.on('receive', async function (message) {
     // console.log(message.body.geometryElements)
-    let archijson = JSON.parse(message.body);
-  
-    if (archijson['geometryElements'])
-      scope.parseGeometry(archijson['geometryElements']);
+    let archijson = typeof (message.body) === "string" ? JSON.parse(message.body) : message.body;
+    scope.onReceive(archijson);
   });
   
-  
-  this.parseGeometry = function (geometryElements) {
-    scope.lines.forEach((line) => {
-      line.parent.remove(line);
-    })
-    scope.lines = [];
-    for (let e of geometryElements) {
-      const line = _geoFty.Segments();
-      line.geometry.setAttribute('position', new THREE.Float32BufferAttribute(e.coordinates, e.size));
-      scope.lines.push(line);
-    }
-  }
   
 }
 

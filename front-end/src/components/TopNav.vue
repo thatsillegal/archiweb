@@ -41,10 +41,8 @@
 export default {
   methods: {
     checkURL(url) {
-      console.log(url)
       if (url.indexOf('viewboard') >= 0 || url.indexOf('archiweb') >= 0)
         return true;
-      console.log(typeof url)
       return false;
     }
   }

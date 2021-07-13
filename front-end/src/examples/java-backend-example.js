@@ -1,10 +1,11 @@
 import * as THREE from "three";
 import * as ARCH from "@/archiweb"
+import {token} from "@/sensitiveInfo"
 
 let scene, gui;
 let gf, mf;
-let archijson;
 let lastRandom = 1;
+let lines = [];
 
 function random(seed) {
   seed = seed || lastRandom;
@@ -17,22 +18,38 @@ const control = {
   num: 10,
   nx: 500,
   ny: 300,
-  sendToJava: function () {
-    archijson.sendArchiJSON('java-backend', window.objects, property);
-  }
 }
 
 const property = {
   d: 1,
 }
 
-function update() {
-  generatePoints(control.num, control.nx, control.ny);
-  border.scale.x = control.nx;
-  border.scale.y = control.ny;
+
+function initArchiJSON() {
+  let archijson = new ARCH.ArchiJSON(token);
   
-  control.sendToJava();
+  // set send button
+  control.sendToJava = function () {
+    archijson.sendArchiJSON('java-backend', window.objects, property);
+  }
+  
+  archijson.onSetup = function () {
+    control.sendToJava();
+  }
+  
+  archijson.onReceive = function (archijson) {
+    lines.forEach((line) => {
+      line.parent.remove(line);
+    })
+    lines = [];
+    for (let e of archijson.geometryElements) {
+      const line = gf.Segments();
+      line.geometry.setAttribute('position', new THREE.Float32BufferAttribute(e.coordinates, e.size));
+      lines.push(line);
+    }
+  }
 }
+
 
 function initGUI() {
   
@@ -51,7 +68,6 @@ function initGUI() {
   gui.add(property, 'd', 0.5, 20).onChange(() => {
     control.sendToJava();
   });
-  
   gui.add(control, 'sendToJava').name('Send Geometries');
 }
 
@@ -65,7 +81,6 @@ function initScene() {
   gf = new ARCH.GeometryFactory(scene);
   mf = new ARCH.MaterialFactory();
   //
-  archijson = new ARCH.ArchiJSON(scene, gf);
   
   points = gf.Vertices();
   points.material = new THREE.PointsMaterial({size: 10, vertexColors: true})
@@ -78,10 +93,10 @@ function initScene() {
   
   // refresh global objects
   ARCH.refreshSelection(scene);
-  archijson.first = function () {
-    control.sendToJava();
-  }
+  
+  
 }
+
 
 function generatePoints(num, nx, ny) {
   positions = [];
@@ -100,12 +115,13 @@ function generatePoints(num, nx, ny) {
   points.geometry.computeBoundingSphere();
 }
 
-
-/* ---------- animate per frame ---------- */
-function draw() {
-
+function update() {
+  generatePoints(control.num, control.nx, control.ny);
+  border.scale.x = control.nx;
+  border.scale.y = control.ny;
+  
+  control.sendToJava();
 }
-
 
 /* ---------- main entry ---------- */
 function main() {
@@ -114,11 +130,9 @@ function main() {
   gui = viewport.gui.gui;
   
   viewport.setCameraPosition([300, -400, 300], [0, 0, 0])
+  initArchiJSON();
   initGUI();
   initScene();
-  
-  viewport.draw = draw;
-  
 }
 
 export {
