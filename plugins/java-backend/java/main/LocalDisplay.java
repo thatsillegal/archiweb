@@ -9,13 +9,13 @@ import processing.core.PApplet;
  * @author: amomorning
  * @date: 2020/11/23
  */
-public class Show extends PApplet {
+public class LocalDisplay extends PApplet {
 
     private Server server;
     private CameraController cam;
 
-    public void settings () {
-       size(600, 800, P3D);
+    public void settings() {
+        size(600, 800, P3D);
         smooth(8);
         server = new Server();
     }
@@ -30,5 +30,11 @@ public class Show extends PApplet {
         server.generator.draw(this);
     }
 
-
+    public static void main(String[] args) {
+        if (args.length > 0) {
+            new Server(args);
+        } else {
+            PApplet.main("main.LocalDisplay");
+        }
+    }
 }

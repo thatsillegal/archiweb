@@ -1,5 +1,5 @@
-import socket from "@/socket";
-
+import {io} from 'socket.io-client'
+import {uri} from '@/sensitiveInfo'
 /**
  *
  * Copyright (c) 2020-present, Inst.AAA.
@@ -18,7 +18,23 @@ import socket from "@/socket";
  */
 const ArchiJSON = function (token) {
   let scope = this;
-  this.socket = socket;
+  const socket = io(uri);
+  socket.on('connect', async function () {
+    socket.token = token;
+    socket.emit('register', {token: token, identity: 'client'}, response => {
+      if (window.DEBUG) console.log(response);
+      scope.onSetup();
+    });
+    
+  })
+  
+  
+  socket.on('receive', async function (message) {
+    // console.log(message.body.geometryElements)
+    let archijson = typeof (message.body) === "string" ? JSON.parse(message.body) : message.body;
+    scope.onReceive(archijson);
+  });
+  
   /**
    * Send ArchiJson
    * @param identity to which backend device, required
@@ -35,29 +51,13 @@ const ArchiJSON = function (token) {
     });
   }
   
+  
+  this.socket = socket;
   this.onSetup = function () {
   }
   this.onReceive = function (body) {
     if (window.DEBUG) console.log(body);
   }
-  
-  socket.on('connect', async function () {
-    socket.token = token;
-    socket.emit('register', {token: token, identity: 'client'}, response => {
-      if (window.DEBUG) console.log(response);
-      scope.onSetup();
-    });
-    
-  })
-
-  
-  socket.on('receive', async function (message) {
-    // console.log(message.body.geometryElements)
-    let archijson = typeof (message.body) === "string" ? JSON.parse(message.body) : message.body;
-    scope.onReceive(archijson);
-  });
-  
-  
 }
 
 export {ArchiJSON};
