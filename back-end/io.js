@@ -48,16 +48,17 @@ exports.createSocketIO = function (server) {
     });
     
     socket.on('exchange', async function (data, callback) {
-      
+  
       if (typeof (data) === "string")
         data = JSON.parse(data);
-      
-      console.info(date.toLocaleString(), `Client [id=${socket.id}] exchange data to ${data.to}.`);
-      
+  
       let room = socket.uid + '-' + data.to;
+      if (data.id) room = data.id;
+  
+      console.info(date.toLocaleString(), `Client [id=${socket.id}] exchange data to ${room}.`);
+  
       io.to(room).emit('receive', {id: socket.id, body: data.body});
-      
-      
+  
       callback({
         status: 'exchange: OK'
       })

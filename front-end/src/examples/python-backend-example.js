@@ -1,61 +1,46 @@
 "use strict";
 import * as THREE from 'three'
 import * as ARCH from "@/archiweb"
-import {io} from 'socket.io-client'
+import {token} from "@/sensitiveInfo";
 
-const socket = io("ws://localhost:39481/")
 
 let scene, gui;
-let gf, am;
+let gf, am, mt;
 
-let vs, fs, mesh;
+let vs, fs, mesh, rawmesh;
 
-const control = {
-  send: function () {
-    socket.emit('compasFormFinding', {vertex: vs.toArchiJSON()['coordinates'], face: fs});
+const control = {}
+
+function initArchiJSON() {
+  let archijson = new ARCH.ArchiJSON(token);
+  
+  // set send button
+  control.send = function () {
+    archijson.sendArchiJSON('python-backend', [rawmesh]);
   }
-}
-
-function initWS() {
-  socket.on('generateFormFindingResult', async function (message) {
+  gui.gui.add(control, 'send');
+  
+  
+  archijson.onReceive = function (obj) {
     
-    let vertex = message.data.vertex;
-    let face = message.data.face;
-    
-    let vs = [];
-    for (let i = 0; i <= message.data.max_vertex; ++i) {
-      let v = vertex[i];
-      vs.push(v.x, v.y, v.z)
-    }
-    
-    let fs = [];
-    for (let i = 0; i <= message.data.max_face; ++i) {
-      fs.push(face[i][0], face[i][1], face[i][2], face[i][3]);
-    }
-    
-    mesh = gf.Mesh({coordinates: vs, size: 3}, {
-      index: fs,
-      count: [fs.length / 4],
-      size: [4]
-    }, new THREE.MeshPhongMaterial({color: 0xdddddd, side: THREE.DoubleSide, flatShading: true}));
+    mesh = gf.Mesh(obj.vertices, obj.faces, mt.Doubled());
     
     am.addSelection([mesh], 1);
     am.refreshSelection(scene);
-  })
+  }
 }
 
-function initGUI() {
-  gui.gui.add(control, 'send');
-}
+
+
 
 function initScene() {
   
   gf = new ARCH.GeometryFactory(scene);
+  mt = new ARCH.MaterialFactory();
   
   let pts = []
   for (let i = 0; i < 11; ++i) {
     for (let j = 0; j < 11; ++j) {
-      
       pts.push(new THREE.Vector3(i * 100, j * 100, 0));
     }
   }
@@ -66,10 +51,12 @@ function initScene() {
   for (let i = 0; i < 10; ++i) {
     for (let j = 0; j < 10; ++j) {
       let face = [i * 11 + j, i * 11 + j + 1, (i + 1) * 11 + j + 1, (i + 1) * 11 + j];
-      fs.push(face)
-      gf.Segments([pts[face[0]], pts[face[1]], pts[face[2]], pts[face[3]]], true)
+      gf.Segments(face.map(id => pts[id]), true)
+      fs.push(...face)
     }
   }
+  rawmesh = gf.Mesh(vs.toArchiJSON(), {index: fs, count: [fs.length / 4], size: [4]})
+  rawmesh.visible = false;
   
   
   control.send();
@@ -93,9 +80,8 @@ function main() {
   sb.update();
   
   
+  initArchiJSON();
   initScene();
-  initGUI();
-  initWS();
 }
 
 export {

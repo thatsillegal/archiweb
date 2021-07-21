@@ -41,7 +41,7 @@ const ArchiJSON = function (token) {
    * @param objects geometry elements, can be undefined
    * @param properties properties, can ve undefined
    */
-  this.sendArchiJSON = function (identity, objects = {}, properties = {}) {
+  this.sendArchiJSON = function (identity, objects = [], properties = {}) {
     let geometries = [];
     for (let obj of objects) if (obj.exchange) {
       geometries.push(obj.toArchiJSON());
@@ -49,6 +49,12 @@ const ArchiJSON = function (token) {
     socket.emit('exchange', {to: identity, body: {geometryElements: geometries, properties: properties}}, response => {
       if (window.DEBUG) console.log(response);
     });
+  }
+  
+  this.send = function (identity, body) {
+    socket.emit('exchange', {to: identity, body: body}, response => {
+      if (window.DEBUG) console.log(response);
+    })
   }
   
   

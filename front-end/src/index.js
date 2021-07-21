@@ -14,20 +14,16 @@ function initGUI() {
 
 const param = {
   send: function () {
-    archijson.socket.emit('exchange', {to: 'engine', body: 'hello from client'}, response => {
-      console.log(response);
-    });
+    archijson.sendArchiJSON('engine', [cube])
+  
   }
 }
 
 /* ---------- create your scene object ---------- */
 function initScene() {
   gf = new ARCH.GeometryFactory(scene);
-  archijson = new ARCH.ArchiJSON(scene, gf)
+  archijson = new ARCH.ArchiJSON('c087f625-16dd-4185-8993-5f03115ea37b')
   
-  archijson.socket.on('stb:receiveProperties', async function (data) {
-    console.log(data);
-  })
   
   cube = gf.Cuboid([0, 0, 0], [100, 100, 100]);
   

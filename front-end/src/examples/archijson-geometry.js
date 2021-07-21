@@ -30,13 +30,13 @@ function initArchiJSON() {
       
       if (!b) {
         if (e.type === 'Mesh') {
-          console.log(e)
           b = gf.Mesh(e.vertices, e.faces);
-          console.log(b)
+          b.position.set(e.position.x, e.position.y, e.position.z)
           
         } else {
           b = gf[e.type]();
           reconstructed.push(b);
+          b.position.set(e.position.x, e.position.y, e.position.z)
         }
       }
       

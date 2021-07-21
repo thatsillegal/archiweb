@@ -1,40 +1,35 @@
-from flask import Flask, render_template, request, jsonify
-from flask_socketio import SocketIO, emit
-from flask_cors import CORS
+import sys
+sys.path.append('../archijson/python')
 
+from geometry import Mesh, Faces, Vertices
+from archijson import ArchiServer, ArchiJSON
+from sensitive_info import URL, TOKEN
 from formfinding import from_vertices_and_faces
+from converter.compas import to_mesh
 
-# only log error
-import logging
-
-log = logging.getLogger('werkzeug')
-# log.setLevel(logging.ERROR)
-
-app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
-CORS(app)
-
+server = ArchiServer(URL, TOKEN, 'python-backend')
 
 def chunk(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
-@socketio.on('connect')
-def on_connect():
-    print('connected')
 
-
-@socketio.on('compasFormFinding')
-def handle_param(data):
-    # print(data)
-
-    vs = list(chunk(data['vertex'], 3))
-    fs = data['face']
+def on_receive(id, body):
+    # print(id, body)
+    print(body)
+    archijson = ArchiJSON(body)
+    mesh = archijson.geometries[0]
+    vs = mesh.vertices.toList()
+    fs = mesh.faces.toList()
+    
+    # vs = list(chunk(body['vertex'], 3))
+    # fs = body['face']
 
     form = from_vertices_and_faces(vs, fs)
+    print(type(form))
+    v, f = form.to_vertices_and_faces()
+    mesh = to_mesh(v, f)
 
-    emit('generateFormFindingResult', form.to_data())
+    server.send('client', mesh.data, id)
 
-
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
+server.on_receive = on_receive
