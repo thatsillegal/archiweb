@@ -51,7 +51,23 @@
             <version>0.1.0</version>
             <scope>compile</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.archialgo</groupId>
+            <artifactId>HE_Mesh-maven-lib</artifactId>
+            <version>2019.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.archialgo</groupId>
+            <artifactId>camera</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
 </project>

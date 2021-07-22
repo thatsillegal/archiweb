@@ -45,5 +45,14 @@
     <orderEntry type="library" name="Maven: org.json:json:20090211" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.6" level="project" />
     <orderEntry type="module" module-name="archijson" />
+    <orderEntry type="library" name="Maven: com.github.archialgo:HE_Mesh-maven-lib:2019.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.archialgo.HE_Mesh-maven-lib:eclipse-collections-9.0.0:2019.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.archialgo.HE_Mesh-maven-lib:eclipse-collections-api-9.0.0:2019.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.archialgo.HE_Mesh-maven-lib:hemesh:2019.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.archialgo.HE_Mesh-maven-lib:hemesh-data-3_0_0:2019.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.archialgo.HE_Mesh-maven-lib:hemesh-external-6_0_0:2019.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.archialgo.HE_Mesh-maven-lib:hemesh-lab:2019.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.archialgo.HE_Mesh-maven-lib:javaluator-3.0.2:2019.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.archialgo:camera:1.0" level="project" />
   </component>
 </module>
