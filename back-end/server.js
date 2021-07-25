@@ -43,6 +43,37 @@ app.use(bodyParser())
 
 
 let api = new Router();
+
+let passURL = ['/api/user/delete', '/api/user/find', '/api/token/create', '/api/token/delete'];
+app.use(async (ctx, next) => {
+  if (passURL.includes(ctx.request.url)) {
+    ctx.set("Access-Control-Allow-Origin", "*");
+    // console.log(ctx.request.url)
+    const token = ctx.header.token
+    // console.log('token: ' + token);
+    const user = await ctx.request.body
+    // console.log(user)
+    
+    if ((token === undefined && Object.keys(user).length !== 0)) {
+      // console.log(user)
+      ctx.response.body = {code: 503, message: "Error"}
+      return;
+    }
+    
+    if (token) {
+      const jwt = new Jwt(user.username);
+      const res = await jwt.verifyToken(token);
+      // console.log(res);
+      if (!res) {
+        ctx.response.body = {code: 503, message: "Error"}
+        return;
+      }
+    }
+    
+  }
+  await next();
+});
+
 api.post('/user/insert', async (ctx) => {
   let user = await ctx.request.body;
   
@@ -75,6 +106,7 @@ api.post('/user/find', async (ctx) => {
 })
 
 api.post('/token/create', async (ctx) => {
+  
   let token = await ctx.request.body;
   ctx.set("Access-Control-Allow-Origin", "*");
   ctx.response.body = await userController.createToken(token.username, token.description)
@@ -92,6 +124,7 @@ api.post('/user/login', async (ctx) => {
   console.log(user);
   ctx.response.body = await userController.login(user.username, user.password);
 })
+
 
 api.get('/connection/token', async (ctx) => {
   let args = await ctx.query;
@@ -129,13 +162,14 @@ app.use(cors({
   maxAge: 5,
   credentials: true,
   allowMethods: ['GET', 'POST', 'DELETE'],
-  allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  allowHeaders: ['Content-Type', 'Authorization', 'Accept', 'Token'],
 }))
 
 
 // console.log(process.env.MONGO_URL);
 const connStr = process.env.MONGO_URL;
 const mongoose = require('mongoose')
+const Jwt = require("./controllers/sessionauth");
 mongoose.connect(connStr, {
   useNewUrlParser: true,
   useFindAndModify: false,

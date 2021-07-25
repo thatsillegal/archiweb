@@ -50,6 +50,7 @@
 
 <script>
 import {urls} from "@/sensitiveInfo";
+import storage from "@/storage";
 
 export default {
   name: "DeleteDialog",
@@ -63,15 +64,19 @@ export default {
   }),
   methods: {
     async remove(token) {
-      
+  
       this.loading = true;
-      
+      let headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Token", storage.get('token'));
+      console.log(headers)
       const requestOption = {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({token: token})
+        headers: headers,
+        body: JSON.stringify({token: token, username: storage.get('username')})
       }
       const response = await fetch(urls.deleteToken, requestOption);
+  
       const res = await response.json();
       console.log(res);
       if (res.code === 200) {

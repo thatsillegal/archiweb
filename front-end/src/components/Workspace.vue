@@ -197,19 +197,27 @@ export default {
     async refresh() {
       this.loading = true;
       this.tokens = [];
-    
+  
       let user = storage.get('username');
-      if (!user) {
+      let userToken = storage.get('token');
+  
+      if (!user || !userToken) {
         await this.$router.push('/login');
       } else {
+    
+    
+        let headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Token", userToken);
+    
         const requestOption = {
           method: "POST",
-          headers: {"Content-Type": "application/json"},
+          headers: headers,
           body: JSON.stringify({username: user})
         }
         const response = await fetch(urls.findUser, requestOption);
         const res = await response.json();
-        console.log(res);
+        // console.log(res);
         this.username = res.user.username;
         this.email = res.user.email;
   
@@ -227,10 +235,14 @@ export default {
     async create() {
       this.add.loading = true;
       let user = storage.get('username');
-    
+  
+      let headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Token", storage.get('token'));
+      console.log(headers)
       const requestOption = {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: headers,
         body: JSON.stringify({username: user, description: this.add.description})
       }
       const response = await fetch(urls.createToken, requestOption);
@@ -266,6 +278,7 @@ export default {
     },
     logout() {
       storage.remove('username');
+      storage.remove('token');
       this.$router.push('/login')
     },
     snackbarInfo(text) {

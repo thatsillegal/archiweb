@@ -70,6 +70,7 @@
 
 <script>
 import {urls} from "@/sensitiveInfo";
+import storage from "@/storage";
 
 export default {
   name: "ViewBoard",
@@ -98,15 +99,22 @@ export default {
   },
   methods: {
     async refresh() {
+      let user = storage.get('username');
+      let userToken = storage.get('token');
   
-      const aliveRes = await fetch(urls.tokenConn + '?token=' + this.token + '&alive=1');
-      this.alive = await aliveRes.json();
-  
-      const allRes = await fetch(urls.tokenConn + '?token=' + this.token + '&count=1');
-      const res = await allRes.json();
-      console.log(res);
-      this.count = res.count;
-      this.table.button = !!this.count;
+      if (!user || !userToken) {
+        await this.$router.push('/login');
+      } else {
+    
+        const aliveRes = await fetch(urls.tokenConn + '?token=' + this.token + '&alive=1');
+        this.alive = await aliveRes.json();
+    
+        const allRes = await fetch(urls.tokenConn + '?token=' + this.token + '&count=1');
+        const res = await allRes.json();
+        // console.log(res);
+        this.count = res.count;
+        this.table.button = !!this.count;
+      }
       // console.log(this.count)
     },
     async showAll() {

@@ -1,5 +1,6 @@
 const UserModel = require('../model/users');
 const APIAuthModel = require('../model/apiauth');
+const Jwt = require("./sessionauth");
 const {v4} = require("uuid");
 
 
@@ -173,5 +174,9 @@ exports.login = async function (username, password) {
     code: 422,
     message: "wrong password"
   }
-  return {code: 200, message: "OK"};
+  
+  const jwt = new Jwt(username);
+  const token = jwt.generateToken();
+  console.log(token)
+  return {code: 200, message: "OK", token: token};
 }

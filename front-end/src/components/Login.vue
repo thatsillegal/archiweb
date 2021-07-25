@@ -44,11 +44,11 @@
                           :append-icon="value ? 'mdi-eye-off' : 'mdi-eye'"
                           @click:append="() => (value = !value)"
                           :type="value ? 'password' : 'text'"
-    
+
                           required></v-text-field>
             <v-checkbox v-if='options.isLoggingIn' v-model='options.shouldStayLoggedIn' black label='Stay logged in?'
             ></v-checkbox>
-      
+  
             <v-btn v-if="options.isLoggingIn" @click.prevent="onSubmit()" block type="submit" rounded large dark>Sign
               in
             </v-btn>
@@ -76,6 +76,7 @@
 <script>
 import storage from '@/storage'
 import {urls} from '@/sensitiveInfo'
+
 export default {
   name: "Login",
   data: () => ({
@@ -103,7 +104,7 @@ export default {
         v => (v || '').indexOf(' ') < 0 || 'No spaces are allowed',
         v => /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(v) || 'Password is weak. At least use [0-9]&[a-z]&[A-Z].'
       ],
-    
+  
     },
     options: {
       isLoggingIn: true,
@@ -143,9 +144,11 @@ export default {
           if (this.options.shouldStayLoggedIn) {
             // expired in 5 days.
             storage.set('username', this.user.username, 60 * 24 * 5);
+            storage.set('token', data.token, 60 * 24 * 5);
           } else {
             // expired in 0.1 minute.
             storage.set('username', this.user.username, 0.1);
+            storage.set('token', data.token, 60);
           }
           await this.$router.push('/workspace');
         }
