@@ -8,8 +8,22 @@ const {promisify} = require('util');    //将函数promise化
 const stat = promisify(fs.stat);    //用来获取文件的信息
 const mime = require('mime');   //mime类型获取插件
 const app = new Koa();
+const date = new Date();
 
-const http = require('http').createServer(app.callback());
+let server;
+const args = process.argv.splice(2);
+if (args.length > 0 && args[0] === 'https') {
+  const options = {
+    key: fs.readFileSync("/home/cert/6010330_web.archialgo.com.key", "utf8"),
+    cert: fs.readFileSync("/home/cert/6010330_web.archialgo.com.pem", "utf8")
+  };
+  server = require('https').createServer(options, app.callback());
+  console.info(date.toLocaleString(), "Set up https");
+} else {
+  server = require('http').createServer(app.callback());
+  console.info(date.toLocaleString(), "Set up http")
+}
+
 
 function static_files(dir) {
   return async (ctx, next) => {
@@ -184,7 +198,7 @@ mongoose.connection.once('open', async function () {
   
   /**----------------------- SOCKET IO -------------------------**/
   const io = require('./io');
-  io.createSocketIO(http);
+  io.createSocketIO(server);
 })
 
 // on error
@@ -199,6 +213,6 @@ mongoose.connection.on('disconnected', function () {
 });
 
 
-http.listen(27781, () => {
+server.listen(27781, () => {
   console.log("listening on *:27781")
 });

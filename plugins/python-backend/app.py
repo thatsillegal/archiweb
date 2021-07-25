@@ -16,7 +16,7 @@ def chunk(l, n):
 
 def on_receive(id, body):
     # print(id, body)
-    print(body)
+    # print(body)
     archijson = ArchiJSON(body)
     mesh = archijson.geometries[0]
     vs = mesh.vertices.toList()
@@ -26,7 +26,7 @@ def on_receive(id, body):
     # fs = body['face']
 
     form = from_vertices_and_faces(vs, fs)
-    print(type(form))
+    # print(type(form))
     v, f = form.to_vertices_and_faces()
     mesh = to_mesh(v, f)
 
