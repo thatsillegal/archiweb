@@ -82,12 +82,12 @@ export default {
   data: () => ({
     value: true,
     user: {
-      // email: '',
-      // password: '',
-      // username: '',
-      email: 'example@example.org',
-      password: 'admin',
-      username: 'example',
+      email: '',
+      password: '',
+      username: '',
+      // email: 'example@example.org',
+      // password: 'admin',
+      // username: 'example',
     },
     match: '',
     rules: {

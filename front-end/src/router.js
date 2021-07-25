@@ -39,7 +39,7 @@ examples.forEach((item) => {
 })
 
 routes.push(
-  {path: '/', name: 'index', component: Viewer, meta: {title: 'App'}},
+  // {path: '/', name: 'index', component: Viewer, meta: {title: 'App'}},
   {path: '/login', name: 'login', component: Login, meta: {title: 'Login'}},
   {path: '/workspace', name: 'workspace', component: Workspace, meta: {title: 'ArchiWeb Workspace'}},
   {
@@ -50,7 +50,7 @@ routes.push(
     props: true
   },
   // {path: '/', name: 'map', component: Map, meta: {title: 'Map'}},
-  {path: '/archiweb', name: 'home', component: Home, meta: {title: 'ArchiWeb'}}
+  {path: '/', name: 'home', component: Home, meta: {title: 'ArchiWeb'}}
 )
 
 Vue.use(VueRouter)
