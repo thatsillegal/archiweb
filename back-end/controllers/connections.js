@@ -1,5 +1,6 @@
 const ConnModel = require('../model/connections')
 const APIAuthModel = require('../model/apiauth')
+const ErrorEnum = require('../errors')
 
 exports.insert = async function (token, identity, socket) {
   try {
@@ -9,48 +10,43 @@ exports.insert = async function (token, identity, socket) {
       socket: socket
     }).save();
   
-    // console.log(ret);
-    return {code: 200, message: "OK", id: ret._id};
+    return {...ErrorEnum.OK, id: ret._id};
   
   } catch (e) {
     console.log('INSERT CONNECTIONS:' + e)
-    return {code: 503, message: "Error insert connection"}
+    return ErrorEnum.NotCreated('Connection');
   }
 }
+
+
 exports.reboot = async function () {
   try {
   
     ConnModel.find({alive: true}, function (err, connections) {
-      if (err) return {
-        code: 503,
-        message: "error"
-      }
+      if (err) return ErrorEnum.NotFound('Connection');
+  
       for (let conn of connections) {
         conn.set({alive: false});
         conn.save()
       }
     })
-    return {code: 200, message: "OK"};
+    return ErrorEnum.OK;
   } catch (e) {
-    console.log(e)
-    return {code: 503, message: "Error"};
+    return ErrorEnum.NotUpdated('Connection')
   }
 }
 
 exports.update = async function (socket, alive) {
   try {
     ConnModel.findOne({socket: socket}, function (err, connections) {
-      if (err || connections === null) return {
-        code: 503,
-        message: "error"
-      }
+      if (err || connections === null) return ErrorEnum.NotFound('Connection')
       connections.set({alive: alive});
       connections.save();
     })
-    return {code: 200, message: "OK"};
+    return ErrorEnum.OK;
   } catch (e) {
     console.error(e)
-    return {code: 503, message: "Error"}
+    return ErrorEnum.NotUpdated('Connection')
   }
 }
 
@@ -65,7 +61,6 @@ exports.queryAll = async function (token) {
 
 exports.findAlive = async function (username) {
   let tokens = await APIAuthModel.find({username: username});
-  // console.log(tokens);
   
   let ret = []
   
@@ -80,7 +75,6 @@ exports.findAll = async function (username) {
   let tokens = await APIAuthModel.find({username: username});
   // console.log(tokens);
   let ret = []
-  
   for (let t of tokens) {
     let connections = await this.queryAll(t.token);
     ret.push({token: t.token, count: connections.length, connections: connections});

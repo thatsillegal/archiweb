@@ -4,7 +4,6 @@ const connController = require('./controllers/connections')
 
 exports.createSocketIO = function (server) {
   
-  
   const io = require("socket.io")(server, {
     cors: {
       origin: "*",

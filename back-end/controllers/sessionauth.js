@@ -4,7 +4,6 @@ const redis = require('redis'),
 
 const {promisify} = require("util");
 const getAsync = promisify(session.get).bind(session);
-const setAsync = promisify(session.set).bind(session);
 
 session.on("error", function (error) {
   console.error(error);
@@ -32,13 +31,10 @@ class Jwt {
     );
     
     session.set(username, token, (e) => {
-      console.log(e)
+      if (e) console.log(e)
     });
-    //
-    // await setAsync(username, token, (e) => {
-    //   console.error(e);
-    // })
-    
+  
+  
     return token;
   }
   

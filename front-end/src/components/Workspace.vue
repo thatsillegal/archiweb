@@ -5,7 +5,7 @@
         <v-col class="text-center col-12 col-lg-6">
           <v-avatar size="256" class="grey lighten-1">
             <v-icon size="200" color="white">mdi-account</v-icon>
-      
+
           </v-avatar>
           <v-list-item
             color="black">
@@ -16,9 +16,9 @@
               <v-list-item-subtitle>
                 {{ email }}
               </v-list-item-subtitle>
-        
+
             </v-list-item-content>
-      
+
           </v-list-item>
           <v-btn
             plain color="red"
@@ -28,9 +28,12 @@
           >
             Logout
           </v-btn>
+          <v-spacer></v-spacer>
+          <UpdatePwdDialog></UpdatePwdDialog>
+
         </v-col>
         <v-col class="px-md-5 col-12 col-lg-5">
-      
+  
           <v-card
             v-for="(t, id) in tokens" :key="id"
             class="mx-0 mb-10 elevation-9 pa-4"
@@ -62,22 +65,23 @@
                 copy
               </v-btn>
             </v-row>
-  
+    
             <v-textarea
               label="Description"
               :value="t.description"
               rows="2"
               auto-grow
               readonly outlined
-  
+    
             ></v-textarea>
+    
             <v-row>
               <v-spacer></v-spacer>
               <v-btn
                 v-if="t.count > 0"
                 class="mx-3 mb-3"
                 small
-                color="success"
+                color="primary"
                 :to="'/viewboard/'+t.token"
               >
                 {{ t.count }} alive
@@ -89,14 +93,14 @@
                 color="grey lighten-2"
                 :to="'/viewboard/'+t.token"
               >
-      
+  
                 inactive
               </v-btn>
-  
+    
             </v-row>
           </v-card>
-      
-      
+  
+  
           <!--          create new token               -->
           <template>
             <v-row>
@@ -117,7 +121,7 @@
                     </b>
                   </v-btn>
                 </template>
-            
+  
                 <v-card class="ma-0">
                   <div class="d-flex align-end py-2">
                     <v-card-title class="px-5 py-1">
@@ -128,22 +132,22 @@
                            class="mx-3"
                            plain
                     >
-                  
+  
                       <v-icon>mdi-close</v-icon>
                     </v-btn>
-              
+
                   </div>
-              
+    
                   <v-textarea
                     outlined label="Description"
                     v-model="add.description"
                     class="mx-5">
-              
+    
                   </v-textarea>
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn
-                      color="success darken-1"
+                      color="primary darken-1"
                       text
                       rounded
                       @click="create"
@@ -152,14 +156,14 @@
                     >
                       Add
                     </v-btn>
-              
+
                   </v-card-actions>
                 </v-card>
               </v-dialog>
             </v-row>
           </template>
-    
-    
+
+
         </v-col>
       </v-row>
     </v-layout>
@@ -173,11 +177,12 @@ import storage from '@/storage';
 import {urls} from '@/sensitiveInfo'
 import Snackbar from "@/components/Snackbar";
 import DeleteDialog from "@/components/DeleteDialog";
+import UpdatePwdDialog from "@/components/UpdatePwdDialog";
 
 export default {
   
   name: "Workspace",
-  components: {Snackbar, DeleteDialog},
+  components: {Snackbar, DeleteDialog, UpdatePwdDialog},
   data: () => ({
     loading: false,
     username: '',
@@ -188,7 +193,7 @@ export default {
       description: 'default',
       loading: false,
     },
-
+    
   }),
   async mounted() {
     await this.refresh();
@@ -202,7 +207,8 @@ export default {
       let userToken = storage.get('token');
   
       if (!user || !userToken) {
-        await this.$router.push('/login');
+        this.snackbarInfo("Please Login first.")
+        this.logout()
       } else {
     
     
@@ -218,28 +224,33 @@ export default {
         const response = await fetch(urls.findUser, requestOption);
         const res = await response.json();
         // console.log(res);
-        this.username = res.user.username;
-        this.email = res.user.email;
-  
-        this.loading = false;
-        for (let t of res.tokens) {
-          const countRes = await fetch(urls.tokenConn + '?token=' + t.token + '&count=1&alive=1');
-          const count = await countRes.json();
-          this.tokens.push({token: t.token, description: t.description, count: count.count});
+    
+        if (res.code === 200) {
+          this.username = res.user.username;
+          this.email = res.user.email;
+      
+          this.loading = false;
+          for (let t of res.tokens) {
+            const countRes = await fetch(urls.tokenConn + '?token=' + t.token + '&count=1&alive=1');
+            const count = await countRes.json();
+            this.tokens.push({token: t.token, description: t.description, count: count.count});
+          }
+        } else {
+          this.logout();
         }
       }
-    
-    
+  
+  
     },
   
     async create() {
       this.add.loading = true;
       let user = storage.get('username');
-  
+    
       let headers = new Headers();
       headers.append("Content-Type", "application/json");
       headers.append("Token", storage.get('token'));
-      console.log(headers)
+      // console.log(headers)
       const requestOption = {
         method: "POST",
         headers: headers,
@@ -247,30 +258,29 @@ export default {
       }
       const response = await fetch(urls.createToken, requestOption);
       const res = await response.json();
-      console.log(res)
+      // console.log(res)
       if (res.code === 200) {
         this.add.dialog = false;
         this.snackbarInfo("Create successful");
         await this.refresh();
       } else {
-        this.snackbarInfo('Error: ' + res.message)
+        this.snackbarInfo(res.message)
       }
       this.add.loading = false;
       this.add.description = "default";
     },
     copy(id, t) {
       let selector = '#textcopy-' + id;
-      console.log(selector)
+      // console.log(selector)
       let text = document.querySelector(selector);
-      console.log(text.getAttribute('value'))
+      // console.log(text.getAttribute('value'))
       text.setAttribute('type', 'text');
       text.select();
       try {
         const successful = document.execCommand('copy');
         const msg = successful ? 'successful' : 'unsuccessful';
         this.snackbarInfo('Token #' + id + ': ' + t + ' copied ' + msg);
-      
-        // alert('Testing code was copied ' + msg);
+  
       } catch (err) {
         this.snackbarInfo('Oops, unable to copy');
       }
@@ -280,6 +290,9 @@ export default {
       storage.remove('username');
       storage.remove('token');
       this.$router.push('/login')
+    },
+    changePassword() {
+    
     },
     snackbarInfo(text) {
       // this.$refs.snackbar.update(text, true);

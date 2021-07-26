@@ -41,7 +41,7 @@
 export default {
   methods: {
     checkURL(url) {
-      console.log(url)
+      // console.log(url)
       if (url.indexOf('viewboard') >= 0 || url === '/')
         return true;
       return false;

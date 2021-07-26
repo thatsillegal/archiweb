@@ -19,7 +19,7 @@
             <v-text-field v-model='user.username' light prepend-icon='mdi-account'
                           label='Username' :rules="rules.name" required></v-text-field>
   
-            <v-text-field v-if='!options.isLoggingIn' v-model='user.email' light prepend-icon='mdi-school'
+            <v-text-field v-if='!options.isLoggingIn' v-model='user.email' light prepend-icon='mdi-email'
                           label='E-Mail' :rules="rules.email" required></v-text-field>
             <v-text-field v-model='user.password' light prepend-icon='mdi-lock' label='Password'
                           :append-icon="value ? 'mdi-eye-off' : 'mdi-eye'"
@@ -70,15 +70,19 @@
 
       </v-flex>
     </v-layout>
+  
+    <Snackbar ref="snackbar"></Snackbar>
   </v-container>
 </template>
 
 <script>
 import storage from '@/storage'
 import {urls} from '@/sensitiveInfo'
+import Snackbar from "@/components/Snackbar";
 
 export default {
   name: "Login",
+  components: {Snackbar},
   data: () => ({
     value: true,
     user: {
@@ -110,7 +114,7 @@ export default {
       isLoggingIn: true,
       shouldStayLoggedIn: true,
     },
-  
+    
   }),
   computed: {
     matchRule() {
@@ -139,7 +143,9 @@ export default {
         }
         const response = await fetch(urls.login, requestOption);
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
+  
+  
         if (data.code === 200) {
           if (this.options.shouldStayLoggedIn) {
             // expired in 5 days.
@@ -151,7 +157,10 @@ export default {
             storage.set('token', data.token, 60);
           }
           await this.$router.push('/workspace');
+        } else {
+          this.snackbarInfo(data.message);
         }
+  
       } else {
         const requestOption = {
           method: "POST",
@@ -160,14 +169,19 @@ export default {
         }
         const response = await fetch(urls.insertUser, requestOption);
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         if (data.code === 200)
           this.options.isLoggingIn = true;
         else
-          alert(data.message);
+          this.snackbarInfo(data.message);
       }
     },
-    
+    snackbarInfo(text) {
+      // this.$refs.snackbar.update(text, true);
+      this.$refs.snackbar.timeout = 2000;
+      this.$refs.snackbar.text = text;
+      this.$refs.snackbar.show = true;
+    }
   }
 }
 

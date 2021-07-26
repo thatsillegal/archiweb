@@ -26,7 +26,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
-          color="green darken-1"
+          color="primary darken-1"
           text
           @click="remove(token)"
           rounded
@@ -69,7 +69,7 @@ export default {
       let headers = new Headers();
       headers.append("Content-Type", "application/json");
       headers.append("Token", storage.get('token'));
-      console.log(headers)
+      // console.log(headers)
       const requestOption = {
         method: "POST",
         headers: headers,
@@ -78,20 +78,18 @@ export default {
       const response = await fetch(urls.deleteToken, requestOption);
   
       const res = await response.json();
-      console.log(res);
+      // console.log(res);
       if (res.code === 200) {
         this.dialog = false;
         this.$parent.$parent.refresh()
         this.$parent.$parent.snackbarInfo("Delete successful");
       } else {
-        this.$parent.$parent.snackbarInfo("Error: " + res.message);
+        this.$parent.$parent.snackbarInfo(res.message);
       }
       this.loading = false;
     },
     cancel() {
       this.dialog = false;
-      // console.log(this.$parent.$parent);
-      // console.log(this.$parent.$parent.refresh())
     }
   },
   

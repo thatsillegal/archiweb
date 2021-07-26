@@ -13,7 +13,7 @@
       
           <h2> Alive Users</h2>
           <v-spacer></v-spacer>
-          <v-chip color="green" dark>
+          <v-chip color=primary dark>
             {{ alive.length }}
           </v-chip>
         </v-row>
@@ -27,7 +27,7 @@
           <v-card-text>
             {{ t.socket }}
           </v-card-text>
-          <v-chip color="success" small class="ma-4"> ALIVE</v-chip>
+          <v-chip color=primary small dark class="ma-4"> ALIVE</v-chip>
         </v-card>
         <v-row class="my-5 mx-1">
       
@@ -128,7 +128,7 @@ export default {
       this.table.loading = false;
     },
     getColor(it) {
-      if (it) return "green";
+      if (it) return "primary";
       else return "grey"
     }
   }
