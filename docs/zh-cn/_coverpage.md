@@ -11,4 +11,4 @@
 - 简化不同编程背景的合作
 
 [GitHub](https://github.com/Inst-AAA/archiweb/)
-[中文文档](/zh-cn/)
+[English](/)
