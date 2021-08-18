@@ -4,11 +4,10 @@
 
 # ArchiWeb <small>0.2.0</small>
 
-> 一个神奇的文档网站生成器。
+> Web-based Open Source Framework and Editor for Computational Design
 
-- 简单、轻便 (压缩后 ~21kB)
-- 无需生成 html 文件
-- 众多主题
+- A novel media for architects to express design, enable architects to quickly build web applications and render parametric designs as web pages
+- Simplifying collaboration between individuals and teams with a various programming background
 
 [GitHub](https://github.com/Inst-AAA/archiweb/)
 [中文文档](/zh-cn/)
