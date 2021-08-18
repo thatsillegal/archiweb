@@ -9,14 +9,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <style>
+    nav.app-nav{
+      position: absolute;
+    }
     nav.app-nav li ul {
       min-width: 100px;
+      
     }
 
   </style>
 </head>
 
 <body>
+
   <div id="app"></div>
 
   <script>
@@ -38,11 +43,15 @@
       },
       loadSidebar: true,
       alias: {
-        '/.*/_sidebar.md': '/_sidebar.md'
+        '/zh-cn/.*/_sidebar.md': '/zh-cn/_sidebar.md',
+        '/zh-cn/.*/_navbar.md': '/zh-cn/_navbar.md',
+        '/_.*/_sidebar.md': '/_sidebar.md',
+        '/_.*/_navbar.md': '/_navbar.md',
       },
       subMaxLevel: 2,
       coverpage: ['/', '/zh-cn/'],
       loadNavbar: true,
+      mergeNavbar: true,
     }
   </script>
   <!-- Docsify v4 -->

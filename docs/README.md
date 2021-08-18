@@ -74,7 +74,7 @@ We also provide [archiweb-java-template](https://github.com/Inst-AAA/archiweb-ja
 ### Quick start example
 
 After `npm run serve`, ArchiWeb opens a viewer from `index.js`. 
-![](imgs/2021-04-01-16-45-38.png)
+![](../imgs/2021-04-01-16-45-38.png)
 ``` javascript
 // file: front-end/src/index.js
 
@@ -95,34 +95,34 @@ ArchiWeb provides user a dat.gui entry. It's very simple to use;
 - `gui.gui` is the root folder
 - `gui.util` is the **util folder** at the top of controllers
 ##### InfoCard:
-![](imgs/infocard.gif)
+![](../imgs/infocard.gif)
 ##### Notification:
 comming soon...
 ##### OptionCard:
 You can write about the infomation and hotkeys of your application in the option card.
 The card can be open by clicking on the cog button.
-![](imgs/optioncard.gif)
+![](../imgs/optioncard.gif)
 
 #### Transformer
 Transform tool derive from THREE.TransformControl, just like Rhino Gumball
-![](imgs/transformer.gif)
+![](../imgs/transformer.gif)
 
 #### SceneBasic
 SceneBasic creates a basic architectural design environment, with ground, sky and fog.
-![](imgs/sunpos.gif)
+![](../imgs/sunpos.gif)
 
 #### DragFrames
 Multiselect tools  
-![](imgs/multiselect.gif)
+![](../imgs/multiselect.gif)
 
 #### MultiCamera
 Similar to SketchUp, you can use perspective camera and orthographic camera in the scene, and switch between them use hotkeys
 ##### multiple view
 press `C` to toggle between perspective and orthographic camera, view change hotkeys: `1-9`
-![](imgs/multiview.gif)
+![](../imgs/multiview.gif)
 
 ##### zoom to object
-![](imgs/zoom.gif)
+![](../imgs/zoom.gif)
 #### GeometryFactory
 This function provides basic [BufferGeometry](https://threejs.org/docs/index.html#api/en/core/BufferGeometry) prefered by architectural usage.
 

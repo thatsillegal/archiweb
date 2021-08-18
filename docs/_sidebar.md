@@ -1,4 +1,4 @@
 <!-- docs/_sidebar.md -->
 
-* [指南](basic/loader)
+* [Guide](_basic/gui)
 * [Home](/)
