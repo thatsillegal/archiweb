@@ -12,4 +12,4 @@
 [GitHub](https://github.com/Inst-AAA/archiweb/)
 [中文文档](/zh-cn/)
 
-![](https://source.unsplash.com/1920x1080/?building)
+![](https://source.unsplash.com/1600x900/?building)

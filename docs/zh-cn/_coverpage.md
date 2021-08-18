@@ -13,4 +13,4 @@
 [GitHub](https://github.com/Inst-AAA/archiweb/)
 [English](/)
 
-![](https://source.unsplash.com/1920x1080/?building)
+![](https://source.unsplash.com/1600x900/?building)
